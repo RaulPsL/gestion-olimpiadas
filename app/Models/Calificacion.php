@@ -30,8 +30,8 @@ class Calificacion extends Model
         'id',
         'created_at',
         'updated_at',
-        'id_olimpista',
-        'id_fase',
+        'olimpista_id',
+        'fase_id',
     ];
 
     /**

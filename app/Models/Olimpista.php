@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Traits\Casts\Enums\EstadoOlimpista;
+use App\Models\Traits\Casts\EstadoOlimpista;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,13 +45,16 @@ class Olimpista extends Model
         'semestre' => 'integer',
     ];
 
-    public function usuario() { return $this->belongsTo(Usuario::class); }
-
     public function calificacion() { return $this->hasMany(Calificacion::class); }
+
+    public function area() {
+        return $this->belongsToMany(Area::class, 'olimpista_areas')
+            ->withTimestamps();
+    }
 
     public function fase() {
         return $this->belongsToMany(Fase::class, 'calificacions')
-            ->withPivot('puntaje')
+            ->withPivot('puntaje', 'comentarios')
             ->withTimestamps();
     }
 }

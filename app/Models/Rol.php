@@ -30,8 +30,9 @@ class Rol extends Model
         'id',
         'created_at',
         'updated_at',
-        'id_area',
     ];
 
-    public function usuarioInterno() { return $this->belongsToMany(UsuarioInterno::class); }
+    public function usuario() { return $this->belongsToMany(Usuario::class, 'usuario_roles'); }
+
+    public function menus() { return $this->belongsToMany(Menu::class, 'rol_menus'); }
 }

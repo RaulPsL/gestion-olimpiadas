@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Traits\Casts\Enums\EstadoFase;
-use App\Models\Traits\Casts\Enums\Tipo;
+use App\Models\Traits\Casts\EstadoFase;
+use App\Models\Traits\Casts\TipoFase;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -50,18 +50,17 @@ class Fase extends Model
         'fecha_inicio' => 'datetime',
         'fecha_fin' => 'datetime',
         'estado' => EstadoFase::class,
-        'tipo_fase' => Tipo::class,
+        'tipo_fase' => TipoFase::class,
         'cantidad_max_participantes' => 'integer',
         'cantidad_min_participantes' => 'integer',
     ];
 
     public function area() { return $this->belongsTo(Area::class); }
 
-    public function calificacion() { return $this->hasMany(Calificacion::class); }
+    public function calificacions() { return $this->hasMany(Calificacion::class); }
 
     public function olimpistas() {
         return $this->belongsToMany(Olimpista::class, 'calificacions')
-            ->withPivot('puntaje')
-            ->withTimestamps();
+            ->withPivot('puntaje', 'comentarios');
     }
 }

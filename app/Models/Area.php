@@ -34,4 +34,10 @@ class Area extends Model
     ];
 
     public function fases() { return $this->hasMany(Fase::class); }
+
+    public function olimpistas() {
+        return $this->belongsToMany(Olimpista::class, 'olimpista_areas'); 
+    }
+
+    public function usuarios() { return $this->belongsToMany(Usuario::class, 'usuario_areas');}
 }

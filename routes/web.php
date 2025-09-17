@@ -21,4 +21,4 @@ use Illuminate\Support\Facades\Route;
 //     return view('app');
 // });
 
-Route::view('/{any}', 'app')->where('any', '.*');
+Route::view('/{any}', 'app')->where('any', '^(?!api).*');

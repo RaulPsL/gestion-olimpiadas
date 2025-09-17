@@ -32,7 +32,6 @@ class Usuario extends Model
      */
     protected $hidden = [
         'id',
-        'email',
         'password',
         'remember_token',
         'created_at',
@@ -48,7 +47,7 @@ class Usuario extends Model
         'password' => 'hashed',
     ];
 
-    public function olimpista() { return $this->hasOne(Olimpista::class); }
+    public function roles() { return $this->belongsToMany(Rol::class, 'usuario_rols'); }
 
-    public function interno() { return $this->hasOne(UsuarioInterno::class); }
+    public function areas() { return $this->belongsToMany(Area::class, 'usuario_areas'); }
 }

@@ -17,10 +17,9 @@ class Log extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'id_usuario_interno',
+        'usuario_id',
         'accion',
         'tabla',
-        'ip_address',
     ];
 
     /**
@@ -32,5 +31,10 @@ class Log extends Model
         'id',
         'created_at',
         'updated_at',
+        'usuario_id',
     ];
+
+    public function usuario() {
+        return $this->belongsTo(Usuario::class, 'usuario_id');
+    }
 }

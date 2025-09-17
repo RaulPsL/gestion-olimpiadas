@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rol_menus', function (Blueprint $table) {
+        Schema::create('olimpista_areas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rol_id')->constrained()->onDelete('cascade');
-            $table->foreignId('menu_id')->constrained()->onDelete('cascade');
+            $table->foreignId('olimpista_id')->constrained()->onDelete('cascade');
+            $table->foreignId('area_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            $table->unique(['rol_id','menu_id']);
+            $table->unique(['olimpista_id','area_id']);
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rol_menus');
+        Schema::dropIfExists('olimpista_area');
     }
 };
