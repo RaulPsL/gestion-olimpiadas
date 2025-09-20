@@ -18,6 +18,9 @@ class Olimpista extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'nombres',
+        'apellido_paterno',
+        'apellido_materno',
         'codigo_sis',
         'semestre',
         'estado',
@@ -45,16 +48,14 @@ class Olimpista extends Model
         'semestre' => 'integer',
     ];
 
-    public function calificacion() { return $this->hasMany(Calificacion::class); }
+    public function calificacions() { return $this->hasMany(Calificacion::class); }
 
-    public function area() {
-        return $this->belongsToMany(Area::class, 'olimpista_areas')
-            ->withTimestamps();
+    public function areas() {
+        return $this->belongsToMany(Area::class, 'olimpista_areas');
     }
 
-    public function fase() {
+    public function fases() {
         return $this->belongsToMany(Fase::class, 'calificacions')
-            ->withPivot('puntaje', 'comentarios')
-            ->withTimestamps();
+            ->withPivot('puntaje', 'comentarios');
     }
 }

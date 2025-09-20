@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Olimpista;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OlimpistasController extends Controller
 {
@@ -13,16 +14,65 @@ class OlimpistasController extends Controller
      */
     public function index()
     {
-        $olimpistas = Olimpista::all();
-        return response()->json($olimpistas);
+        try {
+            $olimpistas = Olimpista::all();
+            return response()->json([
+                'data' => $olimpistas,
+                'status' => 200
+            ]);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function store()
+    public function store(Request $request)
     {
-        //
+        Log::info('POST request received in store method', $request->all());
+        $request->validate([
+            'nombres' => 'required|string',
+            'apellido_paterno' => 'required|string',
+            'apellido_materno' => 'required|string',
+            'codigo_sis' => 'required|integer',
+        ]);
+
+        try {
+            $olimpista = Olimpista::where('codigo_sis', $request->codigo_sis)->first();
+            if ($olimpista) {
+                return response()->json([
+                    'message' => "Olimpista $olimpista->codigo_sis ya existe.",
+                    'data' => $olimpista,
+                    'status' => 200,
+                ]); 
+            }
+            $new_olimpista = Olimpista::create($request->all());
+            if ($request->has('areas') and count($request->areas) > 0) {
+                $areas = Area::whereIn('sigla', $request->areas)->with('fases')->get();
+                $fases = $areas->map(function ($area) {
+                    return $area->primeraFase()?->id;
+                })->filter()->toArray();
+                if (!empty($areas)) {
+                    $new_olimpista->areas()->attach($areas->pluck('id')->toArray());
+                }
+                if (!empty($fases)) {
+                    $new_olimpista->fases()->attach($fases, ['puntaje' => 0.00, 'comentarios' => '']);
+                }
+            }
+            $new_olimpista = Olimpista::with('fases.area')->find($new_olimpista->id);
+            return response()->json([
+                'message' => "Olimpista creado exitosamente.",
+                'data' => $new_olimpista,
+                'status' => 201
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al crear olimpista',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
 
     /**
@@ -99,22 +149,50 @@ class OlimpistasController extends Controller
     public function update(Request $request, int $codsis)
     {
         try {
-            $validate_request = $request->validate([
-                'codsis' => 'required',
-                'nombres' => 'required',
-                'apellidos' => 'required',
-                'area' => 'required',
-                'fase' => 'required',
-            ]);
-            $nuevo_olimpista = Olimpista::findOrFail($codsis);
-            $nuevo_olimpista->update($request->all());
+            $nuevo_olimpista = Olimpista::where('codigo_sis', $codsis)->first();
+            $datos_actualizar = $request->only($nuevo_olimpista->getFillable());
+            foreach ($datos_actualizar as $campo => $valor) {
+                if ($nuevo_olimpista->$campo != $valor) {
+                    $hayCambios = true;
+                    break;
+                }
+            }
+
+            if ($hayCambios) {
+                $nuevo_olimpista->update($datos_actualizar);
+            }
+
+            if ($nuevo_olimpista != null) {
+                if ($request->has('areas') and count($request->areas) > 0) {
+                    $areas = Area::whereIn('sigla', $request->areas)->with('fases')->get();
+                    $fases = $areas->map(function ($area) {
+                        return $area->primeraFase()?->id;
+                    })->filter()->toArray();
+                    if (!empty($areas)) {
+                        $nuevo_olimpista->areas()->attach($areas->pluck('id')->toArray());
+                    }
+                    if (!empty($fases)) {
+                        $nuevo_olimpista->fases()->attach($fases, ['puntaje' => 0.00, 'comentarios' => '']);
+                    }
+                }
+                $nuevo_olimpista->update($datos_actualizar);
+                
+                return response()->json([
+                    'message' => "Olimpista $codsis Actualizado.",
+                    'data' => $nuevo_olimpista,
+                    'status' => 202,
+                ]);
+            }
             return response()->json([
-                'message' => "Olimpista $codsis Actualizado.",
-                'data' => $nuevo_olimpista,
+                'message' => "No se encontro al olimpista $codsis.",
                 'status' => 200,
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
+            return response()->json([
+                'message' => 'Error al actualizar olimpista',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 

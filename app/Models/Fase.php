@@ -53,6 +53,7 @@ class Fase extends Model
         'tipo_fase' => TipoFase::class,
         'cantidad_max_participantes' => 'integer',
         'cantidad_min_participantes' => 'integer',
+        'puntaje_minimo' => 'integer',
     ];
 
     public function area() { return $this->belongsTo(Area::class); }
