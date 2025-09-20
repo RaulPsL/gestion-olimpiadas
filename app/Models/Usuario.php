@@ -23,6 +23,7 @@ class Usuario extends Model
         'celular',
         'email',
         'password',
+        'ci',
     ];
 
     /**

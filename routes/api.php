@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\LogRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,24 +27,23 @@ Route::middleware(['api', 'log.requests'])
 
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [App\Http\Controllers\UsuariosController::class, 'index']);
-    Route::get('/{uuid}', [App\Http\Controllers\UsuariosController::class, 'show']);
-    Route::put('/{uuid}', [App\Http\Controllers\UsuariosController::class, 'update']);
-    Route::delete('/{uuid}', [App\Http\Controllers\UsuariosController::class, 'destroy']);
+    Route::get('/{ci}', [App\Http\Controllers\UsuariosController::class, 'show']);
+    Route::put('/{ci}', [App\Http\Controllers\UsuariosController::class, 'update']);
+    Route::delete('/{ci}', [App\Http\Controllers\UsuariosController::class, 'destroy']);
 });
 
 Route::prefix('fases')->group(function () {
-    Route::post('/fases', [App\Http\Controllers\FasesController::class, 'store']);
-    Route::get('/fases/{area}', [App\Http\Controllers\FasesController::class, 'showByArea']);
-    Route::put('/fases/{uuid}', [App\Http\Controllers\FasesController::class, 'update']);
-    Route::delete('/fases/{uuid}', [App\Http\Controllers\FasesController::class, 'destroy']);
+    Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
+    Route::put('/', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
+    Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
 });
 
 Route::prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);
-    Route::get('/{fase}', [App\Http\Controllers\AreasController::class, 'showByFase']);
-    Route::put('/{uuid}', [App\Http\Controllers\AreasController::class, 'update']);
-    Route::delete('/{uuid}', [App\Http\Controllers\AreasController::class, 'destroy']);
+    Route::get('/{estado}', [App\Http\Controllers\AreasController::class, 'showByFase']);
+    Route::put('/{sigla}', [App\Http\Controllers\AreasController::class, 'update']);
+    Route::delete('/{sigla}', [App\Http\Controllers\AreasController::class, 'destroy']);
 });
 
 Route::prefix('calasificaciones')->group(function () {
@@ -63,8 +61,8 @@ Route::prefix('clasificaciones')->group(function () {
     Route::get('/{area}/{fase}', [App\Http\Controllers\ClasificasionController::class, 'showByFase']);
 });
 
-Route::post('/register', [App\Http\Controllers\OlimpistasController::class, 'register']);
-Route::post('/login', [App\Http\Controllers\OlimpistasController::class, 'login']);
+Route::post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
+Route::post('/login', [App\Http\Controllers\UsuariosController::class, 'login']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

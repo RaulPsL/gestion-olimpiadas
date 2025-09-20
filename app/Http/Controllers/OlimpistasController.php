@@ -150,31 +150,34 @@ class OlimpistasController extends Controller
     {
         try {
             $nuevo_olimpista = Olimpista::where('codigo_sis', $codsis)->first();
-            $datos_actualizar = $request->only($nuevo_olimpista->getFillable());
-            foreach ($datos_actualizar as $campo => $valor) {
-                if ($nuevo_olimpista->$campo != $valor) {
-                    $hayCambios = true;
-                    break;
-                }
-            }
-
-            if ($hayCambios) {
-                $nuevo_olimpista->update($datos_actualizar);
-            }
-
             if ($nuevo_olimpista != null) {
+                $datos_actualizar = $request->only($nuevo_olimpista->getFillable());
+                foreach ($datos_actualizar as $campo => $valor) {
+                    if ($nuevo_olimpista->$campo != $valor) {
+                        $hayCambios = true;
+                        break;
+                    }
+                }
+
+                if ($hayCambios) {
+                    $nuevo_olimpista->update($datos_actualizar);
+                }
+
                 if ($request->has('areas') and count($request->areas) > 0) {
                     $areas = Area::whereIn('sigla', $request->areas)->with('fases')->get();
                     $fases = $areas->map(function ($area) {
                         return $area->primeraFase()?->id;
                     })->filter()->toArray();
+
                     if (!empty($areas)) {
                         $nuevo_olimpista->areas()->attach($areas->pluck('id')->toArray());
                     }
+
                     if (!empty($fases)) {
                         $nuevo_olimpista->fases()->attach($fases, ['puntaje' => 0.00, 'comentarios' => '']);
                     }
                 }
+
                 $nuevo_olimpista->update($datos_actualizar);
                 
                 return response()->json([
@@ -183,6 +186,7 @@ class OlimpistasController extends Controller
                     'status' => 202,
                 ]);
             }
+            
             return response()->json([
                 'message' => "No se encontro al olimpista $codsis.",
                 'status' => 200,
@@ -214,7 +218,11 @@ class OlimpistasController extends Controller
                 'status' => 400,
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al eliminar olimpista',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 }
