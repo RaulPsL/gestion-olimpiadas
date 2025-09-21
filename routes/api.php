@@ -41,24 +41,23 @@ Route::prefix('fases')->group(function () {
 Route::prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);
-    Route::get('/{estado}', [App\Http\Controllers\AreasController::class, 'showByFase']);
+    Route::get('/{sigla}', [App\Http\Controllers\AreasController::class, 'show']);
+    Route::get('/fases/{sigla}', [App\Http\Controllers\AreasController::class, 'showByFase']);
     Route::put('/{sigla}', [App\Http\Controllers\AreasController::class, 'update']);
     Route::delete('/{sigla}', [App\Http\Controllers\AreasController::class, 'destroy']);
 });
 
-Route::prefix('calasificaciones')->group(function () {
-    Route::get('/', [App\Http\Controllers\CalificacionesController::class, 'index']);
+Route::prefix('calificaciones')->group(function () {
+    Route::post('/{codsis}', [App\Http\Controllers\CalificacionesController::class, 'store']);
     Route::get('/{area}', [App\Http\Controllers\CalificacionesController::class, 'showByArea']);
     Route::get('/{area}/{fase}', [App\Http\Controllers\CalificacionesController::class, 'showByFase']);
     Route::get('/{olimpista}', [App\Http\Controllers\CalificacionesController::class, 'showByOlimpista']);
-    Route::post('/', [App\Http\Controllers\CalificacionesController::class, 'store']);
     Route::put('/{codsis}', [App\Http\Controllers\CalificacionesController::class, 'update']);
 });
 
 Route::prefix('clasificaciones')->group(function () {
     Route::get('/', [App\Http\Controllers\ClasificasionController::class, 'index']);
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
-    Route::get('/{area}/{fase}', [App\Http\Controllers\ClasificasionController::class, 'showByFase']);
 });
 
 Route::post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);

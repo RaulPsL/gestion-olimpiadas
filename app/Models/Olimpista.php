@@ -48,7 +48,7 @@ class Olimpista extends Model
         'semestre' => 'integer',
     ];
 
-    public function calificacions() { return $this->hasMany(Calificacion::class); }
+    public function calificaciones() { return $this->hasMany(Calificacion::class); }
 
     public function areas() {
         return $this->belongsToMany(Area::class, 'olimpista_areas');

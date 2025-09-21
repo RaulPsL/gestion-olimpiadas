@@ -71,7 +71,7 @@ class AreasController extends Controller
 
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Error al obtener las areas.',
+                'message' => 'Error al crear el area.',
                 'error' => $th->getMessage(),
             ], 500);
         }
@@ -80,15 +80,54 @@ class AreasController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $sigla)
     {
-        //
+        try {
+            $area = Area::where('sigla', $sigla)->first();
+            if ($area) {
+                return response()->json([
+                    'message' => "Area obtenida exitosamente.",
+                    'data' => $area,
+                ], 200);
+            }
+            return response()->json([
+                'message' => "Area no encontrada.",
+                'data' => [],
+            ], 404);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener las areas.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function showByFase(string $sigla)
+    {
+        try {
+            $areas = Area::with('fases.olimpistas')->where('sigla', $sigla)->get();
+            if ($areas) {
+                return response()->json([
+                    'message' => "Area obtenida exitosamente.",
+                    'data' => $areas,
+                ], 200);
+            }
+            return response()->json([
+                'message' => "Area no encontrada.",
+                'data' => [],
+            ], 404);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener las areas.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $sigla)
     {
         //
     }
@@ -96,8 +135,26 @@ class AreasController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $sigla)
     {
-        //
+        try {
+            $area = Area::where('sigla', $sigla)->first();
+            if ($area) {
+                $area->delete();
+                return response()->json([
+                    'message' => "Area eliminada exitosamente.",
+                    'data' => [],
+                ], 200);
+            }
+            return response()->json([
+                'message' => "Area no encontrada.",
+                'data' => [],
+            ], 404);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al eliminar el area.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 }
