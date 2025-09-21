@@ -18,6 +18,7 @@ Route::middleware(['api', 'log.requests'])
     ->prefix('olimpistas')->group(function () {
         Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
         Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('olimpistas.store');
+        Route::post('/file', [App\Http\Controllers\OlimpistasController::class, 'storeByFile'])->name('olimpistas.storeByFile');
         Route::get('/area/{area}', [App\Http\Controllers\OlimpistasController::class, 'showByArea'])->name('olimpistas.area');
         Route::get('/fase/{area}/{fase}', [App\Http\Controllers\OlimpistasController::class, 'showByFase'])->name('olimpistas.fase');
         Route::get('/{codsis}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('olimpistas.show');

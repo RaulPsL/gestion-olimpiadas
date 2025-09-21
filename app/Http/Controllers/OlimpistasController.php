@@ -21,7 +21,11 @@ class OlimpistasController extends Controller
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener los olimpistas.',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -68,9 +72,21 @@ class OlimpistasController extends Controller
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Error al crear olimpista',
+                'message' => 'Error al crear olimpista.',
                 'error' => $th->getMessage(),
                 'status' => 500
+            ], 500);
+        }
+    }
+
+    public function storeByFile(Request $request)
+    {
+        try {
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al crear a los olimpistas.',
+                'error' => $th->getMessage(),
             ], 500);
         }
     }
@@ -94,7 +110,11 @@ class OlimpistasController extends Controller
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener al olimpista',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -110,7 +130,11 @@ class OlimpistasController extends Controller
                     ->where('sigla', $sigla)
                     ->get());
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener a los olimpistas.',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -139,7 +163,11 @@ class OlimpistasController extends Controller
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener a los olimpistas.',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -219,7 +247,7 @@ class OlimpistasController extends Controller
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Error al eliminar olimpista',
+                'message' => 'Error al eliminar al olimpista.',
                 'error' => $th->getMessage(),
                 'status' => 500
             ], 500);

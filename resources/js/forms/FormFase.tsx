@@ -5,41 +5,26 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox } from "@/components/Combobox";
+import { DateTimePicker } from "@/components/DateTimePicker";
 
-export default function FormOlimpista() {
+export default function FormFase() {
     // const { register } = useFormContext();
 
     return (
         <Card className="w-full max-w-sm">
-            <CardHeader>
+            {/* <CardHeader>
                 <CardTitle>Registro de olimpistas</CardTitle>
                 <CardDescription>
                     Ingrese los campos que son obligatrios para el registro
                 </CardDescription>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent>
                 <form>
                     <div className="flex flex-col gap-6">
-                        <div>
-                            <Label htmlFor="name">Nombre</Label>
-                            <Input
-                                id="name"
-                                type="text"
-                                placeholder="John Doe"
-                                required
-                            />
-                        </div>
+                        <DateTimePicker titleDate="Fecha inicio" titleTime="Hora inicio" />
+                        <DateTimePicker titleDate="Fecha fin" titleTime="Hora Fin" />
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Correo</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="example@est.umss.edu"
-                                required
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Codigo Sis</Label>
+                            <Label htmlFor="password">Cantidad participantes</Label>
                             <Input 
                                 id="password" 
                                 type="number"
@@ -48,6 +33,10 @@ export default function FormOlimpista() {
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="area">Area de concurso</Label>
+                            <Combobox /> 
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="area">Evaluador</Label>
                             <Combobox /> 
                         </div>
                     </div>
