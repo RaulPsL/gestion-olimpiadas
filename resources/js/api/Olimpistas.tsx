@@ -8,12 +8,12 @@ export const getOlimpistas = async () => {
 
 export const createOlimpista = async (
     data: OlimpistaForm,
-    setIsLoading: any,
-    setSuccess: any,
-    setApiError: any,
-    setSelectedArea: any,
-    reset: any,
-    selectedArea: any
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
+    setApiError: React.Dispatch<React.SetStateAction<string>>,
+    setSelectedArea: React.Dispatch<React.SetStateAction<string[]>>,
+    reset: () => void,
+    selectedArea: string
 ) => {
     setIsLoading(true);
     setApiError("");
@@ -35,7 +35,7 @@ export const createOlimpista = async (
 
         console.log("Enviando datos:", formData);
 
-        const result = await axiosInstance.post("/olimpistas", data);
+        const result = await axiosInstance.post("/olimpistas", formData);
         
         console.log("Respuesta del servidor:", result.data);
         setSuccess(true);

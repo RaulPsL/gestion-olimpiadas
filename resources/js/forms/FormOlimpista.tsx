@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Combobox } from "@/components/Combobox";
+import { Combobox, useComboboxField } from "@/components/Combobox";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { createOlimpista } from "@/api/Olimpistas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -16,6 +16,14 @@ export default function FormOlimpista() {
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
     const [selectedArea, setSelectedArea] = React.useState<string[]>([]);
+
+    const mockAreas = [
+    { id: 1, value: "MAT", label: "Matemáticas" },
+    { id: 2, value: "FIS", label: "Física" },
+    { id: 3, value: "QUI", label: "Química" },
+    { id: 4, value: "BIO", label: "Biología" },
+    { id: 5, value: "INFO", label: "Informática" }
+    ];
 
     const {
         register,
@@ -35,6 +43,7 @@ export default function FormOlimpista() {
             area: []
         }
     });
+    const areaField = useComboboxField("area", setValue, false);
 
     const handleAreaChange = (areas: string[]) => {
         setSelectedArea(areas);
@@ -165,10 +174,12 @@ export default function FormOlimpista() {
                         Área de Competencia <span className="text-red-500">*</span>
                     </Label>
                     <Combobox
-                        value={selectedArea}
-                        onChange={handleAreaChange}
-                        placeholder="Seleccionar áreas..."
-                        multiple={true}
+                        items={mockAreas}
+                        value={areaField.value}
+                        onChange={areaField.onChange}
+                        placeholder="Seleccionar área..."
+                        searchPlaceholder="Buscar área..."
+                        multiple={false}
                     />
                     {selectedArea.length === 0 && apiError.includes("área") && (
                         <p className="text-sm text-red-500">Debe seleccionar al menos un área</p>
@@ -185,9 +196,9 @@ export default function FormOlimpista() {
                                 setIsLoading,
                                 setSuccess,
                                 setApiError,
-                                setSelectedArea,
+                                () => areaField.reset(),
                                 reset,
-                                selectedArea
+                                areaField.value[0] as string || "",
                             )
                         )} 
                     className="w-full"

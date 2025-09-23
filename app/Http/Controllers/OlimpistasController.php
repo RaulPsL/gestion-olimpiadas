@@ -16,7 +16,7 @@ class OlimpistasController extends Controller
     public function index()
     {
         try {
-            $olimpistas = Olimpista::all();
+            $olimpistas = Olimpista::with(['areas', 'fases'])->get();
             return response()->json([
                 'data' => $olimpistas,
                 'status' => 200

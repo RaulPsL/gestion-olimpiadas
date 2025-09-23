@@ -13,8 +13,8 @@ export const getUsuario = async (uuid: string) => {
 
 export const createUsuario = async (
     data: UsuarioForm,
-    selectedAreas: string[],
-    selectedRoles: string[],
+    selectedAreas: string,
+    selectedRoles: string,
     setIsLoading: any,
     setSuccess: any,
     setApiError: any,

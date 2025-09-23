@@ -134,16 +134,15 @@ class UsuariosController extends Controller
     public function register(Request $request){
         try {
             $request->validate([
-                'nombres' => 'required|string',
-                'apellido_paterno' => 'required|string',
-                'apellido_materno' => 'required|string',
+                'nombre' => 'required|string',
+                'apellido' => 'required|string',
                 'ci' => 'required|integer',
-                'celular' => 'required|number',
+                'celular' => 'required|integer',
                 'email' => 'required|string',
                 'password' => 'required|string',
             ]);
 
-            $usuario = Usuario::findOrFail($request->ci);
+            $usuario = Usuario::where('ci', $request->ci)->first();
 
             if ($usuario) {
                 return response()->json([

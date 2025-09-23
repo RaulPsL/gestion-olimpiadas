@@ -59,6 +59,10 @@ class Fase extends Model
 
     public function calificacions() { return $this->hasMany(Calificacion::class); }
 
+    public function usuarios() {
+        return $this->belongsToMany(Usuario::class, 'usuario_fases');
+    }
+
     public function olimpistas() {
         return $this->belongsToMany(Olimpista::class, 'calificacions')
             ->withPivot('puntaje', 'comentarios');

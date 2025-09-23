@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Traits\HasUuid;
 
 class Usuario extends Model
 {
-    use HasFactory, HasUuid;
+    use HasFactory;
 
     protected $table = "usuarios";
 
@@ -34,7 +33,6 @@ class Usuario extends Model
     protected $hidden = [
         'id',
         'password',
-        'remember_token',
         'created_at',
         'updated_at',
     ];
@@ -51,4 +49,6 @@ class Usuario extends Model
     public function roles() { return $this->belongsToMany(Rol::class, 'usuario_rols'); }
 
     public function areas() { return $this->belongsToMany(Area::class, 'usuario_areas'); }
+
+    public function fases() { return $this->belongsToMany(Fase::class, 'usuario_fases'); }
 }

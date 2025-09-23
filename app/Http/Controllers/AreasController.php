@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Area;
 use App\Models\Traits\Casts\EstadoFase;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class AreasController extends Controller
@@ -130,7 +131,8 @@ class AreasController extends Controller
     public function update(Request $request, string $sigla)
     {
         try {
-            $area = Area::where('sigla', $sigla)->first();
+            $area = $sigla !== '' ? Area::where('sigla', $sigla)->first() : null;
+            $creacion_fases = false;
             if ($area and $request->has('fases')) {
                 $request->validate([
                     'fases.*.sigla' => 'required|string',
@@ -140,10 +142,15 @@ class AreasController extends Controller
                     'fases.*.cantidad_min_participantes' => 'required|integer',
                     'fases.*:fecha_inicio' => 'required|date',
                     'fases.*:fecha_fin' => 'required|date',
+                    // 'fases.*.usuario' => 'required|exists:usuarios,ci',
                 ]);
+                // $usuariosCel = collect($request->fases)->pluck('usuario')->unique();
+                // $usuarios = Usuario::whereIn('ci', $usuariosCel)->get();
+                // $area->fases()->detach($usuarios->pluck('id')->toArray());
                 $area->fases()->createMany($request->fases);
                 $creacion_fases = true;
-            } else {
+            } 
+            if ($area) {
                 $area->fases()->create([
                     'sigla' => $request->sigla."F1",
                     'tipo_fase' => EstadoFase::Pendiente->value,

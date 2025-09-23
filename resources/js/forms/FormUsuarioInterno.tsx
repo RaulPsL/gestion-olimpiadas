@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Combobox } from "@/components/Combobox";
+import { Combobox, useComboboxField } from "@/components/Combobox";
 import { UsuarioForm } from "./interfaces/Usuario";
 import { createUsuario } from "@/api/Usuarios";
 import { AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
@@ -20,6 +20,28 @@ export default function FormUsuario() {
     const [showPassword, setShowPassword] = React.useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
+    const mockAreas = [
+    { id: 1, value: "MAT", label: "Matemáticas" },
+    { id: 2, value: "FIS", label: "Física" },
+    { id: 3, value: "QUI", label: "Química" },
+    { id: 4, value: "BIO", label: "Biología" },
+    { id: 5, value: "INFO", label: "Informática" }
+    ];
+
+    const mockTiposFase = [
+    { id: 1, value: "clasificatorias", label: "Clasificatorias" },
+    { id: 2, value: "semifinal", label: "Semifinal" },
+    { id: 3, value: "final", label: "Final" },
+    { id: 4, value: "eliminatoria", label: "Eliminatoria" }
+    ];
+
+    const mockRoles = [
+        { id: 1, value: "admin", label: "Administrador" },
+        { id: 2, value: "profesor", label: "Profesor" },
+        { id: 3, value: "estudiante", label: "Estudiante" },
+        { id: 4, value: "coordinador", label: "Coordinador" },
+        { id: 5, value: "invitado", label: "Invitado" }
+    ];
     const {
         register,
         handleSubmit,
@@ -43,15 +65,9 @@ export default function FormUsuario() {
         }
     });
 
-    const handleAreasChange = (areas: string[]) => {
-        setSelectedAreas(areas);
-        setValue("areas", areas);
-    };
-
-    const handleRolesChange = (roles: string[]) => {
-        setSelectedRoles(roles);
-        setValue("roles", roles);
-    };
+    const rolesField = useComboboxField("roles", setValue, false);
+    const areaField = useComboboxField("areas", setValue, false);
+    // const evaluadoresField = useComboboxField("evaluadores", setValue, true);
 
     return (
         <Card className="w-full max-w-2xl mx-auto">
@@ -230,10 +246,12 @@ export default function FormUsuario() {
                                 Áreas (Opcional)
                             </Label>
                             <Combobox
-                                value={selectedAreas}
-                                onChange={handleAreasChange}
-                                placeholder="Seleccionar áreas..."
-                                multiple={true}
+                                items={mockAreas}
+                                value={areaField.value}
+                                onChange={areaField.onChange}
+                                placeholder="Seleccionar área..."
+                                searchPlaceholder="Buscar área..."
+                                multiple={false}
                             />
                         </div>
 
@@ -243,16 +261,12 @@ export default function FormUsuario() {
                                 Roles <span className="text-red-500">*</span>
                             </Label>
                             <Combobox
-                                value={selectedRoles}
-                                onChange={handleRolesChange}
-                                placeholder="Seleccionar roles..."
-                                multiple={true}
-                                options={[
-                                    { value: 'admin', label: 'Administrador' },
-                                    { value: 'coordinator', label: 'Coordinador' },
-                                    { value: 'judge', label: 'Juez' },
-                                    { value: 'user', label: 'Usuario' }
-                                ]}
+                                items={mockRoles}
+                                value={rolesField.value}
+                                onChange={rolesField.onChange}
+                                placeholder="Seleccionar área..."
+                                searchPlaceholder="Buscar área..."
+                                multiple={false}
                             />
                             {selectedRoles.length === 0 && apiError.includes("rol") && (
                                 <p className="text-sm text-red-500">Debe seleccionar al menos un rol</p>
@@ -268,14 +282,14 @@ export default function FormUsuario() {
                             handleSubmit(
                                 (data) => createUsuario(
                                     data,
-                                    selectedAreas,
-                                    selectedRoles,
+                                    areaField.value[0] as string || "",
+                                    rolesField.value[0] as string,
                                     setIsLoading,
                                     setSuccess,
                                     setApiError,
                                     reset,
-                                    setSelectedAreas,
-                                    setSelectedRoles
+                                    () => areaField.reset(),
+                                    () => rolesField.reset(),
                                 )
                             )} 
                         className="w-full"

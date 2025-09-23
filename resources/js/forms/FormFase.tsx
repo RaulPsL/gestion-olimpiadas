@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Combobox } from "@/components/Combobox";
+import { Combobox, useComboboxField } from "@/components/Combobox";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { FaseForm } from "./interfaces/Fase";
 import { validationRules } from "./validations/FaseValidate";
@@ -16,8 +16,29 @@ export default function FormFase() {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
-    const [selectedArea, setSelectedArea] = React.useState<string>("");
-    const [selectedEvaluadores, setSelectedEvaluadores] = React.useState<string[]>([]);
+
+    const mockAreas = [
+    { id: 1, value: "MAT", label: "Matemáticas" },
+    { id: 2, value: "FIS", label: "Física" },
+    { id: 3, value: "QUI", label: "Química" },
+    { id: 4, value: "BIO", label: "Biología" },
+    { id: 5, value: "INFO", label: "Informática" }
+    ];
+
+    const mockTiposFase = [
+    { id: 1, value: "clasificatorias", label: "Clasificatorias" },
+    { id: 2, value: "semifinal", label: "Semifinal" },
+    { id: 3, value: "final", label: "Final" },
+    { id: 4, value: "eliminatoria", label: "Eliminatoria" }
+    ];
+
+    const mockEvaluadores = [
+    { id: 1, value: "12345678", label: "Dr. Maria Lopez" },
+    { id: 2, value: "87654321", label: "Ing. María García" },
+    { id: 3, value: "11223344", label: "Prof. Carlos López" },
+    { id: 4, value: "44332211", label: "Dra. Ana Martínez" },
+    { id: 5, value: "55667788", label: "Lic. Pedro Rodríguez" }
+    ];
 
     const {
         register,
@@ -25,6 +46,7 @@ export default function FormFase() {
         formState: { errors },
         reset,
         setValue,
+        getValues,
         watch
     } = useForm<FaseForm>({
         defaultValues: {
@@ -39,6 +61,10 @@ export default function FormFase() {
             evaluadores: []
         }
     });
+
+    const tipoFaseField = useComboboxField("tipo_fase", setValue, false);
+    const areaField = useComboboxField("area", setValue, false);
+    const evaluadoresField = useComboboxField("evaluadores", setValue, true);
 
     return (
         <Card className="w-full">
@@ -69,7 +95,7 @@ export default function FormFase() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Campo Sigla */}
-                    <div className="space-y-2">
+                    {/* <div className="space-y-2">
                         <Label htmlFor="sigla">
                             Sigla <span className="text-red-500">*</span>
                         </Label>
@@ -83,14 +109,21 @@ export default function FormFase() {
                         {errors.sigla && (
                             <p className="text-sm text-red-500">{errors.sigla.message}</p>
                         )}
-                    </div>
+                    </div> */}
 
                     {/* Campo Tipo de Fase */}
                     <div className="space-y-2">
                         <Label htmlFor="tipo_fase">
                             Tipo de Fase <span className="text-red-500">*</span>
                         </Label>
-                        <Combobox />
+                        <Combobox
+                            items={mockTiposFase}
+                            value={tipoFaseField.value}
+                            onChange={tipoFaseField.onChange}
+                            placeholder="Seleccionar tipo de fase..."
+                            searchPlaceholder="Buscar tipo de fase..."
+                            multiple={false}
+                        />
                         {errors.tipo_fase && (
                             <p className="text-sm text-red-500">{errors.tipo_fase.message}</p>
                         )}
@@ -163,7 +196,7 @@ export default function FormFase() {
                         <DateTimePicker 
                             titleDate="Fecha inicio" 
                             titleTime="Hora inicio"
-                            onChange={(date) => setValue("fecha_inicio", date)}
+                            onChange={(date) => setValue("fecha_inicio", getValues("fecha_inicio"))}
                         />
                     </div>
                     <div className="space-y-2">
@@ -171,7 +204,7 @@ export default function FormFase() {
                         <DateTimePicker 
                             titleDate="Fecha fin" 
                             titleTime="Hora Fin"
-                            onChange={(date) => setValue("fecha_fin", date)}
+                            onChange={(date) => setValue("fecha_fin", getValues("fecha_fin"))}
                         />
                     </div>
                 </div>
@@ -181,12 +214,11 @@ export default function FormFase() {
                     <div className="space-y-2">
                         <Label>Área de Competencia <span className="text-red-500">*</span></Label>
                         <Combobox
-                            value={selectedArea ? [selectedArea] : []}
-                            onChange={(areas) => {
-                                setSelectedArea(areas[0] || "");
-                                setValue("area", areas[0] || "");
-                            }}
+                            items={mockAreas}
+                            value={areaField.value}
+                            onChange={areaField.onChange}
                             placeholder="Seleccionar área..."
+                            searchPlaceholder="Buscar área..."
                             multiple={false}
                         />
                     </div>
@@ -195,9 +227,11 @@ export default function FormFase() {
                     <div className="space-y-2">
                         <Label>Evaluadores</Label>
                         <Combobox
-                            value={selectedEvaluadores}
-                            onChange={setSelectedEvaluadores}
+                            items={mockEvaluadores}
+                            value={evaluadoresField.value}
+                            onChange={evaluadoresField.onChange}
                             placeholder="Seleccionar evaluadores..."
+                            searchPlaceholder="Buscar evaluadores..."
                             multiple={true}
                         />
                     </div>
@@ -214,10 +248,10 @@ export default function FormFase() {
                             setIsLoading,
                             setSuccess,
                             setApiError,
-                            selectedArea,
-                            selectedEvaluadores,
-                            setSelectedArea,
-                            setSelectedEvaluadores
+                            areaField.value[0] as string || "",
+                            evaluadoresField.value as string[],
+                            () => areaField.reset(),
+                            () => evaluadoresField.reset()
                         )
                     )} 
                     className="w-full"
@@ -233,8 +267,6 @@ export default function FormFase() {
                         className="w-full"
                         onClick={() => {
                             reset();
-                            setSelectedArea("");
-                            setSelectedEvaluadores([]);
                             setApiError("");
                         }}
                     >
