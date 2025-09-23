@@ -1,12 +1,12 @@
-import { Users } from "lucide-react";
+import { FlagTriangleRight } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import FormUsuarioInterno from "@/forms/FormUsuarioInterno";
 import TableInternos from "@/tables/TableInterno";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
 import { AppSidebar } from "@/components/AppSidebar";
+import FormFase from "@/forms/FormFase";
 
-export default function PageInterno() {
+export default function PageFase() {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -14,11 +14,11 @@ export default function PageInterno() {
                 <Header role={true} home/>
                 <div className="container mx-auto py-10">
                     <div className="flex w-full flex-row gap-6 p-4 items-center">
-                        <Users />
-                        <Label className="text-2xl">Encargado de area</Label>
+                        <FlagTriangleRight />
+                        <Label className="text-2xl">Preparacion de fase</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6 items-center">
-                        <FormUsuarioInterno tipoUsuario="encargado" />
+                        <FormFase />
                     </div>
                 </div>
             </SidebarInset>

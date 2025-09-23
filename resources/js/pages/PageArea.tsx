@@ -1,50 +1,49 @@
-import { AreaChart, Table } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { BookUser } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import TableAreas from "@/tables/TableAreas";
 import TableFases from "@/tables/TableFases";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import Header from "@/components/Header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function PageArea() {
     return (
-        <div className="container mx-auto py-10">
-            <div>
-                <AreaChart />
-                <Label className="text-2xl">Gestion de Areas</Label>
-            </div>
-            <Accordion
-                type="single"
-                collapsible
-                className="w-full"
-                defaultValue="item-1"
-                >
-                <AccordionItem value="item-1">
-                    <AccordionTrigger>
-                        <Table className="h-4 w-4" />
-                        Tabla de areas
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4 text-balance">
-                        <TableAreas />
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                    <AccordionTrigger>
-                        <Table className="h-4 w-4" />
-                        Tabla de fases por area
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4 text-balance">
-                        <TableFases />
-                    </AccordionContent>
-                </AccordionItem>
-                {/* <AccordionItem value="item-2">
-                    <AccordionTrigger>
-                        <User className="h-4 w-4" />
-                        Registro de area
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4 text-balance">
-                        <FormUsuarioInterno tipoUsuario={"evaluador"} />
-                    </AccordionContent>
-                </AccordionItem> */}
-            </Accordion>
-        </div>
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <Header role={true} home/>
+                <div className="container mx-auto px-4">
+                    <div className="flex w-full flex-row gap-6 p-4 items-center">
+                        <BookUser />
+                        <Label className="text-2xl">Visualizar usuarios</Label>
+                    </div>
+                    <div className="flex w-full flex-col gap-6">
+                        <Tabs defaultValue="olimpistas">
+                            <TabsList>
+                                <TabsTrigger value="olimpistas">Olimpistas</TabsTrigger>
+                                <TabsTrigger value="encargados">Encargados</TabsTrigger>
+                                <TabsTrigger value="evaluadores">Evaluadores</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="olimpistas">
+                                <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                    <TableAreas />
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="encargados">
+                                <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                    <TableFases />
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="evaluadores">
+                                <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                    <TableFases />
+                                </div>
+                            </TabsContent>
+                        </Tabs>
+                    </div>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }

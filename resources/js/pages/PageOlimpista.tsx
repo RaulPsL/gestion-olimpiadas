@@ -1,51 +1,56 @@
-import TableOlimpistas from "@/tables/TableOlimpista";
 import FormOlimpista from "@/forms/FormOlimpista";
 import { Input } from "@/components/ui/input";
-import { DockIcon, Table, User } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { User } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import Header from "@/components/Header";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AccordionInformation } from "@/components/AccordionInformation";
+import FormMassiveOlimista from "@/forms/FormMassiveOlimpista";
 
 export default function PageOlimpista() {
+    const information = [
+        {
+            id: "onlyone",
+            title: "Registro individual",
+            description: "Registro de un olimpista",
+        },
+        {
+            id: "massive",
+            title: "Registro multiple",
+            description: "Registro de varios olimpistas",
+        },
+    ]
     return (
-        <div className="container mx-auto py-10">
-            <div>
-                <User />
-                <Label className="text-2xl">Olimpistas</Label>
-            </div>
-            <Accordion
-                type="single"
-                collapsible
-                className="w-full"
-                defaultValue="item-1"
-                >
-                <AccordionItem value="item-1">
-                    <AccordionTrigger>
-                        <User className="h-4 w-4" />
-                        Registro de olimpistas
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4 text-balance items-center">
-                        <FormOlimpista />
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                    <AccordionTrigger>
-                        <Table className="h-4 w-4" />
-                        Tabla Olimpistas
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4 text-balance">
-                        <TableOlimpistas />
-                    </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                    <AccordionTrigger>
-                        <DockIcon className="h-4 w-4" />
-                        Importar desde archivo
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4 text-balance">
-                        <Input type="file" />
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-        </div>
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <Header role={true} home/>
+                <div className="container mx-auto px-4">
+                    <div className="flex w-full flex-row gap-6 p-4 items-center">
+                        <User />
+                        <Label className="text-2xl">Olimpistas</Label>
+                    </div>
+                    <div className="flex w-full flex-col gap-6">
+                        <Tabs defaultValue="onlyone">
+                            <TabsList>
+                                <TabsTrigger value="onlyone">Registro individual</TabsTrigger>
+                                <TabsTrigger value="massive">Registro multiple</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="onlyone">
+                                <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                    <FormOlimpista />
+                                    {/* <AccordionInformation information={information} /> */}
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="massive">
+                                <FormMassiveOlimista />
+                            </TabsContent>
+                        </Tabs>
+                    </div>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }

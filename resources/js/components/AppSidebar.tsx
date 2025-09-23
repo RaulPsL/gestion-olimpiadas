@@ -22,7 +22,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collap
 const items = [
   {
     title: "Inicio",
-    url: "#",
+    url: "/",
     icon: Home,
   },
   {
@@ -30,27 +30,32 @@ const items = [
     icon: User2,
     submenu: [
         {
-            title: "Registrar evaluador",
-            url: "#",
-            icon: UserCheck,
+            title: "Registrar usuarios",
+            url: "/administrar",
         },
         {
-            title: "Gestionar olimpista",
-            url: "#",
-            icon: User,
+            title: "Olimpistas",
+            url: "/olimpistas",
+        },
+        {
+            title: "Encargado de Area",
+            url: "/administrar",
+        },
+        {
+            title: "Evaluador",
+            url: "/administrar",
+        },
+        {
+            title: "Visualizar usuarios",
+            url: "/area",
         },
     ],
   },
   {
-    title: "Calendario",
-    url: "#",
+    title: "Fases de competencia",
+    url: "/fases",
     icon: Calendar,
   },
-//   {
-//     title: "Search",
-//     url: "#",
-//     icon: Search,
-//   },
   {
     title: "Configuraciones",
     url: "#",
@@ -59,11 +64,13 @@ const items = [
 ]
 
 export function AppSidebar() {
-  const handleMenuButton = (item: any) => {
+  const handleMenuButton = (item: any, isActive: boolean = false) => {
     return (
-        <SidebarMenuButton asChild>
-            <a href={item.url}>
-                <item.icon />
+        <SidebarMenuButton asChild data-active={isActive}>
+            <a 
+                href={item.url}
+                className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
+                { item.icon && (<item.icon className="mr-2" />) }
                 <span>{item.title}</span>
                 { item?.submenu && (<ChevronDown className="ml-auto" />) }
             </a>
@@ -97,10 +104,11 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent>
             <SidebarGroup>
-                <SidebarGroupLabel>Opciones</SidebarGroupLabel>
+                <SidebarGroupLabel>Acciones de usuario</SidebarGroupLabel>
                 <SidebarGroupContent>
                     <SidebarMenu>
                         {items.map((item) => {
+                            const isActive = window.location.pathname === item.url;
                             if (item.submenu) {
                                 return (
                                     <SidebarMenu key={item.title}>
@@ -109,13 +117,14 @@ export function AppSidebar() {
                                                 <CollapsibleTrigger asChild>
                                                     { handleMenuButton(item) }
                                                 </CollapsibleTrigger>
-                                                {item.submenu.map((subitem) => (
-                                                    <CollapsibleContent key={subitem.title}>
+                                                {item.submenu.map((subitem) => {
+                                                    const isActive = window.location.pathname === item.url;
+                                                    return <CollapsibleContent key={subitem.title}>
                                                         <SidebarMenuSub>
-                                                            { handleMenuButton(subitem) }
+                                                            { handleMenuButton(subitem, isActive) }
                                                         </SidebarMenuSub>
                                                     </CollapsibleContent>
-                                                ))}
+                                                })}
                                             </SidebarMenuItem>
                                         </Collapsible>
                                     </SidebarMenu>
@@ -123,7 +132,7 @@ export function AppSidebar() {
                             }
                             return (
                                 <SidebarMenuItem key={item.title}>
-                                    { handleMenuButton(item) }
+                                    { handleMenuButton(item, isActive) }
                                 </SidebarMenuItem>)
                         })}
                     </SidebarMenu>
@@ -133,7 +142,7 @@ export function AppSidebar() {
         <SidebarFooter>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <DropdownMenu>
+                    {/* <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <SidebarMenuButton>
                                 <User2 /> Username
@@ -151,7 +160,11 @@ export function AppSidebar() {
                                 <span>Cerrar sesion</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu> */}
+                    <div className="flex flex-row gap-4 items-center">
+                        <User2/> 
+                        <span>Username</span>
+                    </div>
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarFooter>

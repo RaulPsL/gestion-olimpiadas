@@ -1,3 +1,4 @@
+import { UsuarioForm } from "@/forms/interfaces/Usuario";
 import { axiosPublic, axiosInstance } from "./api";
 
 export const getUsuarios = async () => {
@@ -10,9 +11,67 @@ export const getUsuario = async (uuid: string) => {
     return response.data;
 }
 
-export const createUsuario = async (data: any) => {
-    const response = await axiosInstance.post("/register", data);
-    return response.data;
+export const createUsuario = async (
+    data: UsuarioForm,
+    selectedAreas: string[],
+    selectedRoles: string[],
+    setIsLoading: any,
+    setSuccess: any,
+    setApiError: any,
+    reset: any,
+    setSelectedAreas: any,
+    setSelectedRoles: any,
+) => {
+    setIsLoading(true);
+    setApiError("");
+    setSuccess(false);
+
+    try {
+        if (selectedRoles.length === 0) {
+            setApiError("Debe seleccionar al menos un rol");
+            setIsLoading(false);
+            return;
+        }
+
+        const { confirmPassword, ...userData } = data;
+        const formData = {
+            ...userData,
+            ci: Number(data.ci),
+            areas: selectedAreas,
+            roles: selectedRoles
+        };
+
+        console.log("Enviando datos de usuario:", formData);
+
+        const result = await axiosInstance.post("/register", data);
+        
+        console.log("Usuario creado:", result.data);
+        setSuccess(true);
+        reset();
+        setSelectedAreas([]);
+        setSelectedRoles([]);
+        
+    } catch (error: any) {
+        console.error("Error al crear usuario:", error);
+
+        if (error.response?.status === 422) {
+            const backendErrors = error.response.data.errors;
+            if (backendErrors) {
+                const errorMessages = Object.values(backendErrors).flat();
+                setApiError(errorMessages.join(", "));
+            } else {
+                setApiError(error.response.data.message || "Error de validación");
+            }
+        } else if (error.response?.status === 409 || error.response?.status === 200) {
+            setApiError(`Ya existe un usuario con CI: ${data.ci}`);
+        } else if (error.response?.status === 500) {
+            setApiError("Error interno del servidor. Intente nuevamente.");
+        } else {
+            setApiError("Error de conexión. Verifique su internet.");
+        }
+    } finally {
+        setIsLoading(false);
+    }
 };
 
 export const updateUsuario = async (codsis: number, data: any) => {

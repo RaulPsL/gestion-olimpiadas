@@ -6,6 +6,7 @@ use App\Models\Area;
 use App\Models\Olimpista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class OlimpistasController extends Controller
 {
@@ -21,7 +22,11 @@ class OlimpistasController extends Controller
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener los olimpistas.',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -68,9 +73,100 @@ class OlimpistasController extends Controller
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Error al crear olimpista',
+                'message' => 'Error al crear olimpista.',
                 'error' => $th->getMessage(),
                 'status' => 500
+            ], 500);
+        }
+    }
+
+    public function storeByFile(Request $request)
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+
+        $path = $request->file('archivo')->getRealPath();
+        $extension = $request->file('archivo')->getClientOriginalExtension();
+        $datos = [];
+
+        try {
+            // Leer CSV
+            if ($extension === 'csv') {
+                if (($handle = fopen($path, 'r')) !== false) {
+                    $header = null;
+                    while (($row = fgetcsv($handle, 1000, ",")) !== false) {
+                        if (!$header) { $header = $row; continue; }
+                        $datos[] = array_combine($header, $row);
+                    }
+                    fclose($handle);
+                }
+            } else {
+                // Leer Excel
+                $spreadsheet = IOFactory::load($path);
+                $hoja = $spreadsheet->getActiveSheet();
+                $header = [];
+                foreach ($hoja->getRowIterator() as $index => $fila) {
+                    $celdaIterator = $fila->getCellIterator();
+                    $celdaIterator->setIterateOnlyExistingCells(false);
+                    $filaDatos = [];
+                    foreach ($celdaIterator as $celda) { $filaDatos[] = $celda->getValue(); }
+
+                    if ($index === 1) { $header = $filaDatos; continue; }
+                    $datos[] = array_combine($header, $filaDatos);
+                }
+            }
+
+            $insertData = [];
+
+            foreach ($datos as $dato) {
+                if (empty($dato['nombres'] ?? null) || empty($dato['codigo_sis'] ?? null)) {
+                    continue;
+                }
+
+                // Evitar duplicados
+                if (Olimpista::where('codigo_sis', $dato['codigo_sis'])->exists()) continue;
+
+                $insertData[] = [
+                    'nombres' => $dato['nombres'] ?? '',
+                    'apellido_paterno' => $dato['apellido_paterno'] ?? '',
+                    'apellido_materno' => $dato['apellido_materno'] ?? '',
+                    'codigo_sis' => $dato['codigo_sis'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            Olimpista::insert($insertData);
+
+            foreach ($insertData as $dato) {
+                $olimpista = Olimpista::where('codigo_sis', $dato['codigo_sis'])->first();
+
+                if (!empty($dato['areas'] ?? null)) {
+                    $areas = Area::whereIn('sigla', explode(',', $dato['areas']))->with('fases')->get();
+                    $fases = $areas->map(fn($area) => $area->primeraFase()?->id)->filter()->toArray();
+
+                    if ($areas->isNotEmpty()) {
+                        $olimpista->areas()->syncWithoutDetaching($areas->pluck('id')->toArray());
+                    }
+                    if (!empty($fases)) {
+                        foreach ($fases as $faseId) {
+                            $olimpista->fases()->syncWithoutDetaching([$faseId => ['puntaje' => 0.00, 'comentarios' => '']]);
+                        }
+                    }
+                }
+            }
+
+            return response()->json([
+                'message' => 'Olimpistas importados masivamente correctamente.',
+                'total' => count($insertData),
+            ], 201);
+
+        } catch (\Throwable $th) {
+            Log::error('Error al importar olimpistas masivo: ' . $th->getMessage());
+            return response()->json([
+                'message' => 'Error al importar olimpistas masivo.',
+                'error' => $th->getMessage(),
             ], 500);
         }
     }
@@ -94,7 +190,11 @@ class OlimpistasController extends Controller
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener al olimpista',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -110,7 +210,11 @@ class OlimpistasController extends Controller
                     ->where('sigla', $sigla)
                     ->get());
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener a los olimpistas.',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -139,7 +243,11 @@ class OlimpistasController extends Controller
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json([
+                'message' => 'Error al obtener a los olimpistas.',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -219,7 +327,7 @@ class OlimpistasController extends Controller
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Error al eliminar olimpista',
+                'message' => 'Error al eliminar al olimpista.',
                 'error' => $th->getMessage(),
                 'status' => 500
             ], 500);

@@ -129,7 +129,41 @@ class AreasController extends Controller
      */
     public function update(Request $request, string $sigla)
     {
-        //
+        try {
+            $area = Area::where('sigla', $sigla)->first();
+            if ($area and $request->has('fases')) {
+                $request->validate([
+                    'fases.*.sigla' => 'required|string',
+                    'fases.*.tipo_fase' => 'required|in:' . implode(',', array_keys(EstadoFase::cases())),
+                    'fases.*.descripcion' => 'required|string',
+                    'fases.*.cantidad_max_participantes' => 'required|integer',
+                    'fases.*.cantidad_min_participantes' => 'required|integer',
+                    'fases.*:fecha_inicio' => 'required|date',
+                    'fases.*:fecha_fin' => 'required|date',
+                ]);
+                $area->fases()->createMany($request->fases);
+                $creacion_fases = true;
+            } else {
+                $area->fases()->create([
+                    'sigla' => $request->sigla."F1",
+                    'tipo_fase' => EstadoFase::Pendiente->value,
+                    'descripcion' => 'Fase 1',
+                    'cantidad_max_participantes' => 10,
+                    'cantidad_min_participantes' => 20,
+                    'fecha_inicio' => now(),
+                    'fecha_fin' => now()->addWeeks(2),
+                ]);
+            }
+            return response()->json([
+                'message' => "Area ".$creacion_fases ? "" : "con fases "."actualizada exitosamente.",
+                'data' => $area,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al actualizar el area.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
