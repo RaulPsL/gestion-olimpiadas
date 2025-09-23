@@ -21,6 +21,84 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Installation & Setup
+
+This project uses Laravel as the backend API with React + Vite for the frontend, styled with shadcn/ui components.
+
+### Prerequisites
+
+- PHP >= 8.1
+- Composer
+- Node.js >= 16.x
+- npm or yarn
+
+### Laravel Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/RaulPsL/gestion-olimpiadas.git
+cd gestion-olimpiadas
+```
+
+2. Install PHP dependencies:
+```bash
+composer install
+```
+
+3. Copy the environment file and configure it:
+```bash
+cp .env.example .env
+```
+
+4. Generate application key:
+```bash
+php artisan key:generate
+```
+
+5. Configure your database in the `.env` file and run migrations:
+```bash
+php artisan migrate
+```
+
+6. Start the Laravel development server:
+```bash
+php artisan serve
+```
+
+### React + Vite Frontend Setup
+
+1. Install Node.js dependencies:
+```bash
+npm install
+```
+
+2. Install and configure shadcn/ui:
+```bash
+npx shadcn@latest init
+```
+
+3. Start the Vite development server:
+```bash
+npm run dev
+```
+
+### Building for Production
+
+To build the React application for production:
+```bash
+npm run build
+```
+
+The built files will be placed in the `public/build` directory and automatically served by Laravel.
+
+### Tech Stack
+
+- **Backend**: Laravel (PHP)
+- **Frontend**: React with Vite
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS
+- **Build Tool**: Vite
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

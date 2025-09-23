@@ -30,27 +30,32 @@ const items = [
     icon: User2,
     submenu: [
         {
-            title: "Registrar evaluador",
-            url: "#",
-            icon: UserCheck,
+            title: "Registrar usuarios",
+            url: "/administrar",
         },
         {
-            title: "Gestionar olimpista",
-            url: "#",
-            icon: User,
+            title: "Olimpistas",
+            url: "/olimpistas",
+        },
+        {
+            title: "Encargado de Area",
+            url: "/administrar",
+        },
+        {
+            title: "Evaluador",
+            url: "/administrar",
+        },
+        {
+            title: "Visualizar usuarios",
+            url: "/area",
         },
     ],
   },
   {
-    title: "Calendario",
-    url: "#",
+    title: "Fases de competencia",
+    url: "/fases",
     icon: Calendar,
   },
-//   {
-//     title: "Search",
-//     url: "#",
-//     icon: Search,
-//   },
   {
     title: "Configuraciones",
     url: "#",
@@ -65,7 +70,7 @@ export function AppSidebar() {
             <a 
                 href={item.url}
                 className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
-                <item.icon />
+                { item.icon && (<item.icon className="mr-2" />) }
                 <span>{item.title}</span>
                 { item?.submenu && (<ChevronDown className="ml-auto" />) }
             </a>

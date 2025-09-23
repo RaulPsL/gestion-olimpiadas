@@ -12,10 +12,10 @@ function App() {
             <Routes>
                 <Route path="/" element={<PageHome />} />
                 <Route path="/login" element={<PageLogin />} />
-                <Route path="/responsable" element={<PageOlimpista />} />
+                <Route path="/olimpistas" element={<PageOlimpista />} />
                 <Route path="/area" element={<PageArea />} />
                 <Route path="/administrar" element={<PageInterno />} />
-                <Route path="/fase" element={<PageFase />} />
+                <Route path="/fases" element={<PageFase />} />
             </Routes>
         </div>
     );

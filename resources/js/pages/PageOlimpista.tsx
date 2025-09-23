@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccordionInformation } from "@/components/AccordionInformation";
+import FormMassiveOlimista from "@/forms/FormMassiveOlimpista";
 
 export default function PageOlimpista() {
     const information = [
@@ -44,7 +45,7 @@ export default function PageOlimpista() {
                                 </div>
                             </TabsContent>
                             <TabsContent value="massive">
-                                <div></div>
+                                <FormMassiveOlimista />
                             </TabsContent>
                         </Tabs>
                     </div>
