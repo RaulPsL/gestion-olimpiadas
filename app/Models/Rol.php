@@ -9,7 +9,7 @@ class Rol extends Model
 {
     use HasFactory;
 
-    protected $table = 'roles';
+    protected $table = 'rols';
 
     /**
      * The attributes that are mass assignable.
@@ -33,7 +33,7 @@ class Rol extends Model
         'updated_at',
     ];
 
-    public function usuario() { return $this->belongsToMany(Usuario::class, 'usuario_roles'); }
+    public function usuario() { return $this->belongsToMany(Usuario::class, 'usuario_rols'); }
 
     public function menus() { return $this->belongsToMany(Menu::class, 'rol_menus'); }
 }

@@ -6,4 +6,5 @@ enum TipoFase: string
 {
     case Preliminales = 'preliminales';
     case Clasificatorias = 'clasificatorias';
+    case Finales = 'finales';
 }

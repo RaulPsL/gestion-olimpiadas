@@ -28,6 +28,7 @@ Route::middleware(['api', 'log.requests'])
 
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [App\Http\Controllers\UsuariosController::class, 'index']);
+    Route::get('/static', [App\Http\Controllers\UsuariosController::class, 'indexStaticData']);
     Route::get('/{ci}', [App\Http\Controllers\UsuariosController::class, 'show']);
     Route::put('/{ci}', [App\Http\Controllers\UsuariosController::class, 'update']);
     Route::delete('/{ci}', [App\Http\Controllers\UsuariosController::class, 'destroy']);
@@ -42,6 +43,7 @@ Route::prefix('fases')->group(function () {
 Route::prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);
+    Route::get('/static', [App\Http\Controllers\AreasController::class, 'indexStaticData']);
     Route::get('/{sigla}', [App\Http\Controllers\AreasController::class, 'show']);
     Route::get('/fases/{sigla}', [App\Http\Controllers\AreasController::class, 'showByFase']);
     Route::put('/{sigla}', [App\Http\Controllers\AreasController::class, 'update']);

@@ -6,6 +6,15 @@ export const getAreas = async () => {
     return response.data;
 };
 
+export const getStaticData = async ():Promise<StaticDataAreas> => {
+    const { data } = await axiosPublic.get("/areas/static");
+    return {
+        areas: data.data.areas,
+        fases: data.data.fases,
+        evaluadores: data.data.evaluadores,
+    };
+};
+
 export const createArea = async (data: any) => {
     const response = await axiosInstance.post("/areas", data);
     return response.data;
@@ -38,13 +47,7 @@ export const updateArea = async (
             return;
         }
 
-        const formData = {
-            ...data,
-            area: selectedArea,
-            evaluadores: selectedEvaluadores
-        };
-
-        console.log("Enviando datos de fase:", formData);
+        console.log("Enviando datos de fase:", data);
 
         const result = await axiosInstance.put(`/areas/${selectedArea}`, {
             fases: [data]

@@ -7,5 +7,5 @@ export interface FaseForm {
     fecha_inicio: Date;
     fecha_fin: Date;
     area: string;
-    evaluadores: string[];
+    usuarios: string[];
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox, useComboboxField } from "@/components/Combobox";
 import { UsuarioForm } from "./interfaces/Usuario";
-import { createUsuario } from "@/api/Usuarios";
+import { createUsuario, getStaticData } from "@/api/Usuarios";
 import { AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { validationRules } from "./validations/UsuarioValidate";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -18,30 +18,19 @@ export default function FormUsuario() {
     const [selectedAreas, setSelectedAreas] = React.useState<string[]>([]);
     const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
     const [showPassword, setShowPassword] = React.useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
-    const mockAreas = [
-    { id: 1, value: "MAT", label: "Matemáticas" },
-    { id: 2, value: "FIS", label: "Física" },
-    { id: 3, value: "QUI", label: "Química" },
-    { id: 4, value: "BIO", label: "Biología" },
-    { id: 5, value: "INFO", label: "Informática" }
-    ];
+    const [areas, setAreas] = React.useState<any[]>();
+    const [roles, setRoles] = React.useState<any[]>();
+    
+    React.useEffect(() => {
+        const staticData = async () => {
+            const staticData = await getStaticData();
+            setAreas(staticData.areas);
+            setRoles(staticData.roles);
+        };
+        staticData();
+    }, []);
 
-    const mockTiposFase = [
-    { id: 1, value: "clasificatorias", label: "Clasificatorias" },
-    { id: 2, value: "semifinal", label: "Semifinal" },
-    { id: 3, value: "final", label: "Final" },
-    { id: 4, value: "eliminatoria", label: "Eliminatoria" }
-    ];
-
-    const mockRoles = [
-        { id: 1, value: "admin", label: "Administrador" },
-        { id: 2, value: "profesor", label: "Profesor" },
-        { id: 3, value: "estudiante", label: "Estudiante" },
-        { id: 4, value: "coordinador", label: "Coordinador" },
-        { id: 5, value: "invitado", label: "Invitado" }
-    ];
     const {
         register,
         handleSubmit,
@@ -52,7 +41,7 @@ export default function FormUsuario() {
         getValues
     } = useForm<UsuarioForm>({
         defaultValues: {
-            nombres: "",
+            nombre: "",
             apellido_paterno: "",
             apellido_materno: "",
             ci: undefined,
@@ -101,20 +90,20 @@ export default function FormUsuario() {
 
                     {/* Grid para organizar campos */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Campo Nombres */}
+                        {/* Campo Nombre */}
                         <div className="space-y-2">
-                            <Label htmlFor="nombres">
+                            <Label htmlFor="nombre">
                                 Nombres <span className="text-red-500">*</span>
                             </Label>
                             <Input
-                                id="nombres"
+                                id="nombre"
                                 type="text"
                                 placeholder="Juan Carlos"
-                                {...register("nombres", validationRules.nombres)}
-                                className={errors.nombres ? "border-red-500" : ""}
+                                {...register("nombre", validationRules.nombres)}
+                                className={errors.nombre ? "border-red-500" : ""}
                             />
-                            {errors.nombres && (
-                                <p className="text-sm text-red-500">{errors.nombres.message}</p>
+                            {errors.nombre && (
+                                <p className="text-sm text-red-500">{errors.nombre.message}</p>
                             )}
                         </div>
 
@@ -246,12 +235,12 @@ export default function FormUsuario() {
                                 Áreas (Opcional)
                             </Label>
                             <Combobox
-                                items={mockAreas}
+                                items={areas}
                                 value={areaField.value}
                                 onChange={areaField.onChange}
                                 placeholder="Seleccionar área..."
                                 searchPlaceholder="Buscar área..."
-                                multiple={false}
+                                multiple={true}
                             />
                         </div>
 
@@ -261,12 +250,12 @@ export default function FormUsuario() {
                                 Roles <span className="text-red-500">*</span>
                             </Label>
                             <Combobox
-                                items={mockRoles}
+                                items={roles}
                                 value={rolesField.value}
                                 onChange={rolesField.onChange}
-                                placeholder="Seleccionar área..."
-                                searchPlaceholder="Buscar área..."
-                                multiple={false}
+                                placeholder="Seleccionar roles..."
+                                searchPlaceholder="Buscar roles..."
+                                multiple={true}
                             />
                             {selectedRoles.length === 0 && apiError.includes("rol") && (
                                 <p className="text-sm text-red-500">Debe seleccionar al menos un rol</p>
@@ -282,8 +271,8 @@ export default function FormUsuario() {
                             handleSubmit(
                                 (data) => createUsuario(
                                     data,
-                                    areaField.value[0] as string || "",
-                                    rolesField.value[0] as string,
+                                    areaField.value as string[],
+                                    rolesField.value as string[],
                                     setIsLoading,
                                     setSuccess,
                                     setApiError,

@@ -11,10 +11,18 @@ export const getUsuario = async (uuid: string) => {
     return response.data;
 }
 
+export const getStaticData = async ():Promise<StaticDataUsuarios> => {
+    const { data } = await axiosPublic.get("/usuarios/static");
+    return {
+        areas: data.data.areas,
+        roles: data.data.roles,
+    };
+};
+
 export const createUsuario = async (
     data: UsuarioForm,
-    selectedAreas: string,
-    selectedRoles: string,
+    selectedAreas: string[],
+    selectedRoles: string[],
     setIsLoading: any,
     setSuccess: any,
     setApiError: any,
@@ -36,6 +44,7 @@ export const createUsuario = async (
         const { confirmPassword, ...userData } = data;
         const formData = {
             ...userData,
+            apellido: `${data.apellido_paterno} ${data.apellido_materno}`,
             ci: Number(data.ci),
             areas: selectedAreas,
             roles: selectedRoles
@@ -43,7 +52,7 @@ export const createUsuario = async (
 
         console.log("Enviando datos de usuario:", formData);
 
-        const result = await axiosInstance.post("/register", data);
+        const result = await axiosInstance.post("/register", formData);
         
         console.log("Usuario creado:", result.data);
         setSuccess(true);

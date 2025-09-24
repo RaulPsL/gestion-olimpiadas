@@ -15,10 +15,44 @@ class UsuariosController extends Controller
     public function index()
     {
         try {
-            $usuarios = Usuario::all();
+            $usuarios = Usuario::with(['roles', 'areas'])->get();
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
                 'data' => $usuarios,
+                'status' => 200
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => "Ocurrio un error en el servidor: $th.",
+                'status' => 400
+            ]);
+        }
+    }
+
+    public function indexStaticData()
+    {
+        try {
+            $areas = Area::all(['sigla', 'nombre'])->map(function ($area, $index) {
+                return [
+                    'id' => $index+1,
+                    'value' => $area->sigla,
+                    'label' => $area->nombre,
+                ];
+            });
+            $roles = Rol::all(['nombre'])->map(function ($rol, $index) {
+                $label_rol = substr($rol->nombre, 0, 1).strtolower(substr($rol->nombre, 1));
+                return [
+                    'id' => $index+1,
+                    'value' => $rol->nombre,
+                    'label' => $label_rol,
+                ];
+            });
+            return response()->json([
+                'message' => "Usuarios obtenidos exitosamente.",
+                'data' => [
+                    'areas' => $areas,
+                    'roles' => $roles,
+                ],
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
@@ -90,19 +124,17 @@ class UsuariosController extends Controller
                 return response()->json([
                     'message' => "Usuario con CI: $ci, actualizado exitosamente.",
                     'data' => $usuario,
-                    'status' => 200,
-                ]);
+                ], 201);
             }
             return response()->json([
                 'message' => "No se enccontro al usuarios con CI: $ci.",
                 'data' => $usuario,
-                'status' => 401,
-            ]);
+            ], 401);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => "Ocurrio un error en el servidor: $th.",
                 'status' => 400,
-            ]);
+            ], 500);
         }
     }
 
@@ -147,11 +179,17 @@ class UsuariosController extends Controller
             if ($usuario) {
                 return response()->json([
                     'message' => "El usuarios con CI: $request->ci, ya existe.",
-                    'data' => $usuario,
-                    'status' => 200,
-                ]);
+                    'data' => $usuario
+                ], 200);
             }
-            $usuario = Usuario::create($request->all());
+            $usuario = Usuario::create([
+                'ci' => $request->ci,
+                'nombre' => $request->nombre,
+                'apellido' => $request->apellido,
+                'celular' => $request->celular,
+                'email' => $request->email,
+                'password' => $request->password,
+            ]);
             if ($request->has('areas') and count($request->areas) > 0) {
                 $areas = Area::whereIn('sigla', $request->areas)->pluck('id')->toArray();
                 if (!empty($areas)) {
@@ -159,7 +197,7 @@ class UsuariosController extends Controller
                 }
             }
             if ($request->has('roles') and count($request->roles) > 0) {
-                $roles = Rol::whereIn('sigla', $request->roles)->pluck('id')->toArray();
+                $roles = Rol::whereIn('nombre', $request->roles)->pluck('id')->toArray();
                 if (!empty($roles)) {
                     $usuario->roles()->attach($roles);
                 }
@@ -167,13 +205,12 @@ class UsuariosController extends Controller
             return response()->json([
                 'message' => "El usuario se creó con éxito.",
                 'data' => $usuario,
-                'status' => 201,
-            ]);
+            ], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => "Ocurrio un error en el servidor: $th.",
-                'status' => 500,
-            ]);
+                'data' => [],
+            ], 500);
         }
     }
 }

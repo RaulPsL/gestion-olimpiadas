@@ -1,5 +1,5 @@
 export interface UsuarioForm {
-    nombres: string;
+    nombre: string;
     apellido_paterno: string;
     apellido_materno: string;
     ci: number;

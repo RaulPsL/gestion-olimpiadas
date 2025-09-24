@@ -56,7 +56,7 @@ export function NavigateMenu({ role }: { role: boolean }) {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/docs">Inicio</Link>
+            <Link to="/">Inicio</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
