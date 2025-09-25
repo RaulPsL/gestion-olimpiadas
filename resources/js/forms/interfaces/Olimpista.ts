@@ -5,5 +5,5 @@ export interface OlimpistaForm {
     codigo_sis: number;
     semestre: number;
     estado: string;
-    area: string[];
+    areas: string[];
 }

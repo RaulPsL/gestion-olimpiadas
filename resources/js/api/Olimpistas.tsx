@@ -2,8 +2,15 @@ import { OlimpistaForm } from "@/forms/interfaces/Olimpista";
 import { axiosInstance, axiosPublic } from "./api";
 
 export const getOlimpistas = async () => {
-    const response = await axiosPublic.get("/olimpistas");
-    return response.data;
+    const { data } = await axiosPublic.get("/olimpistas");
+    return data.data;
+};
+
+export const getStaticData = async ():Promise<StaticDataOlimpistas> => {
+    const { data } = await axiosPublic.get("/olimpistas/static");
+    return {
+        areas: data.data
+    };
 };
 
 export const createOlimpista = async (
@@ -13,7 +20,7 @@ export const createOlimpista = async (
     setApiError: React.Dispatch<React.SetStateAction<string>>,
     setSelectedArea: React.Dispatch<React.SetStateAction<string[]>>,
     reset: () => void,
-    selectedArea: string
+    selectedArea: string[]
 ) => {
     setIsLoading(true);
     setApiError("");
@@ -26,10 +33,9 @@ export const createOlimpista = async (
             return;
         }
 
-        // Agregar las áreas seleccionadas
         const formData = {
             ...data,
-            area: selectedArea,
+            areas: selectedArea,
             codigo_sis: Number(data.codigo_sis)
         };
 
@@ -39,15 +45,13 @@ export const createOlimpista = async (
         
         console.log("Respuesta del servidor:", result.data);
         setSuccess(true);
-        reset(); // Limpiar formulario
-        setSelectedArea([]); // Limpiar áreas seleccionadas
+        reset();
+        setSelectedArea([]);
         
     } catch (error: any) {
         console.error("Error al crear olimpista:", error);
-        
-        // Manejar diferentes tipos de errores
+
         if (error.response?.status === 422) {
-            // Errores de validación del backend
             const backendErrors = error.response.data.errors;
             if (backendErrors) {
                 const errorMessages = Object.values(backendErrors).flat();
@@ -55,8 +59,7 @@ export const createOlimpista = async (
             } else {
                 setApiError(error.response.data.message || "Error de validación");
             }
-        } else if (error.response?.status === 409) {
-            // Conflicto (olimpista ya existe)
+        } else if (error.response?.status === 200) {
             setApiError("El olimpista ya está registrado con ese código SIS");
         } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
@@ -69,7 +72,16 @@ export const createOlimpista = async (
 };
 
 export const createMassiveOlimpistas = async (data: any) => {
-    const response = await axiosInstance.post("/olimpistas/file", data);
+    console.log(data);
+    const response = await axiosInstance.post("/olimpistas/file", 
+        {
+            archivo: data,
+        },
+        {
+            headers:{
+                "Content-Type": "multipart/form-data"
+            }
+        },);
     return response.data;
 }
 

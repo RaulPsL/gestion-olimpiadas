@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\Fase;
 use App\Models\Olimpista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class OlimpistasController extends Controller
@@ -16,14 +18,75 @@ class OlimpistasController extends Controller
     public function index()
     {
         try {
-            $olimpistas = Olimpista::with(['areas', 'fases'])->get();
+            // $olimpistas = Olimpista::with([
+            //         'areas:id,nombre',
+            //         'fases' => function ($query) {
+            //             $query->select(['fases.sigla', 'calificacions.puntaje', 'calificacions.olimpista_id']);
+            //         }])->get();
+            // $listaFiltrada = collect($olimpistas)->map(function ($olimpista) {
+            //     $fases = $olimpista->fases->map(function ($fase) {
+            //         return [
+            //             'sigla' => $fase->sigla,
+            //             'puntaje' => $fase->pivot->puntaje,
+            //         ];
+            //     });
+            //     return [
+            //         'nombres' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+            //         'codigo_sis' => $olimpista->codigo_sis,
+            //         'areas' => $olimpista->areas->pluck('nombre'),
+            //         'fases' => $fases,
+            //     ];
+            // });
+            $olimpistas = Fase::select(['id', 'sigla', 'area_id'])
+                ->with([
+                    'olimpistas:id,nombres,apellido_paterno,apellido_materno,codigo_sis',
+                    'area:id,nombre'])->get();
+            $listaFiltrada = collect($olimpistas)->map(function ($fase) {
+                $_olimpistas = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
+                    return [
+                        'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+                        'email' => $olimpista->codigo_sis,
+                        'area' => $fase->area->nombre,
+                        'fase' => $fase->sigla,
+                    ];
+                });
+                if (count($_olimpistas) > 0) {
+                    return $_olimpistas;
+                }
+            });
             return response()->json([
-                'data' => $olimpistas,
+                'data' => [
+                    'olimpistas' => $listaFiltrada->filter()->values()->toArray()[0],
+                    'cabeceras' => Schema::getColumnListing((new Olimpista())->getTable()),
+                ],
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al obtener los olimpistas.',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
+    public function indexStaticData()
+    {
+        try {
+            $areas = Area::all(['sigla', 'nombre'])->map(function ($area, $index) {
+                return [
+                    'id' => $index+1,
+                    'value' => $area->sigla,
+                    'label' => $area->nombre,
+                ];
+            });
+            return response()->json([
+                'data' => $areas,
+                'status' => 200
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener los datos estaticos de los olimpistas.',
                 'error' => $th->getMessage(),
                 'status' => 500
             ], 500);
@@ -132,6 +195,7 @@ class OlimpistasController extends Controller
                     'apellido_paterno' => $dato['apellido_paterno'] ?? '',
                     'apellido_materno' => $dato['apellido_materno'] ?? '',
                     'codigo_sis' => $dato['codigo_sis'],
+                    'semestre' => $dato['semestre'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];

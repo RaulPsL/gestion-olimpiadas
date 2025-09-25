@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox, useComboboxField } from "@/components/Combobox";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import { createOlimpista } from "@/api/Olimpistas";
+import { createOlimpista, getStaticData } from "@/api/Olimpistas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { validationRules } from "./validations/OlimpistaValidate";
 import { OlimpistaForm } from "./interfaces/Olimpista";
@@ -16,14 +16,15 @@ export default function FormOlimpista() {
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
     const [selectedArea, setSelectedArea] = React.useState<string[]>([]);
-
-    const mockAreas = [
-    { id: 1, value: "MAT", label: "Matemáticas" },
-    { id: 2, value: "FIS", label: "Física" },
-    { id: 3, value: "QUI", label: "Química" },
-    { id: 4, value: "BIO", label: "Biología" },
-    { id: 5, value: "INFO", label: "Informática" }
-    ];
+    const [areas, setAreas] = React.useState<any[]>();
+    
+    React.useEffect(() => {
+        const staticData = async () => {
+            const staticData = await getStaticData();
+            setAreas(staticData.areas);
+        };
+        staticData();
+    }, []);
 
     const {
         register,
@@ -31,7 +32,8 @@ export default function FormOlimpista() {
         formState: { errors },
         reset,
         setValue,
-        watch
+        watch,
+        getValues
     } = useForm<OlimpistaForm>({
         defaultValues: {
             nombres: "",
@@ -40,15 +42,10 @@ export default function FormOlimpista() {
             codigo_sis: undefined,
             semestre: 1,
             estado: "activo",
-            area: []
+            areas: []
         }
     });
-    const areaField = useComboboxField("area", setValue, false);
-
-    const handleAreaChange = (areas: string[]) => {
-        setSelectedArea(areas);
-        setValue("area", areas);
-    };
+    const areaField = useComboboxField("areas", setValue, false);
 
     return (
         <Card className="w-full max-w-sm">
@@ -174,14 +171,14 @@ export default function FormOlimpista() {
                         Área de Competencia <span className="text-red-500">*</span>
                     </Label>
                     <Combobox
-                        items={mockAreas}
+                        items={areas}
                         value={areaField.value}
                         onChange={areaField.onChange}
                         placeholder="Seleccionar área..."
                         searchPlaceholder="Buscar área..."
-                        multiple={false}
+                        multiple={true}
                     />
-                    {selectedArea.length === 0 && apiError.includes("área") && (
+                    {areas?.length === 0 && apiError.includes("área") && (
                         <p className="text-sm text-red-500">Debe seleccionar al menos un área</p>
                     )}
                 </div>
@@ -198,7 +195,7 @@ export default function FormOlimpista() {
                                 setApiError,
                                 () => areaField.reset(),
                                 reset,
-                                areaField.value[0] as string || "",
+                                areaField.value as string[],
                             )
                         )} 
                     className="w-full"

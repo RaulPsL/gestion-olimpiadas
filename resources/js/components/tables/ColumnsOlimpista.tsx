@@ -4,16 +4,15 @@ import { ColumnDef } from "@tanstack/react-table";
 // You can use a Zod schema here if you want.
 
 export type Olimpista = {
-    name: string;
-    email: string;
-    fase: "Eliminatorias" | "Clasificatorias" | "Finales";
+    nombre: string;
+    email: number;
+    fase: string;
     area: string;
-    puntaje: number;
 };
 
 export const columns: ColumnDef<Olimpista>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "nombre",
     header: "Nombre",
   },
   {
@@ -27,9 +26,5 @@ export const columns: ColumnDef<Olimpista>[] = [
   {
     accessorKey: "area",
     header: "Area",
-  },
-  {
-    accessorKey: "puntaje",
-    header: "Puntaje",
   },
 ]

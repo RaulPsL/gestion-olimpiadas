@@ -15,7 +15,6 @@ export default function FormUsuario() {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
-    const [selectedAreas, setSelectedAreas] = React.useState<string[]>([]);
     const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
     const [showPassword, setShowPassword] = React.useState(false);
 
@@ -56,7 +55,6 @@ export default function FormUsuario() {
 
     const rolesField = useComboboxField("roles", setValue, false);
     const areaField = useComboboxField("areas", setValue, false);
-    // const evaluadoresField = useComboboxField("evaluadores", setValue, true);
 
     return (
         <Card className="w-full max-w-2xl mx-auto">
@@ -294,8 +292,6 @@ export default function FormUsuario() {
                             className="w-full"
                             onClick={() => {
                                 reset();
-                                setSelectedAreas([]);
-                                setSelectedRoles([]);
                                 setApiError("");
                             }}
                         >

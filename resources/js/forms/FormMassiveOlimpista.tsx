@@ -17,7 +17,6 @@ export default function FormMassiveOlimista() {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            // Validar tipo de archivo
             const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
                                  'application/vnd.ms-excel', 'text/csv'];
             
@@ -75,7 +74,6 @@ export default function FormMassiveOlimista() {
     };
 
     const downloadTemplate = () => {
-        // Crear y descargar plantilla CSV
         const csvContent = "nombres,apellido_paterno,apellido_materno,codigo_sis,semestre,estado,areas\n" +
                           "Juan,García,López,12345678,3,activo,MAT\n" +
                           "María,Rodríguez,Pérez,87654321,5,activo,\"MAT,FIS\"";

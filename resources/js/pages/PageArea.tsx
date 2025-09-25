@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TableOlimpistas from "@/tables/TableOlimpista";
 
 export default function PageArea() {
     return (
@@ -27,7 +28,7 @@ export default function PageArea() {
                             </TabsList>
                             <TabsContent value="olimpistas">
                                 <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                    <TableAreas />
+                                    <TableOlimpistas />
                                 </div>
                             </TabsContent>
                             <TabsContent value="encargados">
