@@ -58,4 +58,12 @@ class Olimpista extends Model
         return $this->belongsToMany(Fase::class, 'calificacions')
             ->withPivot('puntaje', 'comentarios');
     }
+
+    public function grupos() {
+        return $this->belongsToMany(Grupo::class, 'olimpista_grupos');
+    }
+
+    public function colegio() { return $this->belongsTo(Colegio::class); }
+
+    public function tutor() { return $this->belongsTo(TutorAcademico::class); }
 }
