@@ -9,7 +9,10 @@ export const getOlimpistas = async () => {
 export const getStaticData = async ():Promise<StaticDataOlimpistas> => {
     const { data } = await axiosPublic.get("/olimpistas/static");
     return {
-        areas: data.data
+        areas: data.data.areas,
+        grados: data.data.grados,
+        niveles: data.data.niveles,
+        departamentos: data.data.departamentos
     };
 };
 

@@ -5,7 +5,10 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export type Olimpista = {
     nombre: string;
-    email: number;
+    ci: number;
+    colegio: string;
+    departamento: string;
+    tutor: string;
     fase: string;
     area: string;
 };
@@ -16,8 +19,20 @@ export const columns: ColumnDef<Olimpista>[] = [
     header: "Nombre",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "ci",
+    header: "CI",
+  },
+  {
+    accessorKey: "colegio",
+    header: "U.E.",
+  },
+  {
+    accessorKey: "departamento",
+    header: "Departamento",
+  },
+  {
+    accessorKey: "tutor",
+    header: "Tutor",
   },
   {
     accessorKey: "fase",

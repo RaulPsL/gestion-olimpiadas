@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Fase;
 use App\Models\Olimpista;
+use App\Models\TutorAcademico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -12,8 +13,13 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class OlimpistasController extends Controller
 {
+    
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de olimpistas con sus respectivas fases y areas,
+     * cada olimpista se muestra con sus respectivos nombres, apellidos,
+     * codigo sis, areas y fases.
+     * 
+     * @return \Illuminate\Http\Response
      */
     public function index()
     {
@@ -143,6 +149,17 @@ class OlimpistasController extends Controller
         }
     }
 
+    /**
+     * Importa olimpistas masivamente desde un archivo CSV o Excel.
+     * Se utiliza la columna "codigo_sis" para identificar los olimpistas.
+     * Se utiliza la columna "areas" para identificar las areas asignadas a cada olimpista.
+     * Se utiliza la columna "semestre" para identificar el semestre de cada olimpista.
+     * Se utiliza la columna "nombres" para identificar el nombre del olimpista.
+     * Se utiliza la columna "apellido_paterno" y "apellido_materno" para identificar el apellido paterno y materno del olimpista.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function storeByFile(Request $request)
     {
         $request->validate([
@@ -183,39 +200,57 @@ class OlimpistasController extends Controller
             $insertData = [];
 
             foreach ($datos as $dato) {
+                $tutor = null;
+                $tutor_academico = null;
                 if (empty($dato['nombres'] ?? null) || empty($dato['codigo_sis'] ?? null)) {
                     continue;
                 }
 
+                if (!empty($dato['nombre_tutor'] ?? null) and !empty($dato['referencia_tutor'] ?? null)) {
+                    $tutor = Tutor::create([
+                        'nombre' => $dato['nombre_tutor'],
+                        'referencia' => $dato['referencia_tutor'],
+                    ]);
+                }
+
+                if (
+                    !empty($dato['nombre_tutor_academico'] ?? null) and 
+                    !empty($dato['celular_tutor_academico'] ?? null) and
+                    !empty($dato['email_tutor_academico'] ?? null) and
+                    !empty($dato['ci_tutor_academico'] ?? null)) {
+                    $tutor_academico = TutorAcademico::create([
+                        'nombre' => $dato['nombre_tutor_academico'],
+                        'celular' => $dato['celular_tutor_academico'],
+                        'email' => $dato['email_tutor_academico'],
+                        'ci' => $dato['tutor']
+                    ]);
+                }
                 // Evitar duplicados
                 if (Olimpista::where('codigo_sis', $dato['codigo_sis'])->exists()) continue;
 
-                $insertData[] = [
-                    'nombres' => $dato['nombres'] ?? '',
-                    'apellido_paterno' => $dato['apellido_paterno'] ?? '',
-                    'apellido_materno' => $dato['apellido_materno'] ?? '',
-                    'codigo_sis' => $dato['codigo_sis'],
-                    'semestre' => $dato['semestre'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }
+                $olimpista = Olimpista::create([
+                    'nombres' => $dato['nombres'],
+                    'apellido_paterno' => $dato['apellido_paterno'],
+                    'apellido_materno' => $dato['apellido_materno'],
+                    'ci' => $dato['codigo_sis'],
+                    'grado_escolar' => $dato['grado_escolar'],
+                    'nivel_competencia' => $dato['nivel_competencia'],
+                ]);
 
-            Olimpista::insert($insertData);
+                foreach ($insertData as $dato) {
+                    $olimpista = Olimpista::where('codigo_sis', $dato['codigo_sis'])->first();
 
-            foreach ($insertData as $dato) {
-                $olimpista = Olimpista::where('codigo_sis', $dato['codigo_sis'])->first();
+                    if (!empty($dato['areas'] ?? null)) {
+                        $areas = Area::whereIn('sigla', explode(',', $dato['areas']))->with('fases')->get();
+                        $fases = $areas->map(fn($area) => $area->primeraFase()?->id)->filter()->toArray();
 
-                if (!empty($dato['areas'] ?? null)) {
-                    $areas = Area::whereIn('sigla', explode(',', $dato['areas']))->with('fases')->get();
-                    $fases = $areas->map(fn($area) => $area->primeraFase()?->id)->filter()->toArray();
-
-                    if ($areas->isNotEmpty()) {
-                        $olimpista->areas()->syncWithoutDetaching($areas->pluck('id')->toArray());
-                    }
-                    if (!empty($fases)) {
-                        foreach ($fases as $faseId) {
-                            $olimpista->fases()->syncWithoutDetaching([$faseId => ['puntaje' => 0.00, 'comentarios' => '']]);
+                        if ($areas->isNotEmpty()) {
+                            $olimpista->areas()->syncWithoutDetaching($areas->pluck('id')->toArray());
+                        }
+                        if (!empty($fases)) {
+                            foreach ($fases as $faseId) {
+                                $olimpista->fases()->syncWithoutDetaching([$faseId => ['puntaje' => 0.00, 'comentarios' => '']]);
+                            }
                         }
                     }
                 }
@@ -235,9 +270,6 @@ class OlimpistasController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($codsis)
     {
         try {
@@ -262,6 +294,13 @@ class OlimpistasController extends Controller
         }
     }
 
+    /**
+     * Muestra los olimpistas de una area determinada.
+     *
+     * @param string $sigla Sigla de la area a la que se refiere (default: 'Ninguna')
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function showByArea(string $sigla='Ninguna')
     {
         try {
@@ -282,7 +321,14 @@ class OlimpistasController extends Controller
         }
     }
 
-
+    /**
+     * Muestra los olimpistas de una fase determinada en una area determinada.
+     *
+     * @param string $area Sigla de la area a la que se refiere (default: 'Ninguna')
+     * @param string $tipo_fase Tipo de fase a la que se refiere (default: 'Ninguna')
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function showByFase(string $area='Ninguna', string $tipo_fase='Ninguna')
     {
         try {
@@ -316,7 +362,13 @@ class OlimpistasController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza un olimpista existente.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $codsis
+     * @return \Illuminate\Http\Response
+     *
+     * @throws \Throwable
      */
     public function update(Request $request, int $codsis)
     {
@@ -371,9 +423,13 @@ class OlimpistasController extends Controller
             ], 500);
         }
     }
-
+    
     /**
-     * Remove the specified resource from storage.
+     * Elimina al olimpista con el codigo sis especificado
+     * 
+     * @param int $codsis Codigo sis del olimpista a eliminar
+     * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     public function destroy(int $codsis)
     {
