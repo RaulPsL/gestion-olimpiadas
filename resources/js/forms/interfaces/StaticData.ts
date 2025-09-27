@@ -1,8 +1,12 @@
 interface StaticDataOlimpistas {
     areas: any[];
+    grados: any[];
+    niveles: any[];
+    departamentos: any[];
 }
 
 interface StaticDataUsuarios extends StaticDataOlimpistas {
+    areas: any[];
     roles: any[];
 }
 

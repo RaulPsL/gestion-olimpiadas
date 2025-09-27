@@ -1,11 +1,4 @@
 export const validationRules = {
-    sigla: {
-        required: "La sigla es obligatoria",
-        pattern: {
-            value: /^[A-Z0-9]+$/,
-            message: "Solo letras mayúsculas y números"
-        }
-    },
     tipo_fase: {
         required: "El tipo de fase es obligatorio"
     },
