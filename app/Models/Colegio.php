@@ -18,6 +18,7 @@ class Colegio extends Model
         'nombre',
         'direccion',
         'telefono',
+        'departamento',
     ];
 
     public function olimpistas() { return $this->hasMany(Olimpista::class); }

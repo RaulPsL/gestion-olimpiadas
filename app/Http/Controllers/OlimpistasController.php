@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\Colegio;
 use App\Models\Fase;
 use App\Models\Olimpista;
 use App\Models\Traits\Casts\Departamento;
@@ -17,12 +18,9 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class OlimpistasController extends Controller
 {
-    
     /**
-     * Muestra una lista de olimpistas con sus respectivas fases y areas,
-     * cada olimpista se muestra con sus respectivos nombres, apellidos,
-     * codigo sis, areas y fases.
-     * 
+     * Obtiene la lista de olimpistas con sus respectivos areas, fases y tutores academicos.
+     *
      * @return \Illuminate\Http\Response
      */
     public function index()
@@ -90,6 +88,11 @@ class OlimpistasController extends Controller
         }
     }
 
+    /**
+     * Obtiene la lista de areas, departamentos, grados y niveles que se utilizan en el sistema de olimpistas.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function indexStaticData()
     {
         try {
@@ -148,19 +151,57 @@ class OlimpistasController extends Controller
             'nombres' => 'required|string',
             'apellido_paterno' => 'required|string',
             'apellido_materno' => 'required|string',
-            'codigo_sis' => 'required|integer',
+            'ci' => 'required|integer',
+            'celular' => 'required|integer',
+            'grado_escolar' => 'required|string',
+            'nivel_competencia' => 'required|string',
+            'tutor' => 'required',
+            'tutor.nombre_tutor' => 'required|string',
+            'tutor.referencia_tutor' => 'required|integer',
+            'colegio' => 'required',
+            'colegio.nombre_colegio' => 'required|string',
+            'colegio.direccion_colegio' => 'required|string',
+            'colegio.telefono_colegio' => 'required|integer',
+            'colegio.departamento_colegio' => 'required|string',
         ]);
 
         try {
-            $olimpista = Olimpista::where('codigo_sis', $request->codigo_sis)->first();
+            $olimpista = Olimpista::where('ci', $request->ci)->first();
             if ($olimpista) {
                 return response()->json([
-                    'message' => "Olimpista $olimpista->codigo_sis ya existe.",
+                    'message' => "Olimpista $olimpista->ci ya existe.",
                     'data' => $olimpista,
                     'status' => 200,
                 ]); 
             }
-            $new_olimpista = Olimpista::create($request->all());
+
+            $colegio = Colegio::where('nombre', $request->colegio['nombre_colegio'])->first();
+            if (!$colegio) {
+                $colegio = Colegio::create([
+                    'nombre' => $request->colegio['nombre_colegio'],
+                    'direccion' => $request->colegio['direccion_colegio'],
+                    'telefono' => $request->colegio['telefono_colegio'],
+                    'departamento' => $request->colegio['departamento_colegio'],]);
+            }
+
+            $tutor = Tutor::where('nombre', $request->tutor['nombre_tutor'])->first();
+            if (!$tutor) {
+                $tutor = Tutor::create([
+                    'nombre' => $request->tutor['nombre_tutor'],
+                    'referencia' => $request->tutor['referencia_tutor'],]);
+            }
+
+            $new_olimpista = Olimpista::create([
+                'nombres' => $request->nombres,
+                'apellido_paterno' => $request->apellido_paterno,
+                'apellido_materno' => $request->apellido_materno,
+                'ci' => $request->ci,
+                'celular' => $request->celular,
+                'grado_escolar' => $request->grado_escolar,
+                'nivel_competencia'=> $request->nivel_competencia,
+                'colegio_id' => $colegio->id,
+                'tutor_id' => $tutor->id,]);
+
             if ($request->has('areas') and count($request->areas) > 0) {
                 $areas = Area::whereIn('sigla', $request->areas)->with('fases')->get();
                 $fases = $areas->map(function ($area) {
@@ -173,7 +214,27 @@ class OlimpistasController extends Controller
                     $new_olimpista->fases()->attach($fases, ['puntaje' => 0.00, 'comentarios' => '']);
                 }
             }
-            $new_olimpista = Olimpista::with('fases.area')->find($new_olimpista->id);
+
+            if ($request->has('tutor_academico')) {
+                $tutor_academico = TutorAcademico::where('ci', $request->tutor_academico['ci_tutor_academico'])->first();
+                if (!$tutor_academico) {
+                    $tutor_academico = TutorAcademico::create([
+                        'nombre' => $request->tutor_academico['nombre'],
+                        'apellidos' => $request->tutor_academico['apellidos'],
+                        'celular' => $request->tutor_academico['celular'],
+                        'email' => $request->tutor_academico['email'],
+                        'ci' => $request->tutor_academico['ci']]);
+                }
+                $new_olimpista->tutores_academicos()->attach($tutor_academico->id);
+            }
+
+            $new_olimpista = Olimpista::with([
+                'fases.area',
+                'tutores_academicos',
+                'tutor',
+                'colegio',
+                ])->find($new_olimpista->id);
+
             return response()->json([
                 'message' => "Olimpista creado exitosamente.",
                 'data' => $new_olimpista,
@@ -203,6 +264,17 @@ class OlimpistasController extends Controller
     {
         $request->validate([
             'archivo' => 'required|file|mimes:xlsx,xls,csv',
+            'colegio' => 'required',
+            'colegio.nombre_colegio' => 'required|string',
+            'colegio.direccion_colegio' => 'required|string',
+            'colegio.telefono_colegio' => 'required|integer',
+            'colegio.departamento_colegio' => 'required|string',
+            'tutor_academico' => 'required',
+            'tutor_academico.nombre_tutor_academico' => 'required|string',
+            'tutor_academico.apellidos_tutor_academico' => 'required|string',
+            'tutor_academico.celular_tutor_academico' => 'required|integer',
+            'tutor_academico.email_tutor_academico' => 'required|string',
+            'tutor_academico.cic' => 'required|integer',
         ]);
 
         $path = $request->file('archivo')->getRealPath();
@@ -237,59 +309,69 @@ class OlimpistasController extends Controller
             }
 
             $insertData = [];
+            $tutor_academico = TutorAcademico::where('ci', $request->tutor_academico['ci_tutor_academico'])->first();
+            if (!$tutor_academico) {
+                $tutor_academico = TutorAcademico::create([
+                    'nombre' => $request->tutor_academico['nombre_tutor_academico'],
+                    'apellidos' => $request->tutor_academico['apellidos_tutor_academico'],
+                    'celular' => $request->tutor_academico['celular_tutor_academico'],
+                    'email' => $request->tutor_academico['email_tutor_academico'],
+                    'ci' => $request->tutor_academico['ci_tutor_academico']
+                ]);
+            }
+
+            $colegio = Colegio::where('nombre', $request->colegio['nombre_colegio'])->first();
+            if (!$colegio) {
+                $colegio = Colegio::create([
+                    'nombre' => $request->colegio['nombre_colegio'],
+                    'direccion' => $request->colegio['direccion_colegio'],
+                    'telefono' => $request->colegio['telefono_colegio'],
+                    'departamento' => $request->colegio['departamento_colegio'],]);
+            }
 
             foreach ($datos as $dato) {
-                $tutor = null;
-                $tutor_academico = null;
-                if (empty($dato['nombres'] ?? null) || empty($dato['codigo_sis'] ?? null)) {
+                
+                if (empty($dato['nombres'] ?? null) || empty($dato['ci'] ?? null)) {
                     continue;
                 }
 
-                if (!empty($dato['nombre_tutor'] ?? null) and !empty($dato['referencia_tutor'] ?? null)) {
-                    $tutor = Tutor::create([
-                        'nombre' => $dato['nombre_tutor'],
-                        'referencia' => $dato['referencia_tutor'],
+                if (!empty($dato['nombre_completo_tutor'] ?? null) and !empty($dato['referencia_tutor'] ?? null)) {
+                    $tutor = Tutor::where('nombre', $dato['nombre_completo_tutor'])->first();
+                    if (!$tutor) {
+                        $tutor = Tutor::create([
+                            'nombre' => $dato['nombre_completo_tutor'],
+                            'referencia' => $dato['referencia_tutor'],
+                        ]);
+                    }
+                }
+                
+                $olimpista = Olimpista::where('ci', $dato['ci'])->first();
+                if (!$olimpista) {
+                    $olimpista = Olimpista::create([
+                        'nombres' => $dato['nombres'],
+                        'apellido_paterno' => $dato['apellido_paterno'],
+                        'apellido_materno' => $dato['apellido_materno'],
+                        'ci' => $dato['ci'],
+                        'celular' => $dato['celular'],
+                        'grado_escolar' => $dato['grado_escolar'],
+                        'nivel_competencia' => $dato['nivel_competencia'],
+                        'colegio_id' => $colegio->id,
+                        'tutor_id' => $tutor->id
                     ]);
                 }
 
-                if (
-                    !empty($dato['nombre_tutor_academico'] ?? null) and 
-                    !empty($dato['celular_tutor_academico'] ?? null) and
-                    !empty($dato['email_tutor_academico'] ?? null) and
-                    !empty($dato['ci_tutor_academico'] ?? null)) {
-                    $tutor_academico = TutorAcademico::create([
-                        'nombre' => $dato['nombre_tutor_academico'],
-                        'celular' => $dato['celular_tutor_academico'],
-                        'email' => $dato['email_tutor_academico'],
-                        'ci' => $dato['tutor']
-                    ]);
-                }
-                // Evitar duplicados
-                if (Olimpista::where('codigo_sis', $dato['codigo_sis'])->exists()) continue;
+                $olimpista->tutor_academico()->attach($tutor_academico->id);
 
-                $olimpista = Olimpista::create([
-                    'nombres' => $dato['nombres'],
-                    'apellido_paterno' => $dato['apellido_paterno'],
-                    'apellido_materno' => $dato['apellido_materno'],
-                    'ci' => $dato['codigo_sis'],
-                    'grado_escolar' => $dato['grado_escolar'],
-                    'nivel_competencia' => $dato['nivel_competencia'],
-                ]);
+                if (!empty($dato['areas'] ?? null)) {
+                    $areas = Area::whereIn('sigla', explode(',', $dato['areas']))->with('fases')->get();
+                    $fases = $areas->map(fn($area) => $area->primeraFase()?->id)->filter()->toArray();
 
-                foreach ($insertData as $dato) {
-                    $olimpista = Olimpista::where('codigo_sis', $dato['codigo_sis'])->first();
-
-                    if (!empty($dato['areas'] ?? null)) {
-                        $areas = Area::whereIn('sigla', explode(',', $dato['areas']))->with('fases')->get();
-                        $fases = $areas->map(fn($area) => $area->primeraFase()?->id)->filter()->toArray();
-
-                        if ($areas->isNotEmpty()) {
-                            $olimpista->areas()->syncWithoutDetaching($areas->pluck('id')->toArray());
-                        }
-                        if (!empty($fases)) {
-                            foreach ($fases as $faseId) {
-                                $olimpista->fases()->syncWithoutDetaching([$faseId => ['puntaje' => 0.00, 'comentarios' => '']]);
-                            }
+                    if ($areas->isNotEmpty()) {
+                        $olimpista->areas()->syncWithoutDetaching($areas->pluck('id')->toArray());
+                    }
+                    if (!empty($fases)) {
+                        foreach ($fases as $faseId) {
+                            $olimpista->fases()->syncWithoutDetaching([$faseId => ['puntaje' => 0.00, 'comentarios' => '']]);
                         }
                     }
                 }

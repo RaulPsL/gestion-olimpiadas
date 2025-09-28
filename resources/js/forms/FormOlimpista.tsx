@@ -10,17 +10,20 @@ import { createOlimpista, getStaticData } from "@/api/Olimpistas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { validationRules } from "./validations/OlimpistaValidate";
 import { OlimpistaForm } from "./interfaces/Olimpista";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function FormOlimpista() {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
     const [siguienteForm, setSiguienteForm] = React.useState<boolean>(false);
+    const [activoFormAcademico, setActivoFormAcademico] = React.useState<boolean>(true);
     const [selectedArea, setSelectedArea] = React.useState<string[]>([]);
     const [areas, setAreas] = React.useState<any[]>();
     const [grados, setGrados] = React.useState<any[]>();
     const [niveles, setNiveles] = React.useState<any[]>();
     const [departamentos, setDepartamentos] = React.useState<any[]>();
+    
     
     React.useEffect(() => {
         const staticData = async () => {
@@ -39,9 +42,9 @@ export default function FormOlimpista() {
         formState: { errors },
         reset,
         setValue,
-        watch,
-        getValues,
-        trigger
+        unregister,
+        trigger,
+        getValues
     } = useForm<OlimpistaForm>({
         defaultValues: {
             nombres: "",
@@ -96,18 +99,37 @@ export default function FormOlimpista() {
         setSiguienteForm(false);
     };
 
-    const handleFinalSubmit = () => {
-        handleSubmit((data) => 
-            createOlimpista(
-                data,
-                setIsLoading,
-                setSuccess,
-                setApiError,
-                () => areaField.reset(),
-                reset,
-                areaField.value as string[],
-            )
-        )();
+    const handleFinalSubmit = async () => {
+        const secondStepFields = [
+            "tutor_academico.nombres_tutor_academico",
+            "tutor_academico.apellidos_tutor_academico",
+            "tutor_academico.celular_tutor_academico",
+            "tutor_academico.email_tutor_academico",
+            "tutor_academico.ci_tutor_academico",
+            "colegio.nombre_colegio",
+            "colegio.direccion_colegio",
+            "colegio.telefono_colegio",
+            "colegio.departamento_colegio",
+        ];
+
+        const isValid = await trigger(secondStepFields as any);
+        if (!isValid && activoFormAcademico) return;
+
+        const data = getValues();
+
+        if (!activoFormAcademico) {
+            delete data.tutor_academico;
+        }
+        createOlimpista(
+            data,
+            setIsLoading,
+            setSuccess,
+            setApiError,
+            () => areaField.reset(),
+            reset,
+            areaField.value as string[],
+            activoFormAcademico,
+        );
     };
 
     return (
@@ -332,165 +354,192 @@ export default function FormOlimpista() {
 
                     {/* Segundo paso: Datos académicos */}
                     <CardContent className="w-1/2 flex-shrink-0">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 space-y-0">
-                            {/* Nombre Tutor Académico */}
-                            <div className="space-y-2">
-                                <Label htmlFor="nombres_tutor">
-                                    Nombre tutor académico <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="nombres_tutor"
-                                    type="text"
-                                    placeholder="Juan Carlos"
-                                    {...register("tutor_academico.nombres_tutor_academico", validationRules.nombres_tutor_academico)}
-                                    className={errors.tutor_academico?.nombres_tutor_academico ? "border-red-500" : ""}
-                                />
-                                {errors.tutor_academico?.nombres_tutor_academico && (
-                                    <p className="text-sm text-red-500">{errors.tutor_academico?.nombres_tutor_academico.message}</p>
-                                )}
+                        <div className="space-y-8">
+                            {/* Sección Tutor Académico */}
+                            <div className={`space-y-4 `}>
+                                <div className="flex flex-row content-between">
+                                    <h4 className="text-base font-semibold text-foreground border-b pb-2">
+                                        Datos del Tutor Académico
+                                    </h4>
+                                    <Checkbox
+                                        checked={activoFormAcademico}
+                                        onCheckedChange={(checked) => {
+                                            setActivoFormAcademico(checked === true);
+                                            if (activoFormAcademico === false) {
+                                                unregister("tutor_academico");
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${ activoFormAcademico ? '' : 'hidden'}`}>
+                                    {/* Nombre Tutor Académico */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nombres_tutor">
+                                            Nombre tutor académico <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="nombres_tutor"
+                                            type="text"
+                                            placeholder="Juan Carlos"
+                                            {...register("tutor_academico.nombres_tutor_academico", validationRules.nombres_tutor_academico)}
+                                            className={errors.tutor_academico?.nombres_tutor_academico ? "border-red-500" : ""}
+                                        />
+                                        {errors.tutor_academico?.nombres_tutor_academico && (
+                                            <p className="text-sm text-red-500">{errors.tutor_academico?.nombres_tutor_academico.message}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Apellidos Tutor Académico */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="apellidos_tutor_academico">
+                                            Apellidos tutor académico <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="apellidos_tutor_academico"
+                                            type="text"
+                                            placeholder="García López"
+                                            {...register("tutor_academico.apellidos_tutor_academico", validationRules.apellidos_tutor_academico)}
+                                            className={errors.tutor_academico?.apellidos_tutor_academico ? "border-red-500" : ""}
+                                        />
+                                        {errors.tutor_academico?.apellidos_tutor_academico && (
+                                            <p className="text-sm text-red-500">{errors.tutor_academico?.apellidos_tutor_academico.message}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Celular Tutor Académico */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="celular_tutor">
+                                            Celular tutor académico <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="celular_tutor"
+                                            type="number"
+                                            placeholder="73456789"
+                                            {...register("tutor_academico.celular_tutor_academico", {
+                                                ...validationRules.celular_tutor_academico,
+                                                valueAsNumber: true
+                                            })}
+                                            className={errors.tutor_academico?.celular_tutor_academico ? "border-red-500" : ""}
+                                        />
+                                        {errors.tutor_academico?.celular_tutor_academico && (
+                                            <p className="text-sm text-red-500">{errors.tutor_academico?.celular_tutor_academico.message}</p>
+                                        )}
+                                    </div>
+
+                                    {/* CI Tutor Académico */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="ci_tutor_academico">
+                                            C.I. tutor académico <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="ci_tutor_academico"
+                                            type="text"
+                                            placeholder="8947493"
+                                            {...register("tutor_academico.ci_tutor_academico", validationRules.ci_tutor_academico)}
+                                            className={errors.tutor_academico?.ci_tutor_academico ? "border-red-500" : ""}
+                                        />
+                                        {errors.tutor_academico?.ci_tutor_academico && (
+                                            <p className="text-sm text-red-500">{errors.tutor_academico?.ci_tutor_academico.message}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Email Tutor Académico */}
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label htmlFor="email_tutor_academico">
+                                            Email del tutor académico <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="email_tutor_academico"
+                                            type="email"
+                                            placeholder="tutor@ejemplo.com"
+                                            {...register("tutor_academico.email_tutor_academico", validationRules.email_tutor_academico)}
+                                            className={errors.tutor_academico?.email_tutor_academico ? "border-red-500" : ""}
+                                        />
+                                        {errors.tutor_academico?.email_tutor_academico && (
+                                            <p className="text-sm text-red-500">{errors.tutor_academico?.email_tutor_academico.message}</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Apellidos Tutor Académico */}
-                            <div className="space-y-2">
-                                <Label htmlFor="apellidos_tutor_academico">
-                                    Apellidos tutor académico <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="apellidos_tutor_academico"
-                                    type="text"
-                                    placeholder="García López"
-                                    {...register("tutor_academico.apellidos_tutor_academico", validationRules.apellidos_tutor_academico)}
-                                    className={errors.tutor_academico?.apellidos_tutor_academico ? "border-red-500" : ""}
-                                />
-                                {errors.tutor_academico?.apellidos_tutor_academico && (
-                                    <p className="text-sm text-red-500">{errors.tutor_academico?.apellidos_tutor_academico.message}</p>
-                                )}
-                            </div>
+                            {/* Sección Colegio */}
+                            <div className="space-y-4">
+                                <h4 className="text-base font-semibold text-foreground border-b pb-2">
+                                    Datos del Colegio
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Nombre del Colegio */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nombre_colegio">
+                                            Nombre del colegio <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="nombre_colegio"
+                                            type="text"
+                                            placeholder="Ej. U.E. Villazón"
+                                            {...register("colegio.nombre_colegio", validationRules.nombre_colegio)}
+                                            className={errors.colegio?.nombre_colegio ? "border-red-500" : ""}
+                                        />
+                                        {errors.colegio?.nombre_colegio && (
+                                            <p className="text-sm text-red-500">{errors.colegio?.nombre_colegio.message}</p>
+                                        )}
+                                    </div>
 
-                            {/* Celular Tutor Académico */}
-                            <div className="space-y-2">
-                                <Label htmlFor="celular_tutor">
-                                    Celular tutor académico <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="celular_tutor"
-                                    type="number"
-                                    placeholder="73456789"
-                                    {...register("tutor_academico.celular_tutor_academico", {
-                                        ...validationRules.celular_tutor_academico,
-                                        valueAsNumber: true
-                                    })}
-                                    className={errors.tutor_academico?.celular_tutor_academico ? "border-red-500" : ""}
-                                />
-                                {errors.tutor_academico?.celular_tutor_academico && (
-                                    <p className="text-sm text-red-500">{errors.tutor_academico?.celular_tutor_academico.message}</p>
-                                )}
-                            </div>
+                                    {/* Departamento */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="departamento">
+                                            Departamento <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Combobox
+                                            items={departamentos}
+                                            value={departamentoField.value}
+                                            onChange={departamentoField.onChange}
+                                            placeholder="Seleccionar departamento..."
+                                            searchPlaceholder="Buscar departamento..."
+                                            multiple={false}
+                                        />
+                                        {departamentoField.value === undefined && apiError.includes("departamento") && (
+                                            <p className="text-sm text-red-500">Debe seleccionar un departamento</p>
+                                        )}
+                                    </div>
 
-                            {/* CI Tutor Académico */}
-                            <div className="space-y-2">
-                                <Label htmlFor="ci_tutor_academico">
-                                    C.I. tutor académico <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="ci_tutor_academico"
-                                    type="text"
-                                    placeholder="8947493"
-                                    {...register("tutor_academico.ci_tutor_academico", validationRules.ci_tutor_academico)}
-                                    className={errors.tutor_academico?.ci_tutor_academico ? "border-red-500" : ""}
-                                />
-                                {errors.tutor_academico?.ci_tutor_academico && (
-                                    <p className="text-sm text-red-500">{errors.tutor_academico?.ci_tutor_academico.message}</p>
-                                )}
-                            </div>
+                                    {/* Teléfono del Colegio */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="telefono_colegio">
+                                            Teléfono del colegio <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="telefono_colegio"
+                                            type="number"
+                                            placeholder="4456789"
+                                            {...register("colegio.telefono_colegio", {
+                                                ...validationRules.telefono_colegio,
+                                                valueAsNumber: true
+                                            })}
+                                            className={errors.colegio?.telefono_colegio ? "border-red-500" : ""}
+                                        />
+                                        {errors.colegio?.telefono_colegio && (
+                                            <p className="text-sm text-red-500">{errors.colegio?.telefono_colegio.message}</p>
+                                        )}
+                                    </div>
 
-                            {/* Email Tutor Académico */}
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="email_tutor_academico">
-                                    Email del tutor académico <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="email_tutor_academico"
-                                    type="email"
-                                    placeholder="tutor@ejemplo.com"
-                                    {...register("tutor_academico.email_tutor_academico", validationRules.email_tutor_academico)}
-                                    className={errors.tutor_academico?.email_tutor_academico ? "border-red-500" : ""}
-                                />
-                                {errors.tutor_academico?.email_tutor_academico && (
-                                    <p className="text-sm text-red-500">{errors.tutor_academico?.email_tutor_academico.message}</p>
-                                )}
-                            </div>
-
-                            {/* Nombre del Colegio */}
-                            <div className="space-y-2">
-                                <Label htmlFor="nombre_colegio">
-                                    Nombre del colegio <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="nombre_colegio"
-                                    type="text"
-                                    placeholder="Ej. U.E. Villazón"
-                                    {...register("colegio.nombre_colegio", validationRules.nombre_colegio)}
-                                    className={errors.colegio?.nombre_colegio ? "border-red-500" : ""}
-                                />
-                                {errors.colegio?.nombre_colegio && (
-                                    <p className="text-sm text-red-500">{errors.colegio?.nombre_colegio.message}</p>
-                                )}
-                            </div>
-
-                            {/* Departamento */}
-                            <div className="space-y-2">
-                                <Label htmlFor="departamento">
-                                    Departamento <span className="text-red-500">*</span>
-                                </Label>
-                                <Combobox
-                                    items={departamentos}
-                                    value={departamentoField.value}
-                                    onChange={departamentoField.onChange}
-                                    placeholder="Seleccionar departamento..."
-                                    searchPlaceholder="Buscar departamento..."
-                                    multiple={false}
-                                />
-                                {departamentoField.value === undefined && apiError.includes("departamento") && (
-                                    <p className="text-sm text-red-500">Debe seleccionar un departamento</p>
-                                )}
-                            </div>
-
-                            {/* Teléfono del Colegio */}
-                            <div className="space-y-2">
-                                <Label htmlFor="telefono_colegio">
-                                    Teléfono del colegio <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="telefono_colegio"
-                                    type="number"
-                                    placeholder="4456789"
-                                    {...register("colegio.telefono_colegio", {
-                                        ...validationRules.telefono_colegio,
-                                        valueAsNumber: true
-                                    })}
-                                    className={errors.colegio?.telefono_colegio ? "border-red-500" : ""}
-                                />
-                                {errors.colegio?.telefono_colegio && (
-                                    <p className="text-sm text-red-500">{errors.colegio?.telefono_colegio.message}</p>
-                                )}
-                            </div>
-
-                            {/* Dirección del Colegio */}
-                            <div className="space-y-2">
-                                <Label htmlFor="direccion_colegio">
-                                    Dirección del colegio <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="direccion_colegio"
-                                    type="text"
-                                    placeholder="Ej. Av. Aniceto Arce"
-                                    {...register("colegio.direccion_colegio", validationRules.direccion_colegio)}
-                                    className={errors.colegio?.direccion_colegio ? "border-red-500" : ""}
-                                />
-                                {errors.colegio?.direccion_colegio && (
-                                    <p className="text-sm text-red-500">{errors.colegio?.direccion_colegio.message}</p>
-                                )}
+                                    {/* Dirección del Colegio */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="direccion_colegio">
+                                            Dirección del colegio <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="direccion_colegio"
+                                            type="text"
+                                            placeholder="Ej. Av. Aniceto Arce"
+                                            {...register("colegio.direccion_colegio", validationRules.direccion_colegio)}
+                                            className={errors.colegio?.direccion_colegio ? "border-red-500" : ""}
+                                        />
+                                        {errors.colegio?.direccion_colegio && (
+                                            <p className="text-sm text-red-500">{errors.colegio?.direccion_colegio.message}</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </CardContent>

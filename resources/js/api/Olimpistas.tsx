@@ -24,7 +24,8 @@ export const createOlimpista = async (
     setApiError: React.Dispatch<React.SetStateAction<string>>,
     setSelectedArea: React.Dispatch<React.SetStateAction<string[]>>,
     reset: () => void,
-    selectedArea: string[]
+    selectedArea: string[],
+    activoFormAcademico: boolean
 ) => {
     setIsLoading(true);
     setApiError("");
@@ -36,7 +37,9 @@ export const createOlimpista = async (
             setIsLoading(false);
             return;
         }
-
+        if (activoFormAcademico) {
+            delete data.tutor_academico;
+        }
         const formData = {
             ...data,
             areas: selectedArea,
@@ -63,7 +66,7 @@ export const createOlimpista = async (
                 setApiError(error.response.data.message || "Error de validación");
             }
         } else if (error.response?.status === 200) {
-            setApiError("El olimpista ya está registrado con ese código SIS");
+            setApiError("El olimpista ya está registrado con ese CI");
         } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
         } else {
