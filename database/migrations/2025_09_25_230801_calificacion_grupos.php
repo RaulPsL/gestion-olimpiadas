@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('grupo_id')->constrained()->onDelete('cascade');
             $table->foreignId('fase_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            $table->unique(['grupo_id', 'fase_id']);
+            // $table->unique(['grupo_id', 'fase_id']);
         });
     }
 

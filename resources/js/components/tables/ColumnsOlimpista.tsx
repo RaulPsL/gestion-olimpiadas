@@ -4,13 +4,13 @@ import { ColumnDef } from "@tanstack/react-table";
 // You can use a Zod schema here if you want.
 
 export type Olimpista = {
-    nombre: string;
-    ci: number;
-    colegio: string;
-    departamento: string;
-    tutor: string;
-    fase: string;
-    area: string;
+  nombre: string;
+  ci: number;
+  colegio: string;
+  departamento: string;
+  tutor: string;
+  fase: string;
+  area: string;
 };
 
 export const columns: ColumnDef<Olimpista>[] = [

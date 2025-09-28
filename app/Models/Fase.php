@@ -67,4 +67,9 @@ class Fase extends Model
         return $this->belongsToMany(Olimpista::class, 'calificacions')
             ->withPivot('puntaje', 'comentarios');
     }
+
+    public function grupos() {
+        return $this->belongsToMany(Grupo::class, 'calificacion_grupos')
+            ->withPivot('puntaje', 'comentarios');
+    }
 }
