@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Casts\NivelArea;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,6 +21,16 @@ class Area extends Model
         'nombre',
         'sigla',
         'descripcion',
+        'nivel',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'nivel' => NivelArea::class,
     ];
 
     /**
@@ -42,4 +53,6 @@ class Area extends Model
     }
 
     public function usuarios() { return $this->belongsToMany(Usuario::class, 'usuario_areas');}
+
+    public function grupos() { return $this->belongsToMany(Grupo::class, 'grupo_areas'); }
 }

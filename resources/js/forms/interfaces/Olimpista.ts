@@ -3,6 +3,7 @@ export interface OlimpistaForm {
     apellido_paterno: string;
     apellido_materno: string;
     ci: string;
+    celular: number;
     grado_escolar: string;
     nivel_competencia: string;
     estado: string;

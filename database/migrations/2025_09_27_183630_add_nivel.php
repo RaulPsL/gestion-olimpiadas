@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('usuarios', function (Blueprint $table) {
-            $table->integer('ci')->unique();
-            $table->dropColumn('uuid');
+        Schema::table('areas', function (Blueprint $table) {
+            $table->string('nivel');
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('usuarios', function (Blueprint $table) {
-            $table->string('uuid')->nullable();
+        Schema::table('areas', function (Blueprint $table) {
+            //
         });
     }
 };

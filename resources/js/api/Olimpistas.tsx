@@ -12,7 +12,7 @@ export const getStaticData = async ():Promise<StaticDataOlimpistas> => {
         areas: data.data.areas,
         grados: data.data.grados,
         niveles: data.data.niveles,
-        departamentos: data.data.departamentos
+        departamentos: data.data.departamentos,
     };
 };
 
@@ -39,7 +39,6 @@ export const createOlimpista = async (
         const formData = {
             ...data,
             areas: selectedArea,
-            codigo_sis: Number(data.codigo_sis)
         };
 
         console.log("Enviando datos:", formData);

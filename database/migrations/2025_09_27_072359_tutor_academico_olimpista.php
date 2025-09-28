@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Traits\Casts\Departamento;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('colegios', function (Blueprint $table) {
+        Schema::create('tutor_academico_olimpistas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->string('direccion');
-            $table->string('telefono');
-            $table->enum('departamento', array_column(Departamento::cases(), 'value'))->default('Cochabamba');
+            $table->foreignId('olimpista_id')->constrained()->onDelete('cascade');
+            $table->foreignId('tutor_academico_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('colegios');
+        Schema::dropIfExists('tutor_academico_olimpistas');
     }
 };

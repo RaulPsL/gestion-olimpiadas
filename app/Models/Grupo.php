@@ -16,6 +16,7 @@ class Grupo extends Model
      */
     protected $fillable = [
         'nombre',
+        'tutor_academico_id',
     ];
 
     /**
@@ -27,17 +28,24 @@ class Grupo extends Model
         'id',
         'created_at',
         'updated_at',
-        'tutor_id',
+        'tutor_academico_id',
         'colegio_id',
     ];
 
     public function areas()
     {
-        return $this->belongsToMany(Area::class, 'area_grupos');
+        return $this->belongsToMany(Area::class, 'grupo_areas');
     }
 
     public function olimpistas()
     {
         return $this->belongsToMany(Olimpista::class, 'olimpista_grupos');
     }
+
+    public function fases() { 
+        return $this->belongsToMany(Fase::class, 'calificacion_grupos')
+            ->withPivot('puntaje', 'comentarios');
+    }
+
+    public function tutor_academico() { return $this->belongsTo(TutorAcademico::class); }
 }

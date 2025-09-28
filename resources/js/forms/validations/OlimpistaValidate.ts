@@ -32,6 +32,16 @@ export const validationRules = {
             message: "Solo se permiten letras y espacios"
         }
     },
+    celular: {
+        required: "El celular del tutor academico es obligatorio",
+        validate: (value: number) => {
+            const strValue = value.toString();
+            if (!/^[67]\d{7}$/.test(strValue)) {
+                return "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)";
+            }
+            return true;
+        }
+    },
     ci: {
         required: "La cedula de identidad es obligatorio",
         minLength: {

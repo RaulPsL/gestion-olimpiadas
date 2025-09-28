@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('descripcion')->nullable();
             $table->integer('cantidad_max_participantes');
             $table->integer('cantidad_min_participantes');
-            $table->enum('estado', array_column(EstadoFase::cases(), 'value'))->default('en curso');
+            $table->enum('estado', array_column(EstadoFase::cases(), 'value'))->default('pendiente');
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
             $table->foreignId('area_id')->constrained()->onDelete('cascade');

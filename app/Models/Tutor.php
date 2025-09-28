@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Colegio extends Model
+class Tutor extends Model
 {
     use HasFactory;
 
@@ -16,8 +16,13 @@ class Colegio extends Model
      */
     protected $fillable = [
         'nombre',
-        'direccion',
-        'telefono',
+        'referencia',
+    ];
+
+    protected $hidden = [
+        'id',
+        'created_at',
+        'updated_at',
     ];
 
     public function olimpistas() { return $this->hasMany(Olimpista::class); }

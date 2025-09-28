@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Fase;
 use App\Models\Olimpista;
+use App\Models\Traits\Casts\Departamento;
+use App\Models\Traits\Casts\GradoOlimpista;
+use App\Models\Traits\Casts\NivelArea;
+use App\Models\Tutor;
 use App\Models\TutorAcademico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -43,35 +47,41 @@ class OlimpistasController extends Controller
             //         'fases' => $fases,
             //     ];
             // });
-            $olimpistas = Fase::select(['id', 'sigla', 'area_id'])
+            // * Obtener estos datos para poder usarlos en la tablac
+            // * nombre: string;
+            // * ci: number;
+            // * colegio: string;
+            // * departamento: string;
+            // * tutor: string;
+            // * fase: string;
+            // * area: string;
+            $fases = Fase::select(['id', 'sigla', 'area_id'])
                 ->with([
-                    'olimpistas:id,nombres,apellido_paterno,apellido_materno,codigo_sis',
+                    'olimpistas.tutor',
+                    'olimpistas.tutores_academicos',
+                    'olimpistas.colegio',
                     'area:id,nombre'])->get();
-            $listaFiltrada = collect($olimpistas)->map(function ($fase) {
-                $_olimpistas = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
-                    return [
-                        'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
-                        'email' => $olimpista->codigo_sis,
-                        'area' => $fase->area->nombre,
-                        'fase' => $fase->sigla,
-                    ];
-                });
-                if (count($_olimpistas) > 0) {
-                    return $_olimpistas;
-                }
-            });
+            // $listaFiltrada = collect($fases)->map(function ($fase) {
+            //     $_olimpistas = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
+            //         return [
+            //             'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+            //             'email' => $olimpista->codigo_sis,
+            //             'area' => $fase->area->nombre,
+            //             'fase' => $fase->sigla,
+            //         ];
+            //     });
+            //     if (count($_olimpistas) > 0) {
+            //         return $_olimpistas;
+            //     }
+            // });
             return response()->json([
-                'data' => [
-                    'olimpistas' => $listaFiltrada->filter()->values()->toArray()[0],
-                    'cabeceras' => Schema::getColumnListing((new Olimpista())->getTable()),
-                ],
-                'status' => 200
-            ]);
+                'message' => "Olimpistas obtenidos exitosamente.",
+                'data' => $fases,
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al obtener los olimpistas.',
                 'error' => $th->getMessage(),
-                'status' => 500
             ], 500);
         }
     }
@@ -86,8 +96,34 @@ class OlimpistasController extends Controller
                     'label' => $area->nombre,
                 ];
             });
+            $departamentos = collect(Departamento::cases())->map(function ($departamento, $index) {
+                return [
+                    'id' => $index+1,
+                    'value' => $departamento->value,
+                    'label' => $departamento->name,
+                ];
+            });
+            $grados = collect(GradoOlimpista::cases())->map(function ($grado, $index) {
+                return [
+                    'id' => $index+1,
+                    'value' => $grado->value,
+                    'label' => $grado->name,
+                ];
+            });
+            $niveles = collect(NivelArea::cases())->map(function ($area, $index) {
+                return [
+                    'id' => $index+1,
+                    'value' => $area->value,
+                    'label' => $area->name,
+                ];
+            });
             return response()->json([
-                'data' => $areas,
+                'data' => [
+                    'areas' => $areas,
+                    'departamentos' => $departamentos,
+                    'grados' => $grados,
+                    'niveles' => $niveles,
+                ],
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
@@ -104,7 +140,6 @@ class OlimpistasController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info('POST request received in store method', $request->all());
         $request->validate([
             'nombres' => 'required|string',
             'apellido_paterno' => 'required|string',

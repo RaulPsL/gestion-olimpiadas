@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Traits\Casts\EstadoOlimpista;
+use App\Models\Traits\Casts\GradoOlimpista;
+use App\Models\Traits\Casts\NivelArea;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,9 +23,13 @@ class Olimpista extends Model
         'nombres',
         'apellido_paterno',
         'apellido_materno',
-        'codigo_sis',
-        'semestre',
+        'ci',
+        'celular',
+        'grado_escolar',
+        'nivel_escolar',
         'estado',
+        'colegio_id',
+        'tutor_id',
     ];
 
     /**
@@ -33,7 +39,6 @@ class Olimpista extends Model
      */
     protected $hidden = [
         'id',
-        'id_usuario',
         'created_at',
         'updated_at',
     ];
@@ -44,8 +49,11 @@ class Olimpista extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'ci' => 'integer',
+        'celular' => 'integer',
+        'grado_escolar' => GradoOlimpista::class,
+        'nivel_escolar' => NivelArea::class,
         'estado' => EstadoOlimpista::class,
-        'semestre' => 'integer',
     ];
 
     public function calificaciones() { return $this->hasMany(Calificacion::class); }
@@ -65,5 +73,7 @@ class Olimpista extends Model
 
     public function colegio() { return $this->belongsTo(Colegio::class); }
 
-    public function tutor() { return $this->belongsTo(TutorAcademico::class); }
+    public function tutores_academicos() { return $this->belongsToMany(TutorAcademico::class, 'tutor_academico_olimpistas'); }
+
+    public function tutor() { return $this->belongsTo(Tutor::class); }
 }

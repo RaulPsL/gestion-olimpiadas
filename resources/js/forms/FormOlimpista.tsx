@@ -47,6 +47,7 @@ export default function FormOlimpista() {
             nombres: "",
             apellido_paterno: "",
             apellido_materno: "",
+            celular: 72345678,
             ci: "",
             grado_escolar: "primero",
             nivel_competencia: "primaria",
@@ -215,6 +216,44 @@ export default function FormOlimpista() {
                                     <p className="text-sm text-red-500">{errors.ci.message}</p>
                                 )}
                             </div>
+                            
+                            {/* Celular. */}
+                            <div className="space-y-2">
+                                <Label htmlFor="celular">
+                                    Celular <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="celular"
+                                    type="number"
+                                    placeholder="78947493"
+                                    {...register("celular", {
+                                        ...validationRules.celular,
+                                        valueAsNumber: true
+                                    })}
+                                    className={errors.celular ? "border-red-500" : ""}
+                                />
+                                {errors.celular && (
+                                    <p className="text-sm text-red-500">{errors.celular.message}</p>
+                                )}
+                            </div>
+                            
+                            {/* Área de Competencia - span completo */}
+                            <div className="space-y-2">
+                                <Label htmlFor="area">
+                                    Área de Competencia <span className="text-red-500">*</span>
+                                </Label>
+                                <Combobox
+                                    items={areas}
+                                    value={areaField.value}
+                                    onChange={areaField.onChange}
+                                    placeholder="Seleccionar área..."
+                                    searchPlaceholder="Buscar área..."
+                                    multiple={true}
+                                />
+                                {areas?.length === 0 && apiError.includes("área") && (
+                                    <p className="text-sm text-red-500">Debe seleccionar al menos un área</p>
+                                )}
+                            </div>
 
                             {/* Grado Escolar */}
                             <div className="space-y-2">
@@ -252,24 +291,6 @@ export default function FormOlimpista() {
                                 )}
                             </div>
 
-                            {/* Área de Competencia - span completo */}
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="area">
-                                    Área de Competencia <span className="text-red-500">*</span>
-                                </Label>
-                                <Combobox
-                                    items={areas}
-                                    value={areaField.value}
-                                    onChange={areaField.onChange}
-                                    placeholder="Seleccionar área..."
-                                    searchPlaceholder="Buscar área..."
-                                    multiple={true}
-                                />
-                                {areas?.length === 0 && apiError.includes("área") && (
-                                    <p className="text-sm text-red-500">Debe seleccionar al menos un área</p>
-                                )}
-                            </div>
-
                             {/* Nombre del Tutor */}
                             <div className="space-y-2">
                                 <Label htmlFor="tutor">
@@ -295,7 +316,7 @@ export default function FormOlimpista() {
                                 <Input
                                     id="referencia_tutor"
                                     type="number"
-                                    placeholder="12345678"
+                                    placeholder="72345678"
                                     {...register("tutor.referencia_tutor", {
                                         ...validationRules.referencia_tutor,
                                         valueAsNumber: true
