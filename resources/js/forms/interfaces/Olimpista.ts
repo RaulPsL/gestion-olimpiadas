@@ -12,7 +12,7 @@ export interface OlimpistaForm {
         nombre_tutor: string;
         referencia_tutor: number;
     },
-    tutor_academico: {
+    tutor_academico?: {
         nombres_tutor_academico: string;
         apellidos_tutor_academico: string;
         celular_tutor_academico: number;

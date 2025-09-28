@@ -8,7 +8,7 @@ export default function TableOlimpistas() {
   React.useEffect(() => {
     const staticData = async () => {
       const staticData = await getOlimpistas();
-      setOlimpistas(staticData.olimpistas);
+      setOlimpistas(staticData);
     };
     staticData();
   }, [])

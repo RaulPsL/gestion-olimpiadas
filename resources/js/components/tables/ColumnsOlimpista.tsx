@@ -8,7 +8,7 @@ export type Olimpista = {
   ci: number;
   colegio: string;
   departamento: string;
-  tutor: string;
+  tutor_academico: string;
   fase: string;
   area: string;
 };
@@ -31,7 +31,7 @@ export const columns: ColumnDef<Olimpista>[] = [
     header: "Departamento",
   },
   {
-    accessorKey: "tutor",
+    accessorKey: "tutor_academico",
     header: "Tutor",
   },
   {
