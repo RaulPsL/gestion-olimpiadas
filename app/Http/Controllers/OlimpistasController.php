@@ -47,36 +47,40 @@ class OlimpistasController extends Controller
             //         'fases' => $fases,
             //     ];
             // });
-            // * Obtener estos datos para poder usarlos en la tablac
-            // * nombre: string;
-            // * ci: number;
-            // * colegio: string;
-            // * departamento: string;
-            // * tutor: string;
-            // * fase: string;
-            // * area: string;
             $fases = Fase::select(['id', 'sigla', 'area_id'])
                 ->with([
                     'olimpistas.tutor',
                     'olimpistas.tutores_academicos',
                     'olimpistas.colegio',
                     'area:id,nombre'])->get();
-            // $listaFiltrada = collect($fases)->map(function ($fase) {
-            //     $_olimpistas = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
-            //         return [
-            //             'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
-            //             'email' => $olimpista->codigo_sis,
-            //             'area' => $fase->area->nombre,
-            //             'fase' => $fase->sigla,
-            //         ];
-            //     });
-            //     if (count($_olimpistas) > 0) {
-            //         return $_olimpistas;
-            //     }
-            // });
+            $listaFiltrada = collect($fases)->map(function ($fase) {
+                $_olimpistas = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
+                    $tutores_academicos = '';
+                    if (count($olimpista->tutores_academicos) > 0) {
+                        $list_tutores = [];
+                        foreach ($olimpista->tutores_academicos as $value) {
+                            $list_tutores[] = "$value->nombre $value->apellidos";
+                        };
+                        $tutores_academicos = implode(', ', array_unique($list_tutores));
+                    }
+                    return [
+                        'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+                        'ci' => $olimpista->ci,
+                        'colegio' => $olimpista->colegio->nombre,
+                        'departamento' => $olimpista->colegio->departamento,
+                        'tutor' => $olimpista->tutor->nombre,
+                        'tutor_academico' => $tutores_academicos,
+                        'area' => $fase->area->nombre,
+                        'fase' => $fase->sigla,
+                    ];
+                });
+                if (count($_olimpistas) > 0) {
+                    return $_olimpistas;
+                }
+            });
             return response()->json([
                 'message' => "Olimpistas obtenidos exitosamente.",
-                'data' => $fases,
+                'data' => $listaFiltrada->filter()->values()->toArray()[0],
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

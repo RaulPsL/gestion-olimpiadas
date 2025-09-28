@@ -3,6 +3,7 @@ import { axiosInstance, axiosPublic } from "./api";
 
 export const getOlimpistas = async () => {
     const { data } = await axiosPublic.get("/olimpistas");
+    console.log(`Datos obtenidos: ${data.data}`);
     return data.data;
 };
 
