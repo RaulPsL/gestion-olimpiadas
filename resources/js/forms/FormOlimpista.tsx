@@ -24,7 +24,6 @@ export default function FormOlimpista() {
     const [niveles, setNiveles] = React.useState<any[]>();
     const [departamentos, setDepartamentos] = React.useState<any[]>();
     
-    
     React.useEffect(() => {
         const staticData = async () => {
             const staticData = await getStaticData();
@@ -38,7 +37,6 @@ export default function FormOlimpista() {
 
     const {
         register,
-        handleSubmit,
         formState: { errors },
         reset,
         setValue,

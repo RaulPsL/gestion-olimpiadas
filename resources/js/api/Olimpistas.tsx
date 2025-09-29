@@ -1,5 +1,6 @@
 import { OlimpistaForm } from "@/forms/interfaces/Olimpista";
 import { axiosInstance, axiosPublic } from "./api";
+import { MassiveForm } from "@/forms/interfaces/AcademicForm";
 
 export const getOlimpistas = async () => {
     const { data } = await axiosPublic.get("/olimpistas");
@@ -77,18 +78,56 @@ export const createOlimpista = async (
     }
 };
 
-export const createMassiveOlimpistas = async (data: any) => {
-    console.log(data);
-    const response = await axiosInstance.post("/olimpistas/file", 
-        {
-            archivo: data,
-        },
-        {
-            headers:{
-                "Content-Type": "multipart/form-data"
+export const createMassiveOlimpistas = async (
+    data: MassiveForm,
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
+    setApiError: React.Dispatch<React.SetStateAction<string>>,
+    reset: () => void,
+) => {
+    setIsLoading(true);
+    setApiError("");
+    setSuccess(false);
+
+    try {
+        console.log("Enviando datos:", data);
+
+        const result = await axiosInstance.post("/olimpistas/file", 
+            {
+                archivo: data,
+            },
+            {
+                headers:{
+                    "Content-Type": "multipart/form-data"
+                }
+            },
+        );
+        
+        console.log("Respuesta del servidor:", result.data);
+        setSuccess(true);
+        reset();
+        
+    } catch (error: any) {
+        console.error("Error al crear olimpista:", error);
+
+        if (error.response?.status === 422) {
+            const backendErrors = error.response.data.errors;
+            if (backendErrors) {
+                const errorMessages = Object.values(backendErrors).flat();
+                setApiError(errorMessages.join(", "));
+            } else {
+                setApiError(error.response.data.message || "Error de validación");
             }
-        },);
-    return response.data;
+        } else if (error.response?.status === 200) {
+            setApiError("El olimpista ya está registrado con ese CI");
+        } else if (error.response?.status === 500) {
+            setApiError("Error interno del servidor. Intente nuevamente.");
+        } else {
+            setApiError("Error de conexión. Verifique su internet.");
+        }
+    } finally {
+        setIsLoading(false);
+    }
 }
 
 export const getOlimpista = async (codsis: number) => {

@@ -249,17 +249,6 @@ class OlimpistasController extends Controller
         }
     }
 
-    /**
-     * Importa olimpistas masivamente desde un archivo CSV o Excel.
-     * Se utiliza la columna "codigo_sis" para identificar los olimpistas.
-     * Se utiliza la columna "areas" para identificar las areas asignadas a cada olimpista.
-     * Se utiliza la columna "semestre" para identificar el semestre de cada olimpista.
-     * Se utiliza la columna "nombres" para identificar el nombre del olimpista.
-     * Se utiliza la columna "apellido_paterno" y "apellido_materno" para identificar el apellido paterno y materno del olimpista.
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function storeByFile(Request $request)
     {
         $request->validate([
