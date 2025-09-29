@@ -18,11 +18,17 @@ export default function FormMassiveOlimista() {
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
     const [fileError, setFileError] = React.useState<string>("");
     const [importResult, setImportResult] = React.useState<any>(null);
+    const [areas, setAreas] = React.useState<any[]>();
+    const [grados, setGrados] = React.useState<any[]>();
+    const [niveles, setNiveles] = React.useState<any[]>();
     const [departamentos, setDepartamentos] = React.useState<any[]>();
-
+    
     React.useEffect(() => {
         const staticData = async () => {
             const staticData = await getStaticData();
+            setAreas(staticData.areas);
+            setGrados(staticData.grados);
+            setNiveles(staticData.niveles);
             setDepartamentos(staticData.departamentos);
         };
         staticData();
@@ -124,21 +130,29 @@ export default function FormMassiveOlimista() {
     };
 
     const handleUpload = async () => {
-        handleSubmit((data) => createMassiveOlimpistas(
-            data,
-            setIsLoading,
-            setSuccess,
-            setApiError,
-            reset
-        ))();
-        const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
+        if (!selectedFile) {
+            setFileError("Debe seleccionar un archivo");
+            return;
+        }
+
+        handleSubmit((data) => {
+            createMassiveOlimpistas(
+                data,
+                setIsLoading,
+                setSuccess,
+                setApiError,
+                reset,
+                selectedFile,
+                setFileError
+            );
+        })();
     };
 
     const downloadTemplate = () => {
-        const csvContent = "nombres,apellido_paterno,apellido_materno,codigo_sis,semestre,estado,areas\n" +
-                          "Juan,García,López,12345678,3,activo,MAT\n" +
-                          "María,Rodríguez,Pérez,87654321,5,activo,\"MAT,FIS\"";
+        const csvContent = "nombres,apellido_paterno,apellido_materno,ci,celular,grado_escolar,nivel_competencia,nombre_tutor,referencia_tutor,areas\n" +
+                          "Juan Carlos,García,López,8947493,73456789,primero,primaria,Juan García López,72345678,MAT\n" +
+                          "María Elena,Rodríguez,Pérez,7856234,76543210,segundo,primaria,Pedro Rodríguez Gomez,71234567,\"MAT,FIS\"\n" +
+                          "Carlos,Mendoza,Silva,9123456,78901234,tercero,secundaria,Ana Mendoza Torres,69876543,QUI";
         
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
@@ -378,10 +392,12 @@ export default function FormMassiveOlimista() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h4 className="font-medium text-blue-900 mb-2">Instrucciones:</h4>
                     <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• El archivo debe contener las columnas: nombres, apellido_paterno, apellido_materno, codigo_sis</li>
-                        <li>• Columnas opcionales: semestre, estado, areas (separadas por comas)</li>
-                        <li>• Formatos permitidos: .xlsx, .xls, .csv</li>
-                        <li>• Tamaño máximo: 10MB</li>
+                        <li>• <strong>Columnas obligatorias:</strong> nombres, apellido_paterno, apellido_materno, ci, celular, grado_escolar, nivel_competencia, areas, nombre_tutor, referencia_tutor</li>
+                        <li>• <strong>Areas de competencia:</strong> {areas?.map((area) => area.label).join(", ")} (separadas por comas y en una sola columna, ej: "MAT,FIS")</li>
+                        <li>• <strong>Grado escolar:</strong> {grados?.map((grado) => grado.label).join(", ")} </li>
+                        <li>• <strong>Nivel competencia:</strong> {niveles?.map((nivel) => nivel.label).join(", ")}</li>
+                        <li>• <strong>Formatos permitidos:</strong> .xlsx, .xls, .csv</li>
+                        <li>• <strong>Tamaño máximo:</strong> 10MB</li>
                     </ul>
                 </div>
 

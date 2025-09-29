@@ -1,4 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "../ui/button";
+import { ArrowUpDown } from "lucide-react";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -24,7 +26,17 @@ export const columns: ColumnDef<Olimpista>[] = [
   },
   {
     accessorKey: "colegio",
-    header: "U.E.",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          U.E
+          <ArrowUpDown />
+        </Button>
+      )
+    },
   },
   {
     accessorKey: "departamento",
@@ -32,14 +44,44 @@ export const columns: ColumnDef<Olimpista>[] = [
   },
   {
     accessorKey: "tutor_academico",
-    header: "Tutor",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tutor Académico
+          <ArrowUpDown />
+        </Button>
+      )
+    },
   },
   {
     accessorKey: "fase",
-    header: "Fase",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Fase
+          <ArrowUpDown />
+        </Button>
+      )
+    },
   },
   {
     accessorKey: "area",
-    header: "Area",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Área
+          <ArrowUpDown />
+        </Button>
+      )
+    },
   },
 ]

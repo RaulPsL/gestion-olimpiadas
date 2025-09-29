@@ -4,7 +4,7 @@ import { MassiveForm } from "@/forms/interfaces/AcademicForm";
 
 export const getOlimpistas = async () => {
     const { data } = await axiosPublic.get("/olimpistas");
-    console.log(`Datos obtenidos: ${data.data}`);
+    console.log(`Datos obtenidos: `, data.data);
     return data.data;
 };
 
@@ -84,31 +84,59 @@ export const createMassiveOlimpistas = async (
     setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
     setApiError: React.Dispatch<React.SetStateAction<string>>,
     reset: () => void,
+    selectedFile: File,
+    setFileError: React.Dispatch<React.SetStateAction<string>>
 ) => {
     setIsLoading(true);
     setApiError("");
+    setFileError("");
     setSuccess(false);
 
     try {
-        console.log("Enviando datos:", data);
+        if (!selectedFile) {
+            setFileError("Debe seleccionar un archivo");
+            setIsLoading(false);
+            return;
+        }
 
-        const result = await axiosInstance.post("/olimpistas/file", 
-            {
-                archivo: data,
-            },
-            {
-                headers:{
-                    "Content-Type": "multipart/form-data"
-                }
-            },
-        );
+        const formData = new FormData();
+
+        formData.append('archivo', selectedFile);
+
+        if (data.tutor_academico) {
+            formData.append('tutor_academico[nombre_tutor_academico]', data.tutor_academico.nombres_tutor_academico);
+            formData.append('tutor_academico[apellidos_tutor_academico]', data.tutor_academico.apellidos_tutor_academico);
+            formData.append('tutor_academico[celular_tutor_academico]', data.tutor_academico.celular_tutor_academico.toString());
+            formData.append('tutor_academico[email_tutor_academico]', data.tutor_academico.email_tutor_academico);
+            formData.append('tutor_academico[ci_tutor_academico]', data.tutor_academico.ci_tutor_academico);
+        }
+
+        if (data.colegio) {
+            formData.append('colegio[nombre_colegio]', data.colegio.nombre_colegio);
+            formData.append('colegio[direccion_colegio]', data.colegio.direccion_colegio);
+            formData.append('colegio[telefono_colegio]', data.colegio.telefono_colegio.toString());
+            formData.append('colegio[departamento_colegio]', data.colegio.departamento_colegio);
+        }
+
+        console.log("Enviando FormData...");
+
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+
+        const result = await axiosInstance.post("/olimpistas/file", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
         
         console.log("Respuesta del servidor:", result.data);
+        
         setSuccess(true);
         reset();
         
     } catch (error: any) {
-        console.error("Error al crear olimpista:", error);
+        console.error("Error al crear olimpistas masivos:", error);
 
         if (error.response?.status === 422) {
             const backendErrors = error.response.data.errors;
@@ -118,17 +146,21 @@ export const createMassiveOlimpistas = async (
             } else {
                 setApiError(error.response.data.message || "Error de validación");
             }
-        } else if (error.response?.status === 200) {
-            setApiError("El olimpista ya está registrado con ese CI");
+        } else if (error.response?.status === 400) {
+            setApiError(error.response.data.message || "Datos incorrectos en el archivo");
+        } else if (error.response?.status === 413) {
+            setApiError("El archivo es demasiado grande");
         } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
+        } else if (error.code === 'ECONNABORTED') {
+            setApiError("Tiempo de espera agotado. El archivo puede ser muy grande.");
         } else {
-            setApiError("Error de conexión. Verifique su internet.");
+            setApiError(error.response?.data?.message || "Error de conexión. Verifique su internet.");
         }
     } finally {
         setIsLoading(false);
     }
-}
+};
 
 export const getOlimpista = async (codsis: number) => {
     const response = await axiosPublic.get(`/olimpistas/${codsis}`);
