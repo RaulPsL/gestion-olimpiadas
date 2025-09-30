@@ -8,5 +8,6 @@ export interface UsuarioForm {
     password: string;
     confirmPassword: string;
     areas: string[];
-    roles: string[];
+    rol: string;
+    fases: string[];
 }

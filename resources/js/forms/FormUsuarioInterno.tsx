@@ -11,21 +11,25 @@ import { AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { validationRules } from "./validations/UsuarioValidate";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function FormUsuario() {
+export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
     const [selectedRoles, setSelectedRoles] = React.useState<string[]>([]);
+    const [selectedFases, setSelectedFases] = React.useState<string[]>([]);
+    const [selectedAreas, setSelectedAreas] = React.useState<string[]>([]);
     const [showPassword, setShowPassword] = React.useState(false);
 
     const [areas, setAreas] = React.useState<any[]>();
     const [roles, setRoles] = React.useState<any[]>();
+    const [tipoFase, setTipoFase] = React.useState<any[]>();
     
     React.useEffect(() => {
         const staticData = async () => {
             const staticData = await getStaticData();
             setAreas(staticData.areas);
             setRoles(staticData.roles);
+            setTipoFase(staticData.tipo_fases);
         };
         staticData();
     }, []);
@@ -49,12 +53,14 @@ export default function FormUsuario() {
             password: "",
             confirmPassword: "",
             areas: [],
-            roles: []
+            rol: "",
+            fases: []
         }
     });
 
-    const rolesField = useComboboxField("roles", setValue, false);
+    const rolesField = useComboboxField("rol", setValue, false);
     const areaField = useComboboxField("areas", setValue, false);
+    const faseField = useComboboxField("fases", setValue, false);
 
     return (
         <Card className="w-full max-w-2xl mx-auto">
@@ -230,7 +236,7 @@ export default function FormUsuario() {
                         {/* Campo Áreas */}
                         <div className="space-y-2">
                             <Label htmlFor="areas">
-                                Áreas (Opcional)
+                                Áreas <span className="text-red-500">*</span>
                             </Label>
                             <Combobox
                                 items={areas}
@@ -240,6 +246,9 @@ export default function FormUsuario() {
                                 searchPlaceholder="Buscar área..."
                                 multiple={true}
                             />
+                            {selectedAreas.length === 0 && apiError.includes("areas") && (
+                                <p className="text-sm text-red-500">Debe seleccionar al menos un rol</p>
+                            )}
                         </div>
 
                         {/* Campo Roles */}
@@ -253,12 +262,32 @@ export default function FormUsuario() {
                                 onChange={rolesField.onChange}
                                 placeholder="Seleccionar roles..."
                                 searchPlaceholder="Buscar roles..."
-                                multiple={true}
+                                multiple={false}
                             />
                             {selectedRoles.length === 0 && apiError.includes("rol") && (
                                 <p className="text-sm text-red-500">Debe seleccionar al menos un rol</p>
                             )}
                         </div>
+
+                        {/* Campo Roles */}
+                        { (tipoUsuario === 'Evaluador') ? (
+                            <div className="space-y-2">
+                                <Label htmlFor="fases">
+                                    Fases <span className="text-red-500">*</span>
+                                </Label>
+                                <Combobox
+                                    items={tipoFase}
+                                    value={faseField.value}
+                                    onChange={faseField.onChange}
+                                    placeholder="Seleccionar tipo fase..."
+                                    searchPlaceholder="Buscar tipo fase..."
+                                    multiple={true}
+                                />
+                                {/* {selectedFases.length === 0 && (
+                                    <p className="text-sm text-red-500">Debe seleccionar al menos un tipo de fase</p>
+                                )} */}
+                            </div>
+                          ) : (<></>) }
                     </div>
                 </CardContent>
 
@@ -271,12 +300,14 @@ export default function FormUsuario() {
                                     data,
                                     areaField.value as string[],
                                     rolesField.value as string[],
+                                    faseField.value as string[],
                                     setIsLoading,
                                     setSuccess,
                                     setApiError,
                                     reset,
                                     () => areaField.reset(),
                                     () => rolesField.reset(),
+                                    () => faseField.reset(),
                                 )
                             )} 
                         className="w-full"

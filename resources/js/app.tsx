@@ -14,7 +14,8 @@ function App() {
                 <Route path="/login" element={<PageLogin />} />
                 <Route path="/olimpistas" element={<PageOlimpista />} />
                 <Route path="/area" element={<PageArea />} />
-                <Route path="/administrar" element={<PageInterno />} />
+                <Route path="/administrar/encargado" element={<PageInterno tipoUsuario='Encargado'/>} />
+                <Route path="/administrar/evaluador" element={<PageInterno tipoUsuario='Evaluador'/>} />
                 <Route path="/fases" element={<PageFase />} />
             </Routes>
         </div>

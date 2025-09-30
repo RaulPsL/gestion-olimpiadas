@@ -6,7 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
 import { AppSidebar } from "@/components/AppSidebar";
 
-export default function PageInterno() {
+export default function PageInterno({ tipoUsuario }: { tipoUsuario: string }) {
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -15,10 +15,10 @@ export default function PageInterno() {
                 <div className="container mx-auto py-10">
                     <div className="flex w-full flex-row gap-6 p-4 items-center">
                         <Users />
-                        <Label className="text-2xl">Encargado de area</Label>
+                        <Label className="text-2xl">{tipoUsuario} de area</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6 items-center">
-                        <FormUsuarioInterno tipoUsuario="encargado" />
+                        <FormUsuarioInterno tipoUsuario={tipoUsuario} />
                     </div>
                 </div>
             </SidebarInset>

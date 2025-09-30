@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\Fase;
 use App\Models\Rol;
+use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 
@@ -15,7 +17,7 @@ class UsuariosController extends Controller
     public function index()
     {
         try {
-            $usuarios = Usuario::with(['roles', 'areas'])->get();
+            $usuarios = Usuario::with(['roles', 'areas', 'fases'])->get();
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
                 'data' => $usuarios,
@@ -47,11 +49,19 @@ class UsuariosController extends Controller
                     'label' => $label_rol,
                 ];
             });
+            $tipo_fases = collect(TipoFase::cases())->map(function ($fase, $index) {
+                return [
+                    'id' => $index+1,
+                    'value' => $fase->value,
+                    'label' => $fase->name,
+                ];
+            });
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
                 'data' => [
                     'areas' => $areas,
                     'roles' => $roles,
+                    'tipo_fases' => $tipo_fases,
                 ],
                 'status' => 200
             ]);
@@ -69,7 +79,7 @@ class UsuariosController extends Controller
     public function show(int $ci)
     {
         try {
-            $usuario = Usuario::where('ci', $ci)->first();
+            $usuario = Usuario::with('areas', 'roles', 'fases')->where('ci', $ci)->first();
             if ($usuario) {
                 return response()->json([
                     'message' => "Usuario obtenido exitosamente.",
@@ -172,6 +182,8 @@ class UsuariosController extends Controller
                 'celular' => 'required|integer',
                 'email' => 'required|string',
                 'password' => 'required|string',
+                'areas' => 'required',
+                'roles' => 'required',
             ]);
 
             $usuario = Usuario::where('ci', $request->ci)->first();
@@ -195,13 +207,24 @@ class UsuariosController extends Controller
                 if (!empty($areas)) {
                     $usuario->areas()->attach($areas);
                 }
-            }
-            if ($request->has('roles') and count($request->roles) > 0) {
-                $roles = Rol::whereIn('nombre', $request->roles)->pluck('id')->toArray();
-                if (!empty($roles)) {
-                    $usuario->roles()->attach($roles);
+                if ($request->has('fases') and count($request->fases) > 0) {
+                    $fases = Fase::with([
+                        'area' => function ($query) use ($request) {
+                            $query->whereIn('sigla', $request->areas);
+                        }
+                    ])->whereIn('tipo_fase', $request->fases);
+                    if (!empty($fases)) {
+                        $usuario->fases()->attach($fases->pluck('id')->toArray());
+                    }
                 }
             }
+            $roles = Rol::whereIn('nombre', $request->roles)->pluck('id')->toArray();
+            if (!empty($roles)) {
+                $usuario->roles()->attach($roles);
+            }
+            // if ($request->has('roles') and count($request->roles) > 0) {
+                
+            // }
             return response()->json([
                 'message' => "El usuario se creó con éxito.",
                 'data' => $usuario,

@@ -30,20 +30,16 @@ const items = [
     icon: User2,
     submenu: [
         {
-            title: "Registrar usuarios",
-            url: "/administrar",
-        },
-        {
             title: "Olimpistas",
             url: "/olimpistas",
         },
         {
             title: "Encargado de Area",
-            url: "/administrar",
+            url: "/administrar/encargado",
         },
         {
             title: "Evaluador",
-            url: "/administrar",
+            url: "/administrar/evaluador",
         },
         {
             title: "Visualizar usuarios",

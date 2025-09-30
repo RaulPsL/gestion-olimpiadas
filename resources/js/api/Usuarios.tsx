@@ -16,6 +16,7 @@ export const getStaticData = async ():Promise<StaticDataUsuarios> => {
     return {
         areas: data.data.areas,
         roles: data.data.roles,
+        tipo_fases: data.data.tipo_fases,
     };
 };
 
@@ -23,12 +24,14 @@ export const createUsuario = async (
     data: UsuarioForm,
     selectedAreas: string[],
     selectedRoles: string[],
+    selectedFases: string[],
     setIsLoading: any,
     setSuccess: any,
     setApiError: any,
     reset: any,
     setSelectedAreas: any,
     setSelectedRoles: any,
+    setSelectedFases: any
 ) => {
     setIsLoading(true);
     setApiError("");
@@ -47,7 +50,8 @@ export const createUsuario = async (
             apellido: `${data.apellido_paterno} ${data.apellido_materno}`,
             ci: Number(data.ci),
             areas: selectedAreas,
-            roles: selectedRoles
+            roles: selectedRoles,
+            fases: selectedFases
         };
 
         console.log("Enviando datos de usuario:", formData);
@@ -59,7 +63,7 @@ export const createUsuario = async (
         reset();
         setSelectedAreas([]);
         setSelectedRoles([]);
-        
+        setSelectedFases([]);
     } catch (error: any) {
         console.error("Error al crear usuario:", error);
 
@@ -71,7 +75,7 @@ export const createUsuario = async (
             } else {
                 setApiError(error.response.data.message || "Error de validación");
             }
-        } else if (error.response?.status === 409 || error.response?.status === 200) {
+        } else if (error.response?.status === 200) {
             setApiError(`Ya existe un usuario con CI: ${data.ci}`);
         } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
