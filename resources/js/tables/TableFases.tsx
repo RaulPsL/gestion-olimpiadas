@@ -1,5 +1,6 @@
 import { Fase, columns } from "@/components/tables/ColumnsFase";
 import { DataTable } from "@/components/tables/DataTable";
+import { Card, CardContent } from "@/components/ui/card";
 
 const getData: Fase[] = [
     {
@@ -54,8 +55,10 @@ const getData: Fase[] = [
 
 export default function TableFases() {
   return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={getData} />
-    </div>
+    <Card>
+        <CardContent>
+            <DataTable columns={columns} data={getData} />
+        </CardContent>
+    </Card>
   )
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('calificacions', function (Blueprint $table) {
             $table->id();
-            $table->decimal('puntaje', 5, 2);
+            $table->integer('puntaje');
             $table->string('comentarios');
             $table->foreignId('olimpista_id')->constrained()->onDelete('cascade');
             $table->foreignId('fase_id')->constrained()->onDelete('cascade');

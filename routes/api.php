@@ -52,11 +52,11 @@ Route::prefix('areas')->group(function () {
 });
 
 Route::prefix('calificaciones')->group(function () {
-    Route::post('/{codsis}', [App\Http\Controllers\CalificacionesController::class, 'store']);
-    Route::get('/{area}', [App\Http\Controllers\CalificacionesController::class, 'showByArea']);
+    Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'calificacionesOlimpistas']);
+    Route::get('/grupos', [App\Http\Controllers\CalificacionesController::class, 'calificacionesGrupos']);
     Route::get('/{area}/{fase}', [App\Http\Controllers\CalificacionesController::class, 'showByFase']);
-    Route::get('/{olimpista}', [App\Http\Controllers\CalificacionesController::class, 'showByOlimpista']);
-    Route::put('/{codsis}', [App\Http\Controllers\CalificacionesController::class, 'update']);
+    Route::get('/{ci}', [App\Http\Controllers\CalificacionesController::class, 'showByOlimpista']);
+    Route::put('/', [App\Http\Controllers\CalificacionesController::class, 'update']);
 });
 
 Route::prefix('clasificaciones')->group(function () {
@@ -66,6 +66,8 @@ Route::prefix('clasificaciones')->group(function () {
 
 Route::post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
 Route::post('/login', [App\Http\Controllers\UsuariosController::class, 'login']);
+
+Route::post('/menus', [App\Http\Controllers\MenuController::class, 'store']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

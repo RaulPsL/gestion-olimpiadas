@@ -1,12 +1,17 @@
 import { axiosPublic, axiosInstance } from "./api";
 
-export const getCalificaciones = async () => {
-    const response = await axiosPublic.get("/calificaciones");
-    return response.data;
+export const getCalificacionesOlimpistas = async (siglaAreas: string[]) => {
+    const { data } = await axiosPublic.post("/calificaciones/olimpistas", {
+        areas: siglaAreas
+    });
+    console.log('Datos obtenidos: ', data.data);
+    return data.data;
 };
 
-export const getCalificacion = async (area: string) => {
-    const response = await axiosPublic.get(`/calificaciones/${area}`);
+export const getCalificacionesGrupos = async (siglaAreas: string[]) => {
+    const response = await axiosPublic.post("/calificaciones/grupos", {
+        areas: siglaAreas
+    });
     return response.data;
 };
 
@@ -19,16 +24,6 @@ export const getCalificacionesByFase = async (area: string, fase: string) => {
     const response = await axiosPublic.get(`/calificaciones/${area}/${fase}`);
     return response.data;
 }
-
-export const getCalificacionesByOlimpista = async (nombre: string) => {
-    const response = await axiosPublic.get(`/calificaciones/${nombre}`);
-    return response.data;
-}
-
-export const createCalificacion = async (data: any) => {
-    const response = await axiosInstance.post("/calificaciones", data);
-    return response.data;
-};
 
 export const updateCalificacion = async (codsis: number, data: any) => {
     const response = await axiosInstance.put(`/calificaciones/${codsis}`, data);

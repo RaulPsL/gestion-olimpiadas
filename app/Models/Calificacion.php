@@ -9,7 +9,7 @@ class Calificacion extends Model
 {
     use HasFactory;
 
-    protected $table = 'calificaciones';
+    protected $table = 'calificacions';
 
     /**
      * The attributes that are mass assignable.

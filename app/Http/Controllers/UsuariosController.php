@@ -218,13 +218,12 @@ class UsuariosController extends Controller
                     }
                 }
             }
-            $roles = Rol::whereIn('nombre', $request->roles)->pluck('id')->toArray();
-            if (!empty($roles)) {
-                $usuario->roles()->attach($roles);
+            if ($request->has('roles') and count($request->roles) > 0) {
+                $roles = Rol::whereIn('nombre', $request->roles)->pluck('id')->toArray();
+                if (!empty($roles)) {
+                    $usuario->roles()->attach($roles);
+                }
             }
-            // if ($request->has('roles') and count($request->roles) > 0) {
-                
-            // }
             return response()->json([
                 'message' => "El usuario se creó con éxito.",
                 'data' => $usuario,

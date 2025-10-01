@@ -45,6 +45,10 @@ const items = [
             title: "Visualizar usuarios",
             url: "/area",
         },
+        {
+            title: "Calificaciones",
+            url: "/calificaciones",
+        },
     ],
   },
   {

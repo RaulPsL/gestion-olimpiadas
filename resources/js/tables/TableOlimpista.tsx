@@ -1,6 +1,7 @@
 import { getOlimpistas } from "@/api/Olimpistas";
 import { Olimpista, columns } from "@/components/tables/ColumnsOlimpista";
 import { DataTable } from "@/components/tables/DataTable";
+import { Card, CardContent } from "@/components/ui/card";
 import React from "react";
 
 export default function TableOlimpistas() {
@@ -13,8 +14,10 @@ export default function TableOlimpistas() {
     staticData();
   }, [])
   return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={olimpistas} />
-    </div>
+    <Card>
+      <CardContent>
+        <DataTable columns={columns} data={olimpistas} />
+      </CardContent>
+    </Card>
   )
 }
