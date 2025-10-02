@@ -6,6 +6,7 @@ import PageHome from './pages/PageHome';
 import PageFase from './pages/PageFase';
 import PageLogin from './pages/PageLogin';
 import PageCalificaciones from './pages/PageCalificaciones';
+import PageClasificaciones from './pages/PageClasificaciones';
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                 <Route path="/administrar/encargado" element={<PageInterno tipoUsuario='Encargado'/>} />
                 <Route path="/administrar/evaluador" element={<PageInterno tipoUsuario='Evaluador'/>} />
                 <Route path="/calificaciones" element={<PageCalificaciones />} />
+                <Route path="/clasificaciones/areas" element={<PageClasificaciones />} />
                 <Route path="/fases" element={<PageFase />} />
             </Routes>
         </div>

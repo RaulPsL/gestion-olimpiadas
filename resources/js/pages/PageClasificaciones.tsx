@@ -5,28 +5,30 @@ import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
-import { getCalificacionesOlimpistas } from "@/api/Calificaciones";
-import TableCalificaciones from "@/tables/TablaCalificaciones";
+import { getClasificacionesByArea } from "@/api/Clasificacciones";
+import { columns } from "@/components/tables/ColumnsClasificaciones";
+import { Card, CardContent } from "@/components/ui/card";
+import { DataTable } from "@/components/tables/DataTable";
 
-export default function PageCalificaciones() {
-    const [calificaciones, setCalificaciones] = React.useState<any>();
+export default function PageClasificaciones() {
+    const [clasificaciones, setClasificaciones] = React.useState<any>();
     const [keys, setKeys] = React.useState<string[]>();
 
     React.useEffect(() => {
         const staticData = async () => {
-            const response = await getCalificacionesOlimpistas(['MAT', 'FIS']);
-                setCalificaciones(response);
+            const response = await getClasificacionesByArea();
+                setClasificaciones(response);
             };
-            console.log('Calificaciones: ', calificaciones);
+            console.log('clasificaciones: ', clasificaciones);
         staticData();
     }, []);
 
     React.useEffect(() => {
-        if (calificaciones) {
-            setKeys(Object.keys(calificaciones));
+        if (clasificaciones) {
+            setKeys(Object.keys(clasificaciones));
         }
         console.log('Keys: ', keys);
-    }, [calificaciones]);
+    }, [clasificaciones]);
     
     return (
         <SidebarProvider>
@@ -36,7 +38,7 @@ export default function PageCalificaciones() {
                 <div className="container mx-auto px-4">
                     <div id="headerTablaClasificaciones" className="flex w-full flex-row gap-6 p-4 items-center">
                         <BookUser />
-                        <Label className="text-2xl">Calificaciones por area</Label>
+                        <Label className="text-2xl">Clasificaciones por area</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
                         { (keys && keys.length > 0) && (
@@ -49,7 +51,18 @@ export default function PageCalificaciones() {
                                 { keys?.map((key) => (
                                     <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
                                         <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                            <TableCalificaciones calificaciones={calificaciones[key]} />
+                                            <Card>
+                                                {
+                                                    Object.keys(clasificaciones?.[key]).map((estadoOlimpista) => (
+                                                        <div key={estadoOlimpista}>
+                                                            <Label className="text-2xl">Olimpistas {estadoOlimpista}s</Label>
+                                                            <CardContent>
+                                                                <DataTable columns={columns} data={clasificaciones?.[key]?.[estadoOlimpista]} />
+                                                            </CardContent>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </Card>
                                         </div>
                                     </TabsContent>
                                 ))}

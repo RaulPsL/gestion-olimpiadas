@@ -298,7 +298,7 @@ class OlimpistasController extends Controller
                 }
             }
 
-            $insertData = 0;
+            $insertData = [];
             $tutor_academico = TutorAcademico::where('ci', $request->tutor_academico['ci_tutor_academico'])->first();
             if (!$tutor_academico) {
                 $tutor_academico = TutorAcademico::create([
@@ -349,7 +349,7 @@ class OlimpistasController extends Controller
                         'colegio_id' => $colegio->id,
                         'tutor_id' => $tutor->id
                     ]);
-                    $insertData++;
+                    $insertData[] = $olimpista;
                 }
 
                 $olimpista->tutores_academicos()->attach($tutor_academico->id);
@@ -371,7 +371,7 @@ class OlimpistasController extends Controller
 
             return response()->json([
                 'message' => 'Olimpistas importados masivamente correctamente.',
-                'total' => $insertData,
+                'total' => count($insertData),
             ], 201);
 
         } catch (\Throwable $th) {
@@ -489,10 +489,10 @@ class OlimpistasController extends Controller
      *
      * @throws \Throwable
      */
-    public function update(Request $request, int $codsis)
+    public function update(Request $request, int $ci)
     {
         try {
-            $nuevo_olimpista = Olimpista::where('codigo_sis', $codsis)->first();
+            $nuevo_olimpista = Olimpista::where('ci', $ci)->first();
             if ($nuevo_olimpista != null) {
                 $datos_actualizar = $request->only($nuevo_olimpista->getFillable());
                 foreach ($datos_actualizar as $campo => $valor) {
@@ -524,14 +524,14 @@ class OlimpistasController extends Controller
                 $nuevo_olimpista->update($datos_actualizar);
                 
                 return response()->json([
-                    'message' => "Olimpista $codsis Actualizado.",
+                    'message' => "Olimpista $ci Actualizado.",
                     'data' => $nuevo_olimpista,
                     'status' => 202,
                 ]);
             }
             
             return response()->json([
-                'message' => "No se encontro al olimpista $codsis.",
+                'message' => "No se encontro al olimpista $ci.",
                 'status' => 200,
             ]);
         } catch (\Throwable $th) {

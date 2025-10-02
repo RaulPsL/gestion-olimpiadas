@@ -1,13 +1,13 @@
 import { axiosPublic, axiosInstance } from "./api";
 
-export const getClasificaciones = async () => {
-    const response = await axiosPublic.get("/clasificaciones");
-    return response.data;
+export const getClasificacionesByArea = async () => {
+    const { data } = await axiosPublic.get("/clasificaciones/area");
+    return data.data;
 };
 
-export const getClasificacionesByArea = async (area: string) => {
-    const response = await axiosPublic.get(`/clasificaciones/${area}`);
-    return response.data;
+export const getClasificacionesByNivel = async (area: string) => {
+    const { data } = await axiosPublic.get(`/clasificaciones/nivel`);
+    return data.data;
 };
 
 export const getClasificacionesByFase = async (area: string, fase: string) => {

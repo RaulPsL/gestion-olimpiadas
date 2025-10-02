@@ -48,6 +48,8 @@ class Usuario extends Model
 
     public function roles() { return $this->belongsToMany(Rol::class, 'usuario_rols'); }
 
+    public function rol() { return $this->belongsTo(Rol::class); }
+
     public function areas() { return $this->belongsToMany(Area::class, 'usuario_areas'); }
 
     public function fases() { return $this->belongsToMany(Fase::class, 'usuario_fases'); }

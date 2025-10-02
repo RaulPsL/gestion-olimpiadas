@@ -49,6 +49,10 @@ const items = [
             title: "Calificaciones",
             url: "/calificaciones",
         },
+        {
+            title: "Clasificaciones por area",
+            url: "/clasificaciones/areas",
+        },
     ],
   },
   {

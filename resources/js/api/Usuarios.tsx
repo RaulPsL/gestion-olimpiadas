@@ -2,8 +2,8 @@ import { UsuarioForm } from "@/forms/interfaces/Usuario";
 import { axiosPublic, axiosInstance } from "./api";
 
 export const getUsuarios = async () => {
-    const response = await axiosPublic.get("/usuarios");
-    return response.data;
+    const { data } = await axiosPublic.get("/usuarios");
+    return data.data;
 };
 
 export const getUsuario = async (uuid: string) => {

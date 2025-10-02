@@ -4,15 +4,28 @@ import { ColumnDef } from "@tanstack/react-table";
 // You can use a Zod schema here if you want.
 
 export type Interno = {
-    name: string;
-    email: string;
-    area: string;
+  ci: number,
+  nombre: string,
+  celular: number,
+  email: string;
+  area: string;
+  fase: string,
+  nivel: string,
+  rol: string,
 };
 
-export const columns: ColumnDef<Interno>[] = [
+export const columnsInterno: ColumnDef<Interno>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "nombre",
     header: "Nombre",
+  },
+  {
+    accessorKey: "ci",
+    header: "C.I",
+  },
+  {
+    accessorKey: "celular",
+    header: "Celular",
   },
   {
     accessorKey: "email",
@@ -21,5 +34,23 @@ export const columns: ColumnDef<Interno>[] = [
   {
     accessorKey: "area",
     header: "Area",
+  },
+  {
+    accessorKey: "fase",
+    header: "Fase",
+  },
+  {
+    accessorKey: "nivel",
+    header: "Nivel",
+    cell: ({ row }) => (
+      <div className="text-center capitalize">{row.original.nivel}</div>
+    ),
+  },
+  {
+    accessorKey: "rol",
+    header: "Rol",
+    cell: ({ row }) => (
+      <div className="text-center">{row.original.rol}</div>
+    ),
   },
 ]

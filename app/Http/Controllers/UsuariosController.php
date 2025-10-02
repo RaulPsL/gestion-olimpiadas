@@ -17,10 +17,37 @@ class UsuariosController extends Controller
     public function index()
     {
         try {
-            $usuarios = Usuario::with(['roles', 'areas', 'fases'])->get();
+            $fases = Fase::with([
+                'area.usuarios.roles',
+            ])->get();
+            
+            $usuariosFiltrados = $fases->map(function ($fase) {
+                return collect($fase->area->usuarios)->map(function ($usuario) use ($fase) {
+                    if ($usuario->roles->first()) {
+                        $rol = $usuario->roles->first();
+                        return [
+                            'ci' => $usuario->ci,
+                            'nombre' => "$usuario->nombre $usuario->apellido",
+                            'celular' => $usuario->celular,
+                            'email' => $usuario->email,
+                            'area' => $fase->area->sigla,
+                            'fase' => $fase->sigla,
+                            'nivel' => $fase->area->nivel,
+                            'rol' => $rol->nombre,
+                            'rol_sigla' => $rol->sigla,
+                        ];
+                    }
+                })->filter();
+            });
+
+            $usuariosFinales = [];
+
+            foreach ($usuariosFiltrados as $value) {
+                $usuariosFinales = array_merge($usuariosFinales, $value->toArray());
+            }
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
-                'data' => $usuarios,
+                'data' => collect($usuariosFinales)->groupBy('rol'),
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
@@ -79,7 +106,7 @@ class UsuariosController extends Controller
     public function show(int $ci)
     {
         try {
-            $usuario = Usuario::with('areas', 'roles', 'fases')->where('ci', $ci)->first();
+            $usuario = Usuario::with(['areas', 'roles', 'fases'])->where('ci', $ci)->first();
             if ($usuario) {
                 return response()->json([
                     'message' => "Usuario obtenido exitosamente.",
@@ -160,7 +187,7 @@ class UsuariosController extends Controller
                     'status' => 401
                 ]);
             }
-            $usuario = Usuario::destroy('ci', $ci);
+            Usuario::destroy('ci', $ci);
             return response()->json([
                 'message' => "Usuario eliminado exitosamente.",
                 'status' => 200

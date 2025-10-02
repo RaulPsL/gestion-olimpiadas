@@ -143,7 +143,8 @@ export default function FormMassiveOlimista() {
                 setApiError,
                 reset,
                 selectedFile,
-                setFileError
+                setFileError,
+                setImportResult,
             );
         })();
     };
@@ -198,7 +199,7 @@ export default function FormMassiveOlimista() {
                     <Alert className="border-green-200 bg-green-50">
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <AlertDescription className="text-green-800">
-                            ¡Importación exitosa! Se procesaron {importResult?.total || 0} olimpistas.
+                            ¡{importResult?.message}!, Se procesaron {importResult?.total || 0} olimpistas.
                         </AlertDescription>
                     </Alert>
                 )}

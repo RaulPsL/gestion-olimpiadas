@@ -60,7 +60,8 @@ Route::prefix('calificaciones')->group(function () {
 });
 
 Route::prefix('clasificaciones')->group(function () {
-    Route::get('/', [App\Http\Controllers\ClasificasionController::class, 'index']);
+    Route::get('/area', [App\Http\Controllers\ClasificasionController::class, 'indexArea']);
+    Route::get('/nivel', [App\Http\Controllers\ClasificasionController::class, 'indexNivel']);
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
 });
 

@@ -85,7 +85,8 @@ export const createMassiveOlimpistas = async (
     setApiError: React.Dispatch<React.SetStateAction<string>>,
     reset: () => void,
     selectedFile: File,
-    setFileError: React.Dispatch<React.SetStateAction<string>>
+    setFileError: React.Dispatch<React.SetStateAction<string>>,
+    setImportResult: React.Dispatch<React.SetStateAction<number | null>>
 ) => {
     setIsLoading(true);
     setApiError("");
@@ -129,7 +130,7 @@ export const createMassiveOlimpistas = async (
                 "Content-Type": "multipart/form-data"
             }
         });
-        
+        setImportResult(result.data);
         console.log("Respuesta del servidor:", result.data);
         
         setSuccess(true);
