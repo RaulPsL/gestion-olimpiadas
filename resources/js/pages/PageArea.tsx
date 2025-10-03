@@ -54,26 +54,22 @@ export default function PageArea() {
                                 }
                             </TabsList>
                             <TabsContent value="olimpistas">
-                                <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                    <Card>
-                                        <CardContent>
-                                            <DataTable columns={columns} data={olimpistas} />
-                                        </CardContent>
-                                    </Card>
-                                </div>
+                                <Card>
+                                    <CardContent>
+                                        <DataTable columns={columns} data={olimpistas} />
+                                    </CardContent>
+                                </Card>
                             </TabsContent>
                             {
                                 keys?.map((key) => {
                                     const value = String(key).split(" ")[0].toLocaleLowerCase();
                                     return (
                                     <TabsContent value={value}>
-                                        <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                            <Card>
-                                                <CardContent>
-                                                    <DataTable columns={columnsInterno} data={rolUsuario?.[key]} />
-                                                </CardContent>
-                                            </Card>
-                                        </div>
+                                        <Card>
+                                            <CardContent>
+                                                <DataTable columns={columnsInterno} data={rolUsuario?.[key]} />
+                                            </CardContent>
+                                        </Card>
                                     </TabsContent>);
                                 })
                             }

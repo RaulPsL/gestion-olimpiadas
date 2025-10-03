@@ -1,3 +1,4 @@
+import { FormNotas } from "@/components/tables/ColumnsCalificaciones";
 import { axiosPublic, axiosInstance } from "./api";
 
 export const getCalificacionesOlimpistas = async (siglaAreas: string[]) => {
@@ -15,8 +16,16 @@ export const getCalificacionesGrupos = async (siglaAreas: string[]) => {
     return response.data;
 };
 
-export const getCalificacionesByArea = async (area: string) => {
-    const response = await axiosPublic.get(`/calificaciones/${area}`);
+export const updateCalificacionesOlimpistas = async (
+    data: FormNotas,
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
+    setApiError: React.Dispatch<React.SetStateAction<string>>,
+    reset: () => void,
+    setFileError: React.Dispatch<React.SetStateAction<string>>,
+    setCalificacionesResult: React.Dispatch<React.SetStateAction<number | null>>
+) => {
+    const response = await axiosPublic.put(`/calificaciones/olimpistas`);
     return response.data;
 }
 

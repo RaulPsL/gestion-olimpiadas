@@ -1,14 +1,24 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "../ui/button";
-import { ArrowUpDown } from "lucide-react";
+import {
+  ArrowUpDown,
+  Award,
+  Medal,
+  Trophy,
+} from "lucide-react";
 import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { UseFormRegister } from "react-hook-form";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
 export type Calificacion = {
     nombre: string,
+    nota_olimpista_id: number,
+    nota_fase_id: number,
     estado: string,
+    edicion: boolean,
     colegio: string,
     departamento: string,
     area: string,
@@ -17,17 +27,62 @@ export type Calificacion = {
     comentarios: string
 };
 
-export const columns: ColumnDef<Calificacion>[] = [
+export type FormNotas = {
+  notas: {
+    nota_olimpista_id: number;
+    nota_fase_id: number;
+    estado_olimpista: boolean;
+    nota: number;
+    comentarios: string;
+  }[];
+};
+
+export const createColumnsCalificaciones = (
+  register: UseFormRegister<FormNotas>
+): ColumnDef<Calificacion>[] => [
   {
     accessorKey: "nombre",
     header: "Nombre",
   },
   {
+    accessorKey: "nota_olimpista_id",
+    cell: ({ row }) => {
+      const olimpistaId = Number(row.original.nota_olimpista_id);
+      return (
+        <Input
+          type="number"
+          defaultValue={olimpistaId}
+          { ...register(`notas.${row.index}.nota_olimpista_id`, { valueAsNumber: true }) }
+        />
+      )
+    }
+  },
+  {
+    accessorKey: "nota_fase_id",
+    cell: ({ row }) => {
+      const faseId = Number(row.original.nota_fase_id);
+      return (
+        <Input
+          type="number"
+          defaultValue={faseId}
+          { ...register(`notas.${row.index}.nota_fase_id`, { valueAsNumber: true }) }
+        />
+      )
+    }
+  },
+  {
     accessorKey: "estado",
     header: "Estado",
-    cell: ({ row }) => (
-        <div className="capitalize">{row.original.estado}</div>
-    )
+    cell: ({ row }) => {
+      if (row.original.estado === "activo") 
+        return <Badge className="capitalize text-white bg-green-600">{row.original.estado}</Badge>
+      if (row.original.estado === "clasificado") 
+        return <Badge className="capitalize text-white bg-blue-500">{row.original.estado}</Badge>
+      if (row.original.estado === "no clasificado") 
+        return <Badge className="capitalize text-white bg-gray-500">{row.original.estado}</Badge>
+      if (row.original.estado === "desclasificado") 
+        return <Badge className="capitalize text-white bg-red-700">{row.original.estado}</Badge>
+    }
   },
   {
     accessorKey: "colegio",
@@ -65,19 +120,57 @@ export const columns: ColumnDef<Calificacion>[] = [
   {
     accessorKey: "posicion",
     header: "Posición",
-    cell: ({ row }) => (
-        <div className="text-center">{Number(row.id)+1}</div>
-    )
+    cell: ({ row }) => {
+      const posicion = Number(row.id) + 1;
+      if (posicion === 1) 
+        return (
+          <Badge
+            className="text-white bg-[#ffd30e] text-sm"
+          >
+            {posicion} <Trophy size={20}/> 
+          </Badge>)
+      if (posicion === 2) 
+        return (
+          <Badge
+            className="text-#000000 bg-[#b7bfd6] text-sm"
+          >
+            {posicion} <Medal size={20}/>
+          </Badge>)
+      if (posicion === 3) 
+        return (
+          <Badge
+            className="text-#000000 bg-[#da944f] text-sm"
+          >
+            {posicion} <Medal size={20}/> 
+          </Badge>)
+      return (
+        <Badge
+          variant="secondary"
+          className="text-sm"
+        >
+          {posicion} <Award size={20}/> 
+        </Badge>
+      )
+    }
+  },
+  {
+    accessorKey: "edicion",
+    header: "Edición",
   },
   {
     accessorKey: "nota",
     header: "Nota",
     cell: ({ row }) => {
       const nota = Number(row.original.nota).toFixed(2);
+      const estadoEdicion = row.getValue("edicion") as boolean;
       return (
         <Input
-          type="text"
+          type="number"
+          step="0.01"
           defaultValue={nota}
+          readOnly={!estadoEdicion}
+          disabled={!estadoEdicion}
+          { ...register(`notas.${row.index}.nota`, { valueAsNumber: true }) }
           onChange={(e) => {
             row.original.nota = Number(e.target.value);
           }}
@@ -89,10 +182,14 @@ export const columns: ColumnDef<Calificacion>[] = [
     accessorKey: "comentarios",
     header: "Comentarios",
     cell: ({ row }) => {
+      const estadoEdicion = row.getValue("edicion") as boolean;
       return (
         <Input
           type="text"
           defaultValue={row.original.comentarios}
+          readOnly={!estadoEdicion}
+          disabled={!estadoEdicion}
+          { ...register(`notas.${row.index}.comentarios`)}
           onChange={(e) => {
             row.original.comentarios = e.target.value;
           }}

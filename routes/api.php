@@ -55,8 +55,8 @@ Route::prefix('calificaciones')->group(function () {
     Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'calificacionesOlimpistas']);
     Route::get('/grupos', [App\Http\Controllers\CalificacionesController::class, 'calificacionesGrupos']);
     Route::get('/{area}/{fase}', [App\Http\Controllers\CalificacionesController::class, 'showByFase']);
-    Route::get('/{ci}', [App\Http\Controllers\CalificacionesController::class, 'showByOlimpista']);
-    Route::put('/', [App\Http\Controllers\CalificacionesController::class, 'update']);
+    Route::put('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'updateOlimpistas']);
+    Route::put('/grupos', [App\Http\Controllers\CalificacionesController::class, 'updateGrupos']);
 });
 
 Route::prefix('clasificaciones')->group(function () {
