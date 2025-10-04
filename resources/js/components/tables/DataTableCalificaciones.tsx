@@ -28,13 +28,19 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { CircleX, NotebookPen, SaveAll } from "lucide-react";
-import { FieldValues, UseFormHandleSubmit, UseFormReset } from "react-hook-form";
+import { CheckCircle, CircleAlert, CircleX, NotebookPen, SaveAll } from "lucide-react";
+import { FieldValues, UseFormReset } from "react-hook-form";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Spinner } from "../ui/spinner";
 
 interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   columns: ColumnDef<TData, TValue>[],
   data: TData[],
-  handleSubmit: UseFormHandleSubmit<TFormValues>,
+  handleSubmit: () => void,
+  isLoading: boolean,
+  apiError: string,
+  success: boolean,
   reset: UseFormReset<TFormValues>,
   handleToggleEdicion: (edicion: boolean) => void
 };
@@ -43,6 +49,9 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   columns,
   data,
   handleSubmit,
+  isLoading,
+  apiError,
+  success,
   reset,
   handleToggleEdicion
 }: DataTableProps<TData, TValue, TFormValues>) {
@@ -54,6 +63,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
     edicion: false,
   });
   const [openToEdition, setOpenToEdition] = React.useState<boolean>(false);
+  const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
   const table = useReactTable({
     data,
@@ -73,6 +83,31 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
     },
   })
 
+  // Cierra el diálogo cuando hay éxito
+  React.useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        setDialogOpen(false);
+        setOpenToEdition(false);
+        handleToggleEdicion(false);
+      }, 2000); // Cierra después de 2 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  const handleConfirmSave = () => {
+    handleSubmit();
+    // No cerramos el diálogo aquí, se mantendrá abierto para mostrar loading/error/success
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    if (success) {
+      setOpenToEdition(false);
+      handleToggleEdicion(false);
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -86,26 +121,116 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
         />
         <DropdownMenu>
           <DropdownMenuTrigger className="ml-auto"/>
+          
           <div className="flex flex-row content-between">
-            <Button 
-              className="ml-auto"
-              onClick={() => {
-                if (!openToEdition) {
+            { openToEdition ? 
+              (<AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">
+                    Guardar <SaveAll />
+                  </Button>
+                </AlertDialogTrigger>
+                
+                <AlertDialogContent>
+                  {/* Estado: Loading */}
+                  {isLoading && (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-center">
+                          Guardando calificaciones...
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <div className="flex justify-center items-center py-8">
+                        <Spinner className="h-12 w-12" />
+                      </div>
+                      <AlertDialogDescription className="text-center text-muted-foreground">
+                        Por favor espera mientras se guardan los cambios
+                      </AlertDialogDescription>
+                    </>
+                  )}
+
+                  {/* Estado: Error */}
+                  {!isLoading && apiError && (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-500 text-center">
+                          Ocurrió un error
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <Alert variant="destructive">
+                        <CircleAlert className="h-4 w-4" />
+                        <AlertTitle>Error al guardar</AlertTitle>
+                        <AlertDescription>
+                          {apiError}
+                        </AlertDescription>
+                      </Alert>
+                      <AlertDialogFooter>
+                        <AlertDialogAction onClick={handleCloseDialog}>
+                          Entendido
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </>
+                  )}
+
+                  {/* Estado: Success */}
+                  {!isLoading && success && !apiError && (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-green-600 text-center">
+                          ¡Éxito!
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <Alert className="border-green-200 bg-green-50">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <AlertTitle className="text-green-800">Guardado exitoso</AlertTitle>
+                        <AlertDescription className="text-green-700">
+                          Las calificaciones se guardaron correctamente
+                        </AlertDescription>
+                      </Alert>
+                      <AlertDialogFooter>
+                        <AlertDialogAction onClick={handleCloseDialog}>
+                          Aceptar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </>
+                  )}
+
+                  {/* Estado: Confirmación inicial */}
+                  {!isLoading && !apiError && !success && (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-center">
+                          ¿Estás seguro de guardar estas calificaciones?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription />
+                      </AlertDialogHeader>
+                      <Alert variant="destructive">
+                        <CircleAlert className="h-4 w-4" />
+                        <AlertTitle>Atención</AlertTitle>
+                        <AlertDescription>
+                          Esta acción solo se puede realizar antes de que la fecha de cierre de la fase haya terminado.
+                        </AlertDescription>
+                      </Alert>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>No</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmSave}>
+                          Sí, guardar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </>
+                  )}
+                </AlertDialogContent>
+              </AlertDialog>)
+              :
+              (<Button 
+                className="ml-auto"
+                onClick={() => {
                   setOpenToEdition(true)
                   handleToggleEdicion(true)
-                  return;
-                }
-                handleSubmit
-                setOpenToEdition(false)
-                handleToggleEdicion(false)
-              }
-            }>
-              { openToEdition ? (
-                  <div className="flex flex-row">Guardar <SaveAll /></div>
-                  ) : (
-                  <div className="flex flex-row">Calificar <NotebookPen /></div>
-                  ) } 
-            </Button>
+                }}>
+                Calificar <NotebookPen />
+              </Button>)
+            }
             {
               openToEdition && (
               <Button

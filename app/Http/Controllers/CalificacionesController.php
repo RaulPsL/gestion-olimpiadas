@@ -67,7 +67,7 @@ class CalificacionesController extends Controller
     }
 
 
-    public function update(Request $request)
+    public function updateOlimpistas(Request $request)
     {
         try {
             $request->validate([

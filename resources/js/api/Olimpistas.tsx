@@ -121,15 +121,12 @@ export const createMassiveOlimpistas = async (
 
         console.log("Enviando FormData...");
 
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
-        }
-
         const result = await axiosInstance.post("/olimpistas/file", formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         });
+
         setImportResult(result.data);
         console.log("Respuesta del servidor:", result.data);
         
