@@ -42,9 +42,8 @@ export const validationRules = {
     },
     celular: {
         required: "El celular del tutor academico es obligatorio",
-        validate: (value: number) => {
-            const strValue = value.toString();
-            if (!/^[67]\d{7}$/.test(strValue)) {
+        validate: (value: string) => {
+            if (!/^[67]\d{7}$/.test(value)) {
                 return "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)";
             }
             return true;
@@ -65,6 +64,18 @@ export const validationRules = {
             message: "La cedula de identidad solo debe contener números"
         }
     },
+    area: {
+        validate: (value: string[]) => {
+            if (value && value.length === 0) return "Debe seleccionar al menos un area.";
+            if (value && value.length > 3) return "No puede seleccionar mas de 3 areas."
+        }
+    },
+    grado_escolar: {
+        required: "Debe seleccionar el grado escolar."
+    },
+    nivel_competencia: {
+        required: "Debe seleccionar el nivel de competencia."
+    },
     nombre_tutor: {
         required: "El nombre completo del tutor es obligatorio",
         minLength: {
@@ -83,9 +94,8 @@ export const validationRules = {
     // CORREGIDO: Para campos numéricos, usar validate en lugar de pattern
     referencia_tutor: {
         required: "El celular del tutor es obligatorio",
-        validate: (value: number) => {
-            const strValue = value.toString();
-            if (!/^[67]\d{7}$/.test(strValue)) {
+        validate: (value: string) => {
+            if (!/^[67]\d{7}$/.test(value)) {
                 return "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)";
             }
             return true;
@@ -116,9 +126,8 @@ export const validationRules = {
     // CORREGIDO: Campo numérico con validate
     celular_tutor_academico: {
         required: "El celular del tutor academico es obligatorio",
-        validate: (value: number) => {
-            const strValue = value.toString();
-            if (!/^[67]\d{7}$/.test(strValue)) {
+        validate: (value: string) => {
+            if (!/^[67]\d{7}$/.test(value)) {
                 return "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)";
             }
             return true;
@@ -163,9 +172,8 @@ export const validationRules = {
     // CORREGIDO: Campo numérico con validate
     telefono_colegio: {
         required: "El telefono del colegio es obligatorio",
-        validate: (value: number) => {
-            const strValue = value.toString();
-            if (!/^[234]\d{6}$/.test(strValue)) {
+        validate: (value: string) => {
+            if (!/^[234]\d{6}$/.test(value)) {
                 return "Debe ser un número válido (2XXXXXX o 3XXXXXX o 4XXXXXX)";
             }
             return true;

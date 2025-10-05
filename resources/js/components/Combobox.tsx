@@ -158,7 +158,8 @@ export function Combobox({
 export function useComboboxField<T extends FieldValues>(
   name: Path<T>,
   setValue: UseFormSetValue<T>,
-  multiple: boolean = false
+  multiple: boolean = false,
+  trigger?: (name: Path<T>) => void,
 ) {
   const [selectedValues, setSelectedValues] = React.useState<(string | number)[]>([]);
 
@@ -169,11 +170,14 @@ export function useComboboxField<T extends FieldValues>(
     } else {
       setValue(name, (values[0] ?? "") as any);
     }
+
+    trigger?.(name);
   };
 
   const reset = () => {
     setSelectedValues([]);
     setValue(name, (multiple ? [] : "") as any);
+    trigger?.(name);
   };
 
   return {

@@ -48,7 +48,7 @@ export default function FormOlimpista() {
             nombres: "",
             apellido_paterno: "",
             apellido_materno: "",
-            celular: 72345678,
+            celular: "",
             ci: "",
             grado_escolar: "primero",
             nivel_competencia: "primaria",
@@ -56,28 +56,35 @@ export default function FormOlimpista() {
             areas: [],
             tutor: {
                 nombre_tutor: "",
-                referencia_tutor: 0,
+                referencia_tutor: "",
             },
             tutor_academico: {
                 nombres_tutor_academico: "",
                 apellidos_tutor_academico: "",
-                celular_tutor_academico: 12345678,
+                celular_tutor_academico: "",
                 email_tutor_academico: "",
                 ci_tutor_academico: "",
             },
             colegio: {
                 nombre_colegio: "",
                 direccion_colegio: "",
-                telefono_colegio: 1234567,
+                telefono_colegio: "",
                 departamento_colegio: "",
             }
         }
     });
 
-    const areaField = useComboboxField("areas", setValue, false);
-    const gradoField = useComboboxField("grado_escolar", setValue, false);
-    const nivelField = useComboboxField("nivel_competencia", setValue, false);
-    const departamentoField = useComboboxField("colegio.departamento_colegio", setValue, false);
+    const areaField = useComboboxField("areas", setValue, false, trigger);
+    const gradoField = useComboboxField("grado_escolar", setValue, false, trigger);
+    const nivelField = useComboboxField("nivel_competencia", setValue, false, trigger);
+    const departamentoField = useComboboxField("colegio.departamento_colegio", setValue, false, trigger);
+
+    React.useEffect(() => {
+        register('colegio.departamento_colegio', validationRules.departamento_colegio);
+        register('areas', validationRules.area);
+        register('grado_escolar', validationRules.grado_escolar);
+        register('nivel_competencia', validationRules.nivel_competencia);
+    }, []);
 
     const handleNext = async () => {
         // Validar campos del primer paso
@@ -244,12 +251,9 @@ export default function FormOlimpista() {
                                 </Label>
                                 <Input
                                     id="celular"
-                                    type="number"
+                                    type="text"
                                     placeholder="78947493"
-                                    {...register("celular", {
-                                        ...validationRules.celular,
-                                        valueAsNumber: true
-                                    })}
+                                    {...register("celular", validationRules.celular)}
                                     className={errors.celular ? "border-red-500" : ""}
                                 />
                                 {errors.celular && (
@@ -335,12 +339,9 @@ export default function FormOlimpista() {
                                 </Label>
                                 <Input
                                     id="referencia_tutor"
-                                    type="number"
+                                    type="text"
                                     placeholder="72345678"
-                                    {...register("tutor.referencia_tutor", {
-                                        ...validationRules.referencia_tutor,
-                                        valueAsNumber: true
-                                    })}
+                                    {...register("tutor.referencia_tutor", validationRules.referencia_tutor)}
                                     className={errors.tutor?.referencia_tutor ? "border-red-500" : ""}
                                 />
                                 {errors.tutor?.referencia_tutor && (
@@ -413,10 +414,7 @@ export default function FormOlimpista() {
                                             id="celular_tutor"
                                             type="number"
                                             placeholder="73456789"
-                                            {...register("tutor_academico.celular_tutor_academico", {
-                                                ...validationRules.celular_tutor_academico,
-                                                valueAsNumber: true
-                                            })}
+                                            {...register("tutor_academico.celular_tutor_academico", validationRules.celular_tutor_academico)}
                                             className={errors.tutor_academico?.celular_tutor_academico ? "border-red-500" : ""}
                                         />
                                         {errors.tutor_academico?.celular_tutor_academico && (
@@ -508,12 +506,9 @@ export default function FormOlimpista() {
                                         </Label>
                                         <Input
                                             id="telefono_colegio"
-                                            type="number"
+                                            type="text"
                                             placeholder="4456789"
-                                            {...register("colegio.telefono_colegio", {
-                                                ...validationRules.telefono_colegio,
-                                                valueAsNumber: true
-                                            })}
+                                            {...register("colegio.telefono_colegio", validationRules.telefono_colegio)}
                                             className={errors.colegio?.telefono_colegio ? "border-red-500" : ""}
                                         />
                                         {errors.colegio?.telefono_colegio && (

@@ -1,4 +1,7 @@
-export const validationRules = {
+export const validationRules = (
+    watch: (message : string) => any
+) => {
+    return {
     tipo_fase: {
         required: "El tipo de fase es obligatorio"
     },
@@ -15,10 +18,10 @@ export const validationRules = {
             value: 1,
             message: "Debe ser al menos 1"
         },
-        // validate: (value: number) => {
-        //     const min = watch("cantidad_min_participantes");
-        //     return value >= min || "Debe ser mayor o igual al mínimo";
-        // }
+        validate: (value: number) => {
+            const min = watch("cantidad_min_participantes");
+            return value >= min || "Debe ser mayor o igual al mínimo";
+        }
     },
     cantidad_min_participantes: {
         required: "La cantidad mínima es obligatoria",
@@ -28,13 +31,26 @@ export const validationRules = {
         }
     },
     fecha_inicio: {
-        required: "La fecha de inicio es obligatoria"
+        required: "La fecha de inicio es obligatoria",
+        validate: (value: Date) => {
+            return new Date() < new Date(value) || "No puede ser menor a la fecha actual.";
+        }
     },
     fecha_fin: {
         required: "La fecha de fin es obligatoria",
-        // validate: (value: Date) => {
-        //     const inicio = watch("fecha_inicio");
-        //     return new Date(value) > new Date(inicio) || "Debe ser posterior a la fecha de inicio";
-        // }
+        validate: (value: Date) => {
+            const inicio = watch("fecha_inicio");
+            if (new Date(value) > new Date(inicio)) return "Debe ser posterior a la fecha de inicio";
+            if (new Date() > new Date(value)) return "No puede ser menor a la fecha actual.";
+        }
+    },
+    area: {
+        required: "Debe seleccionar el area."
+    },
+    usuarios: {
+        validate: (value: string[]) => {
+            return value && value.length > 0 || "Debe seleccionar al menos un evaluador."
+        }
     }
 };
+}

@@ -32,7 +32,7 @@ class AreasController extends Controller
     {
         try {
             $evaluadores = Usuario::whereHas('roles', 
-                    function ($query) { $query->where('nombre', 'EVALUADOR'); }
+                    function ($query) { $query->where('sigla', 'EVA'); }
                 )
                 ->select('ci', 'nombre', 'apellido')
                 ->get()

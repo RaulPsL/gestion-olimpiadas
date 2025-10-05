@@ -11,7 +11,6 @@ import { validationRules } from "./validations/FaseValidate";
 import { getStaticData, updateArea } from "@/api/Areas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import { set } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function FormFase() {
@@ -39,7 +38,8 @@ export default function FormFase() {
         reset,
         setValue,
         getValues,
-        watch
+        watch,
+        trigger,
     } = useForm<FaseForm>({
         defaultValues: {
             sigla: "",
@@ -54,9 +54,18 @@ export default function FormFase() {
         }
     });
 
-    const tipoFaseField = useComboboxField("tipo_fase", setValue, false);
-    const areaField = useComboboxField("area", setValue, false);
-    const evaluadoresField = useComboboxField("usuarios", setValue, true);
+    const newValidationRules = validationRules(watch);
+    const tipoFaseField = useComboboxField("tipo_fase", setValue, false, trigger);
+    const areaField = useComboboxField("area", setValue, false, trigger);
+    const evaluadoresField = useComboboxField("usuarios", setValue, true, trigger);
+
+    React.useEffect(() => {
+        register('area', newValidationRules.area);
+        register('tipo_fase', newValidationRules.tipo_fase);
+        register('usuarios', newValidationRules.usuarios);
+        register('fecha_inicio', newValidationRules.fecha_inicio);
+        register('fecha_fin', newValidationRules.fecha_fin);
+    });
 
     return (
         <Card className="w-full">
@@ -114,7 +123,7 @@ export default function FormFase() {
                     <Textarea
                         id="descripcion"
                         placeholder="Descripción detallada de la fase..."
-                        {...register("descripcion", validationRules.descripcion)}
+                        {...register("descripcion", newValidationRules.descripcion)}
                         className={errors.descripcion ? "border-red-500" : ""}
                         rows={3}
                     />
@@ -134,7 +143,7 @@ export default function FormFase() {
                             type="number"
                             placeholder="10"
                             {...register("cantidad_min_participantes", {
-                                ...validationRules.cantidad_min_participantes,
+                                ...newValidationRules.cantidad_min_participantes,
                                 valueAsNumber: true
                             })}
                             className={errors.cantidad_min_participantes ? "border-red-500" : ""}
@@ -154,7 +163,7 @@ export default function FormFase() {
                             type="number"
                             placeholder="20"
                             {...register("cantidad_max_participantes", {
-                                ...validationRules.cantidad_max_participantes,
+                                ...newValidationRules.cantidad_max_participantes,
                                 valueAsNumber: true
                             })}
                             className={errors.cantidad_max_participantes ? "border-red-500" : ""}
@@ -172,16 +181,24 @@ export default function FormFase() {
                         <DateTimePicker 
                             titleDate="Fecha inicio" 
                             titleTime="Hora inicio"
-                            onChange={(date) => setValue("fecha_inicio", getValues("fecha_inicio"))}
+                            value={getValues('fecha_inicio')}
+                            onChange={(date) => setValue("fecha_inicio", date as Date)}
                         />
+                        {errors.fecha_inicio && (
+                            <p className="text-sm text-red-500">{errors.fecha_inicio.message}</p>
+                        )}
                     </div>
                     <div className="space-y-2">
                         <Label>Fecha y Hora de Fin <span className="text-red-500">*</span></Label>
                         <DateTimePicker 
                             titleDate="Fecha fin" 
                             titleTime="Hora Fin"
-                            onChange={(date) => setValue("fecha_fin", getValues("fecha_fin"))}
+                            value={getValues('fecha_fin')}
+                            onChange={(date) => setValue("fecha_fin", date as Date)}
                         />
+                        {errors.fecha_fin && (
+                            <p className="text-sm text-red-500">{errors.fecha_fin.message}</p>
+                        )}
                     </div>
                 </div>
 
@@ -197,6 +214,9 @@ export default function FormFase() {
                             searchPlaceholder="Buscar área..."
                             multiple={false}
                         />
+                        {errors.area && (
+                            <p className="text-sm text-red-500">{errors.area.message}</p>
+                        )}
                     </div>
 
                     {/* Evaluadores */}
@@ -210,6 +230,9 @@ export default function FormFase() {
                             searchPlaceholder="Buscar evaluadores..."
                             multiple={true}
                         />
+                        {errors.usuarios && (
+                            <p className="text-sm text-red-500">{errors.usuarios.message}</p>
+                        )}
                     </div>
                 </div>
             </CardContent>
