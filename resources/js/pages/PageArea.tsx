@@ -19,9 +19,9 @@ export default function PageArea() {
 
     React.useEffect(() => {
         const staticData = async () => {
-            const staticData = await getOlimpistas();
+            const staticOlimpistas = await getOlimpistas();
             const staticRol = await getUsuarios();
-            setOlimpistas(staticData);
+            setOlimpistas(staticOlimpistas);
             setRolUsuario(staticRol);
         };
         staticData();
@@ -29,8 +29,6 @@ export default function PageArea() {
     
     React.useEffect(() => {
         if (rolUsuario) setKeys(Object.keys(rolUsuario));
-        console.log('Keys: ', keys);
-        console.log('Rol: ', rolUsuario);
     }, [rolUsuario]);
     return (
         <SidebarProvider>
@@ -64,7 +62,7 @@ export default function PageArea() {
                                 keys?.map((key) => {
                                     const value = String(key).split(" ")[0].toLocaleLowerCase();
                                     return (
-                                    <TabsContent value={value}>
+                                    <TabsContent value={value} key={value}>
                                         <Card>
                                             <CardContent>
                                                 <DataTable columns={columnsInterno} data={rolUsuario?.[key]} />

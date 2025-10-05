@@ -1,3 +1,8 @@
+/*
+  * Update: alert dialogs must getups by the time the another alert dialog be closed
+ * and reset the states of success, error api and loading by the next alert dialog 
+*/
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -39,8 +44,11 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   data: TData[],
   handleSubmit: () => void,
   isLoading: boolean,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   apiError: string,
+  setApiError: React.Dispatch<React.SetStateAction<string>>,
   success: boolean,
+  setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
   reset: UseFormReset<TFormValues>,
   handleToggleEdicion: (edicion: boolean) => void
 };
@@ -50,8 +58,11 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   data,
   handleSubmit,
   isLoading,
+  setIsLoading,
   apiError,
+  setApiError,
   success,
+  setSuccess,
   reset,
   handleToggleEdicion
 }: DataTableProps<TData, TValue, TFormValues>) {
@@ -84,28 +95,40 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   })
 
   // Cierra el diálogo cuando hay éxito
+  // * Add a timeout to close the dialog when the success is true
+  // * Add a timeout to loading response of server
+  // * Send setDialogOpen to submit for watching while loading response
+  // * Try add submit into setTimeout
   React.useEffect(() => {
-    if (success) {
+    if (apiError !== '') {
+      setDialogOpen(true);
+    }
+    if (!isLoading && dialogOpen) {
       const timer = setTimeout(() => {
-        setDialogOpen(false);
+        handleSubmit()
         setOpenToEdition(false);
         handleToggleEdicion(false);
-      }, 2000); // Cierra después de 2 segundos
+      }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [success]);
+    console.log('Termino el tiempo...');
+  }, [isLoading, dialogOpen]);
 
   const handleConfirmSave = () => {
-    handleSubmit();
-    // No cerramos el diálogo aquí, se mantendrá abierto para mostrar loading/error/success
+    console.log(`Datos guardandose, cargand: ${isLoading}, exito: ${success}, dialog abierto?: ${dialogOpen}`);
+    // handleSubmit();
+    if (success || apiError !== '') {
+      setDialogOpen(true);
+      setOpenToEdition(false);
+      handleToggleEdicion(false);
+    }
   };
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    if (success) {
-      setOpenToEdition(false);
-      handleToggleEdicion(false);
-    }
+    setApiError('');
+    setIsLoading(false);
+    setSuccess(false)
   };
 
   return (
@@ -132,7 +155,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                 </AlertDialogTrigger>
                 
                 <AlertDialogContent>
-                  {/* Estado: Loading */}
+                  
                   {isLoading && (
                     <>
                       <AlertDialogHeader>
@@ -149,8 +172,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                     </>
                   )}
 
-                  {/* Estado: Error */}
-                  {!isLoading && apiError && (
+                  { (apiError !== '') && (
                     <>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-red-500 text-center">
@@ -172,12 +194,11 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                     </>
                   )}
 
-                  {/* Estado: Success */}
-                  {!isLoading && success && !apiError && (
+                  { success && (
                     <>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-green-600 text-center">
-                          ¡Éxito!
+                          ¡Éxito en la accion!
                         </AlertDialogTitle>
                       </AlertDialogHeader>
                       <Alert className="border-green-200 bg-green-50">
@@ -187,15 +208,9 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                           Las calificaciones se guardaron correctamente
                         </AlertDescription>
                       </Alert>
-                      <AlertDialogFooter>
-                        <AlertDialogAction onClick={handleCloseDialog}>
-                          Aceptar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
                     </>
                   )}
 
-                  {/* Estado: Confirmación inicial */}
                   {!isLoading && !apiError && !success && (
                     <>
                       <AlertDialogHeader>
@@ -213,7 +228,10 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                       </Alert>
                       <AlertDialogFooter>
                         <AlertDialogCancel>No</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleConfirmSave}>
+                        <AlertDialogAction
+                          onClick={handleConfirmSave}
+                          // onWaiting={() => void}
+                        >
                           Sí, guardar
                         </AlertDialogAction>
                       </AlertDialogFooter>

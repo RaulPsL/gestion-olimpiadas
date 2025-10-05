@@ -59,8 +59,11 @@ export default function TableCalificaciones({ calificaciones } : {calificaciones
             )
           }
           isLoading={isLoading}
+          setIsLoading={setIsLoading}
           apiError={apiError}
+          setApiError={setApiError}
           success={success}
+          setSuccess={setSuccess}
           reset={reset}
           handleToggleEdicion={handleToggleEdicion}
         />

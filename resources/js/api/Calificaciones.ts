@@ -6,15 +6,14 @@ export const getCalificacionesOlimpistas = async (siglaAreas: string[]) => {
     const { data } = await axiosPublic.post("/calificaciones/olimpistas", {
         areas: siglaAreas
     });
-    console.log('Datos obtenidos: ', data.data);
     return data.data;
 };
 
 export const getCalificacionesGrupos = async (siglaAreas: string[]) => {
-    const response = await axiosPublic.post("/calificaciones/grupos", {
+    const { data } = await axiosPublic.post("/calificaciones/grupos", {
         areas: siglaAreas
     });
-    return response.data;
+    return data.data;
 };
 
 export const updateCalificacionesOlimpistas = async (
@@ -33,6 +32,7 @@ export const updateCalificacionesOlimpistas = async (
         if (notaEmpty) {
             console.log('Error en las notas');
             setApiError("No se puede tener notas vacias.");
+            
             setIsLoading(false);
             return;
         }
@@ -46,11 +46,19 @@ export const updateCalificacionesOlimpistas = async (
 
         if (response.status === 200) {
             setSuccess(true);
+            setIsLoading(false);
+            reset();
             console.log('Notas actualizadas con exito');
+            return;
         }
-        reset();
+        setIsLoading(false);
+        setSuccess(false);
+        setIsLoading(false);
     } catch (error: any) {
         console.error("Error al editar las notas:", error);
+        setIsLoading(false);
+        setSuccess(false);
+        setIsLoading(false);
         if (error.response?.status === 422) {
             const backendErrors = error.response.data.errors;
             if (backendErrors) {
@@ -64,9 +72,10 @@ export const updateCalificacionesOlimpistas = async (
         } else {
             setApiError(error.response?.data?.message || "Error de conexión. Verifique su internet.");
         }
-    } finally {
-        setIsLoading(false);
     }
+    //  finally {
+    //     setIsLoading(false);
+    // }
 }
 
 export const getCalificacionesByFase = async (area: string, fase: string) => {

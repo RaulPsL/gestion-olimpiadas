@@ -17,7 +17,6 @@ export default function PageCalificaciones() {
             const response = await getCalificacionesOlimpistas(['MAT', 'FIS']);
                 setCalificaciones(response);
             };
-            console.log('Calificaciones: ', calificaciones);
         staticData();
     }, []);
 
@@ -25,7 +24,6 @@ export default function PageCalificaciones() {
         if (calificaciones) {
             setKeys(Object.keys(calificaciones));
         }
-        console.log('Keys: ', keys);
     }, [calificaciones]);
     
     return (

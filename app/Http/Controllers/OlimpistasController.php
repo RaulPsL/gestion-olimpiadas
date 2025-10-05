@@ -239,13 +239,11 @@ class OlimpistasController extends Controller
             return response()->json([
                 'message' => "Olimpista creado exitosamente.",
                 'data' => $new_olimpista,
-                'status' => 201
-            ]);
+            ], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al crear olimpista.',
                 'error' => $th->getMessage(),
-                'status' => 500
             ], 500);
         }
     }

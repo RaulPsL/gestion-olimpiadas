@@ -16,6 +16,10 @@ export const validationRules = {
             value: 2,
             message: "El apellido debe tener al menos 2 caracteres"
         },
+        maxLength: {
+            value: 15,
+            message: "El apellido no debe ser mayor a 15 caracteres"
+        },
         pattern: {
             value: /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/,
             message: "Solo se permiten letras y espacios"
@@ -26,6 +30,10 @@ export const validationRules = {
         minLength: {
             value: 2,
             message: "El apellido debe tener al menos 2 caracteres"
+        },
+        maxLength: {
+            value: 15,
+            message: "El apellido no debe ser mayor a 15 caracteres"
         },
         pattern: {
             value: /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/,
