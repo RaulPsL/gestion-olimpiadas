@@ -100,15 +100,13 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   // * Send setDialogOpen to submit for watching while loading response
   // * Try add submit into setTimeout
   React.useEffect(() => {
-    if (apiError !== '') {
+    if (isLoading || apiError !== '') {
       setDialogOpen(true);
     }
-    if (!isLoading && dialogOpen) {
+    if (success) {
       const timer = setTimeout(() => {
-        handleSubmit()
-        setOpenToEdition(false);
-        handleToggleEdicion(false);
-      }, 2000);
+        setDialogOpen(false);
+      }, 3000);
       return () => clearTimeout(timer);
     }
     console.log('Termino el tiempo...');
@@ -116,8 +114,9 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
 
   const handleConfirmSave = () => {
     console.log(`Datos guardandose, cargand: ${isLoading}, exito: ${success}, dialog abierto?: ${dialogOpen}`);
-    // handleSubmit();
-    if (success || apiError !== '') {
+    setIsLoading(true);
+    handleSubmit();
+    if (success) {
       setDialogOpen(true);
       setOpenToEdition(false);
       handleToggleEdicion(false);
@@ -147,7 +146,10 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
           
           <div className="flex flex-row content-between">
             { openToEdition ? 
-              (<AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              (<AlertDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                defaultOpen={dialogOpen}>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline">
                     Guardar <SaveAll />
@@ -230,7 +232,6 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                         <AlertDialogCancel>No</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={handleConfirmSave}
-                          // onWaiting={() => void}
                         >
                           Sí, guardar
                         </AlertDialogAction>

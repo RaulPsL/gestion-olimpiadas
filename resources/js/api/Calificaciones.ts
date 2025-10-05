@@ -23,7 +23,8 @@ export const updateCalificacionesOlimpistas = async (
     setApiError: React.Dispatch<React.SetStateAction<string>>,
     reset: UseFormReset<FormNotas>,
 ) => {
-    setIsLoading(true);
+    // setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
     setApiError("");
     setSuccess(false);
     try {
@@ -41,6 +42,7 @@ export const updateCalificacionesOlimpistas = async (
         console.log('Enviando datos...');
 
         const response = await axiosPublic.put(`/calificaciones/olimpistas`, data);
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         console.log('Resultado del servidor: ', response.statusText, response.status);
 
@@ -51,11 +53,12 @@ export const updateCalificacionesOlimpistas = async (
             console.log('Notas actualizadas con exito');
             return;
         }
-        setIsLoading(false);
-        setSuccess(false);
-        setIsLoading(false);
+        // setIsLoading(false);
+        // setSuccess(false);
+        // setIsLoading(false);
     } catch (error: any) {
         console.error("Error al editar las notas:", error);
+        await new Promise(resolve => setTimeout(resolve, 2000));
         setIsLoading(false);
         setSuccess(false);
         setIsLoading(false);

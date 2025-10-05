@@ -74,14 +74,47 @@ export const createColumnsCalificaciones = (
     accessorKey: "estado",
     header: "Estado",
     cell: ({ row }) => {
-      if (row.original.estado === "activo") 
-        return <Badge className="capitalize text-white bg-green-600">{row.original.estado}</Badge>
-      if (row.original.estado === "clasificado") 
-        return <Badge className="capitalize text-white bg-blue-500">{row.original.estado}</Badge>
-      if (row.original.estado === "no clasificado") 
-        return <Badge className="capitalize text-white bg-gray-500">{row.original.estado}</Badge>
-      if (row.original.estado === "desclasificado") 
-        return <Badge className="capitalize text-white bg-red-700">{row.original.estado}</Badge>
+      const estado = row.original.estado;
+      if (estado === "activo") 
+        return (
+        <>
+          <Input
+            type="number"
+            defaultValue={estado}
+            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
+          />
+          <Badge className="capitalize text-white bg-green-600">{row.original.estado}</Badge>
+        </>)
+      if (estado === "clasificado") 
+        return (
+        <>
+          <Input
+            type="number"
+            defaultValue={estado}
+            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
+          />
+          <Badge className="capitalize text-white bg-blue-500">{row.original.estado}</Badge>
+        </>)
+      if (estado === "no clasificado") 
+        return (
+        <>
+          <Input
+            type="number"
+            defaultValue={estado}
+            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
+          />
+          <Badge className="capitalize text-white bg-gray-500">{row.original.estado}</Badge>
+        </>)
+      if (estado === "desclasificado") 
+        return (
+        <>
+          <Input
+            type="number"
+            defaultValue={estado}
+            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
+          />
+          <Badge className="capitalize text-white bg-red-700">{row.original.estado}</Badge>
+        </>)
     }
   },
   {
