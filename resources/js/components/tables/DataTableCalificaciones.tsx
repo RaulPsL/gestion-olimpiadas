@@ -94,11 +94,6 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
     },
   })
 
-  // Cierra el diálogo cuando hay éxito
-  // * Add a timeout to close the dialog when the success is true
-  // * Add a timeout to loading response of server
-  // * Send setDialogOpen to submit for watching while loading response
-  // * Try add submit into setTimeout
   React.useEffect(() => {
     if (isLoading || apiError !== '') {
       setDialogOpen(true);

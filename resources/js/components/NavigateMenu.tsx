@@ -107,7 +107,7 @@ export function NavigateMenu({ role }: { role: boolean }) {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to={"/olimpistas"}>{role ? "Cerrar sesion" : "Iniciar sesion"}</Link>
+            <Link to={"/login"}>{role ? "Cerrar sesion" : "Iniciar sesion"}</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>

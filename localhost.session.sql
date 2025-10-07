@@ -300,7 +300,7 @@ SELECT
     NOW(),
     NOW()
 FROM olimpista_areas oa
-JOIN fases f ON f.id_area = oa.area_id
+JOIN fases f ON f.area_id = oa.area_id
 WHERE f.tipo_fase = 'preliminares';
 
 INSERT INTO grupo_areas (grupo_id, area_id)
@@ -318,7 +318,7 @@ SELECT
     NOW(),
     NOW()
 FROM grupo_areas ga
-JOIN fases f ON f.id_area = ga.area_id
+JOIN fases f ON f.area_id = ga.area_id
 WHERE f.tipo_fase = 'preliminares';
 
 SELECT setval('usuarios_id_seq', (SELECT MAX(id) FROM usuarios));

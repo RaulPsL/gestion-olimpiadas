@@ -263,14 +263,14 @@ class UsuariosController extends Controller
 
     public function login(Request $request) {
         try {
-            if (!Auth::attempt($request->only(['email'. 'password']))) {
+            if (!Auth::attempt($request->only(['ci', 'password']))) {
                 return response()->json([
                     'message' => 'Credenciales de usuario invalidas.'
                 ], 401);
             }
 
             $usuario = Auth::user();
-            $token = $usuario->createToken()->plainTextToken;
+            $token = $usuario->createToken('auth_token')->plainTextToken;
 
             $user_menu = Usuario::where('ci', $usuario->ci)
                 ->with(['areas', 'roles.menus.children'])
@@ -303,7 +303,7 @@ class UsuariosController extends Controller
             });
             
             return response()->json([
-                'usuario' => [
+                'data' => [
                     'datos_usuario' => $usuario,
                     'rol' => $rol,
                     'areas' => $areas,
@@ -313,7 +313,7 @@ class UsuariosController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                'usuario' => "Error interno del servidor: ".$th->getMessage(),
+                'message' => "Error interno del servidor: ".$th->getMessage(),
             ], 500);
         }
     }

@@ -1,5 +1,6 @@
 import { UsuarioForm } from "@/forms/interfaces/Usuario";
 import { axiosPublic, axiosInstance } from "./api";
+import { Login } from "@/forms/interfaces/LoginIntefase";
 
 export const getUsuarios = async () => {
     const { data } = await axiosPublic.get("/usuarios");
@@ -97,7 +98,38 @@ export const deleteUsuario = async (codsis: number) => {
     return response.data;
 };
 
-export const login = async (data: any) => {
-    const response = await axiosPublic.post("/login", data);
-    return response.data;
+export const login = async (
+    data: Login,
+    setApiError: any,
+    setIsLoading: any,
+    setSuccess: any,
+    reset: any,
+) => {
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+        console.log("Enviando datos...");
+        data = {
+            ...data,
+            ci: Number(data.ci)
+        }
+        const response = await axiosPublic.post("/login", data);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        if (response.status === 200) {
+            setIsLoading(false);
+            setSuccess(true);
+            reset();
+            console.log("Acceso al sistema existoso", response.data.data);
+            return;
+        }
+    } catch (error: any) {
+        console.error("Error al crear usuario:", error);
+        if (error.response?.status === 500) {
+            setApiError("Error interno del servidor. Intente nuevamente.");
+        } else {
+            setApiError("Error de conexión. Verifique su internet.");
+        }
+    } finally {
+        setIsLoading(false);
+    }
 };
