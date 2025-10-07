@@ -14,7 +14,7 @@ export default function TableCalificaciones({ calificaciones } : {calificaciones
     notas: calificaciones.map(item => ({
       nota_olimpista_id: item.nota_olimpista_id,
       nota_fase_id: item.nota_fase_id,
-      estado_olimpista: item.estado === "activo",
+      estado_olimpista: item.estado,
       nota: item.nota,
       comentarios: item.comentarios
     }))

@@ -74,7 +74,7 @@ export default function FormOlimpista() {
         }
     });
 
-    const areaField = useComboboxField("areas", setValue, false, trigger);
+    const areaField = useComboboxField("areas", setValue, true, trigger);
     const gradoField = useComboboxField("grado_escolar", setValue, false, trigger);
     const nivelField = useComboboxField("nivel_competencia", setValue, false, trigger);
     const departamentoField = useComboboxField("colegio.departamento_colegio", setValue, false, trigger);
@@ -89,7 +89,7 @@ export default function FormOlimpista() {
     const handleNext = async () => {
         // Validar campos del primer paso
         const firstStepFields = [
-            'nombres', 'apellido_paterno', 'apellido_materno', 'ci', 
+            'nombres', 'apellido_paterno', 'apellido_materno', 'ci',
             'grado_escolar', 'nivel_competencia', 'areas', 
             'tutor.nombre_tutor', 'tutor.referencia_tutor'
         ];
@@ -273,9 +273,10 @@ export default function FormOlimpista() {
                                     placeholder="Seleccionar área..."
                                     searchPlaceholder="Buscar área..."
                                     multiple={true}
+                                    className={errors.areas ? "border-red-500" : ""}
                                 />
-                                {areas?.length === 0 && apiError.includes("área") && (
-                                    <p className="text-sm text-red-500">Debe seleccionar al menos un área</p>
+                                {errors.areas && (
+                                    <p className="text-sm text-red-500">{errors.areas.message}</p>
                                 )}
                             </div>
 
@@ -291,9 +292,10 @@ export default function FormOlimpista() {
                                     placeholder="Seleccionar grado..."
                                     searchPlaceholder=""
                                     multiple={false}
+                                    className={errors.grado_escolar ? "border-red-500" : ""}
                                 />
-                                {gradoField.value === undefined && apiError.includes("grados") && (
-                                    <p className="text-sm text-red-500">Debe seleccionar el grado escolar</p>
+                                {errors.grado_escolar && (
+                                    <p className="text-sm text-red-500">{errors.grado_escolar.message}</p>
                                 )}
                             </div>
 
@@ -309,9 +311,10 @@ export default function FormOlimpista() {
                                     placeholder="Seleccionar nivel..."
                                     searchPlaceholder=""
                                     multiple={false}
+                                    className={errors.nivel_competencia ? "border-red-500" : ""}
                                 />
-                                {nivelField.value === undefined && apiError.includes("niveles") && (
-                                    <p className="text-sm text-red-500">Debe seleccionar el nivel de competencia</p>
+                                {errors.nivel_competencia && (
+                                    <p className="text-sm text-red-500">{errors.nivel_competencia.message}</p>
                                 )}
                             </div>
 
@@ -493,9 +496,10 @@ export default function FormOlimpista() {
                                             placeholder="Seleccionar departamento..."
                                             searchPlaceholder="Buscar departamento..."
                                             multiple={false}
+                                            className={errors.colegio?.departamento_colegio ? "border-red-500" : ""}
                                         />
-                                        {departamentoField.value === undefined && apiError.includes("departamento") && (
-                                            <p className="text-sm text-red-500">Debe seleccionar un departamento</p>
+                                        {errors.colegio?.departamento_colegio && (
+                                            <p className="text-sm text-red-500">{errors.colegio.departamento_colegio.message}</p>
                                         )}
                                     </div>
 

@@ -20,6 +20,7 @@ class CalificacionesController extends Controller
                 'areas' => 'required',
             ]);
             $fases = Fase::select(['id', 'area_id', 'sigla'])
+                ->where('estado', 'en curso')
                 ->with([
                     'olimpistas.tutor',
                     'olimpistas.tutores_academicos',

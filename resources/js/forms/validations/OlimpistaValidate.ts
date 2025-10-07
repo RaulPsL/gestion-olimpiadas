@@ -41,7 +41,7 @@ export const validationRules = {
         }
     },
     celular: {
-        required: "El celular del tutor academico es obligatorio",
+        required: "El celular del estudiante es obligatorio",
         validate: (value: string) => {
             if (!/^[67]\d{7}$/.test(value)) {
                 return "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)";
@@ -71,10 +71,14 @@ export const validationRules = {
         }
     },
     grado_escolar: {
-        required: "Debe seleccionar el grado escolar."
+        validate: (value: string) => {
+            if (!value) return "Debe seleccionar el grado escolar.";
+        }
     },
     nivel_competencia: {
-        required: "Debe seleccionar el nivel de competencia."
+        validate: (value: string) => {
+            if (!value) return "Debe seleccionar el nivel de competencia.";
+        }
     },
     nombre_tutor: {
         required: "El nombre completo del tutor es obligatorio",

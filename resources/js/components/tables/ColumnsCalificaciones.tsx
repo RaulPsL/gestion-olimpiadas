@@ -31,7 +31,7 @@ export type FormNotas = {
   notas: {
     nota_olimpista_id: number;
     nota_fase_id: number;
-    estado_olimpista: boolean;
+    estado_olimpista: string;
     nota: number;
     comentarios: string;
   }[];
@@ -75,46 +75,26 @@ export const createColumnsCalificaciones = (
     header: "Estado",
     cell: ({ row }) => {
       const estado = row.original.estado;
-      if (estado === "activo") 
-        return (
-        <>
-          <Input
-            type="number"
-            defaultValue={estado}
-            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
-          />
-          <Badge className="capitalize text-white bg-green-600">{row.original.estado}</Badge>
-        </>)
+      let className = 'capitalize text-white bg-green-600';
       if (estado === "clasificado") 
-        return (
-        <>
-          <Input
-            type="number"
-            defaultValue={estado}
-            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
-          />
-          <Badge className="capitalize text-white bg-blue-500">{row.original.estado}</Badge>
-        </>)
-      if (estado === "no clasificado") 
-        return (
-        <>
-          <Input
-            type="number"
-            defaultValue={estado}
-            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
-          />
-          <Badge className="capitalize text-white bg-gray-500">{row.original.estado}</Badge>
-        </>)
+        className = "capitalize text-white bg-blue-500";
+      if (estado === "no clasificado")
+        className = "capitalize text-white bg-gray-500";
       if (estado === "desclasificado") 
-        return (
-        <>
+        className="capitalize text-white bg-red-700";
+      return (
+      <>
+        <div
+          hidden
+        >
           <Input
-            type="number"
+            type="text"
             defaultValue={estado}
-            { ...register(`notas.${row.index}.estado_olimpista`, { valueAsNumber: true }) }
+            { ...register(`notas.${row.index}.estado_olimpista`) }
           />
-          <Badge className="capitalize text-white bg-red-700">{row.original.estado}</Badge>
-        </>)
+        </div>
+        <Badge className={className}>{row.original.estado}</Badge>
+      </>)
     }
   },
   {

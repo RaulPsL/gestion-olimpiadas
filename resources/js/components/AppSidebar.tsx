@@ -35,7 +35,7 @@ const items = [
         },
         {
             title: "Encargado de Area",
-            url: "/administrar/encargado",
+            url: "/administrar/encargado-de-area",
         },
         {
             title: "Evaluador",

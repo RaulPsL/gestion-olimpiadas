@@ -8,6 +8,7 @@ use App\Models\Rol;
 use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UsuariosController extends Controller
 {
@@ -106,23 +107,20 @@ class UsuariosController extends Controller
     public function show(int $ci)
     {
         try {
-            $usuario = Usuario::with(['areas', 'roles', 'fases'])->where('ci', $ci)->first();
+            $usuario = Usuario::where('ci', $ci)->with(['areas', 'roles.menus.children', 'fases'])->get();
             if ($usuario) {
                 return response()->json([
                     'message' => "Usuario obtenido exitosamente.",
                     'data' => $usuario,
-                    'status' => 200
-                ]);
+                ], 200);
             }
             return  response()->json([
                 'message' => "El usuario $ci no existe.",
-                'status' => 401
-            ]);
+            ], 400);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => "Ocurrio un error en el servidor: $th.",
-                'status' => 500,
-            ]);
+            ], 500);
         }
     }
 
@@ -259,6 +257,63 @@ class UsuariosController extends Controller
             return response()->json([
                 'message' => "Ocurrio un error en el servidor: $th.",
                 'data' => [],
+            ], 500);
+        }
+    }
+
+    public function login(Request $request) {
+        try {
+            if (!Auth::attempt($request->only(['email'. 'password']))) {
+                return response()->json([
+                    'message' => 'Credenciales de usuario invalidas.'
+                ], 401);
+            }
+
+            $usuario = Auth::user();
+            $token = $usuario->createToken()->plainTextToken;
+
+            $user_menu = Usuario::where('ci', $usuario->ci)
+                ->with(['areas', 'roles.menus.children'])
+                ->first();
+            $areas = collect($user_menu->areas)->map(function ($area) {
+                return [
+                    'sigla' => $area->sigla,
+                    'nombre' => $area->nombre,
+                    'nivel' => $area->nivel,
+                ];
+            });
+
+            $rol = collect($user_menu->roles)->map(function ($rol) {
+                return [
+                    'nombre' =>  $rol->nombre,
+                    'sigla' => $rol->sigla,
+                ];
+            })->first();
+
+            $menu = collect($user_menu->roles->first()->menus)->map(function ($menu) {
+                $menu_sup = [
+                    'title' => $menu->title,
+                    'url' => $menu->url,
+                    'icon' => $menu->icon,
+                ];
+                if (collect($menu->children)->count() > 0) {
+                    $menu_sup['submenu'] = $menu->children;
+                }
+                return $menu_sup;
+            });
+            
+            return response()->json([
+                'usuario' => [
+                    'datos_usuario' => $usuario,
+                    'rol' => $rol,
+                    'areas' => $areas,
+                    'menu' => $menu,
+                ],
+                'token' => $token,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'usuario' => "Error interno del servidor: ".$th->getMessage(),
             ], 500);
         }
     }

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id()->unique();
-            $table->string('title', 15);
-            $table->string('url', 25);
-            $table->string('icon', 15);
+            $table->string('title', 45);
+            $table->string('url', 128);
+            $table->string('icon', 45);
             $table->timestamps();
         });
     }

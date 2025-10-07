@@ -16,7 +16,7 @@ function App() {
                 <Route path="/login" element={<PageLogin />} />
                 <Route path="/olimpistas" element={<PageOlimpista />} />
                 <Route path="/area" element={<PageArea />} />
-                <Route path="/administrar/encargado" element={<PageInterno tipoUsuario='Encargado'/>} />
+                <Route path="/administrar/encargado-de-area" element={<PageInterno tipoUsuario='Encargado'/>} />
                 <Route path="/administrar/evaluador" element={<PageInterno tipoUsuario='Evaluador'/>} />
                 <Route path="/calificaciones" element={<PageCalificaciones />} />
                 <Route path="/clasificaciones/areas" element={<PageClasificaciones />} />
