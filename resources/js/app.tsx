@@ -17,18 +17,40 @@ function App() {
                 <Routes>
                     <Route path="/" element={<PageHome />} />
                     <Route path="/login" element={<PageLogin />} />
+                    <Route path="/clasificaciones/areas" element={ <PageClasificaciones /> } />
+                
                     <Route
-                        path="/olimpistas"
+                        path="/olimpistas/registrar olimpista(s)"
                         element={
                             <PrivatRoute
-                                rol={['']}
+                            rol={['EDA']}
                             >
                                 <PageOlimpista />
                             </PrivatRoute>
                         }
                     />
                     <Route
-                        path="/area"
+                        path="/olimpistas/ver olimpistas"
+                        element={
+                            <PrivatRoute
+                                rol={['EDA', 'EVA']}
+                            >
+                                <PageArea />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/evaluadores/ver evaluadores"
+                        element={
+                            <PrivatRoute
+                                rol={['EDA', 'EVA']}
+                            >
+                                <PageArea />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/areas/ver areas"
                         element={
                             <PrivatRoute
                                 rol={['EVA', 'EDA']}
@@ -38,20 +60,40 @@ function App() {
                         }
                     />
                     <Route
-                        path="/administrar/encargado-de-area"
+                        path="/areas/ver fases"
                         element={
                             <PrivatRoute
-                                rol={['EDA']}
+                                rol={['EVA', 'EDA']}
+                            >
+                                <PageArea />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/areas/crear area"
+                        element={
+                            <PrivatRoute
+                                rol={['ADM']}
+                            >
+                                <PageArea />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/usuarios/crear-encargado"
+                        element={
+                            <PrivatRoute
+                                rol={['ADM']}
                             >
                                 <PageInterno tipoUsuario='Encargado'/>
                             </PrivatRoute>
                         }
                     />
                     <Route
-                        path="/administrar/evaluador"
+                        path="/usuarios/crear-evaluador"
                         element={
                             <PrivatRoute
-                                rol={['EDA']}
+                                rol={['ADM']}
                             >
                                 <PageInterno tipoUsuario='Evaluador'/>
                             </PrivatRoute>
@@ -68,17 +110,47 @@ function App() {
                         }
                     />
                     <Route
-                        path="/clasificaciones/areas"
+                        path="/calificaciones/olimpistas"
                         element={
                             <PrivatRoute
-                                rol={['EVA', 'EDA']}
+                                rol={['EVA']}
                             >
                                 <PageClasificaciones />
                             </PrivatRoute>
                         }
                     />
                     <Route
-                        path="/fases"
+                        path="/calificaciones/grupos"
+                        element={
+                            <PrivatRoute
+                                rol={['EVA']}
+                            >
+                                <PageClasificaciones />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/acciones/evaluadores"
+                        element={
+                            <PrivatRoute
+                                rol={['EDA']}
+                            >
+                                <PageClasificaciones />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/acciones/usuarios"
+                        element={
+                            <PrivatRoute
+                                rol={['ADM']}
+                            >
+                                <PageClasificaciones />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/areas/fases/preparacion de fase"
                         element={
                             <PrivatRoute
                                 rol={['EVA', 'EDA']}

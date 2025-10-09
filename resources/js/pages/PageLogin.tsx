@@ -9,9 +9,11 @@ import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { Login } from "@/forms/interfaces/LoginIntefase";
+import { useAuth } from "@/hooks/use-context";
 import { AlertCircle, CheckCircle, LogIn } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 const rules = {
     ci: {
@@ -38,12 +40,18 @@ export default function PageLogin() {
     const [apiError, setApiError] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [success, setSuccess] = React.useState<boolean>(false);
+    const { setToken, setData } = useAuth();
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         if (success || apiError !== '') {
             console.log("Cierre de loading por timeout...");
-            const timer = setTimeout(() => 
+            const timer = setTimeout(() => {
                 setOpenSpinner(false)
+                if (success) {
+                    navigate('/olimpistas/ver olimpistas');
+                }
+            }
             , 2500);
             return () => clearTimeout(timer);
         }
@@ -59,6 +67,8 @@ export default function PageLogin() {
                     setApiError,
                     setIsLoading,
                     setSuccess,
+                    setToken,
+                    setData,
                     reset
                 )
             )();
@@ -83,9 +93,9 @@ export default function PageLogin() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {apiError && (
-                                    <Alert variant="destructive">
-                                        <AlertCircle className="h-4 w-4" />
+                                {apiError !== '' && (
+                                    <Alert variant="destructive" className="px-4">
+                                        <AlertCircle className="h-4 w-4 px-4" />
                                         <AlertDescription>{apiError}</AlertDescription>
                                     </Alert>
                                 )}

@@ -105,8 +105,11 @@ export const login = async (
     setApiError: any,
     setIsLoading: any,
     setSuccess: any,
+    setToken: any,
+    setData: any,
     reset: any,
 ) => {
+    setApiError('');
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
     try {
@@ -117,19 +120,20 @@ export const login = async (
         }
         const response = await axiosPublic.post("/login", data);
         await new Promise(resolve => setTimeout(resolve, 2000));
-        const { setToken, setData } = useAuth();
         if (response.status === 200) {
             setToken(response.data.token);
             setData(response.data.data);
-            setIsLoading(false);
             setSuccess(true);
+            setIsLoading(false);
             reset();
             console.log("Acceso al sistema existoso", response.data.data);
             return;
         }
     } catch (error: any) {
         console.error("Error al crear usuario:", error);
-        if (error.response?.status === 500) {
+        if (error.response?.status === 401) {
+            setApiError(error.response?.data?.message);
+        } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
         } else {
             setApiError("Error de conexión. Verifique su internet.");

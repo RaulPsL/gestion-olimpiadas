@@ -32,7 +32,6 @@ export default function PageClasificaciones() {
     
     return (
         <SidebarProvider>
-            <AppSidebar />
             <SidebarInset>
                 <Header />
                 <div className="container mx-auto px-4">

@@ -27,7 +27,7 @@ Route::middleware(['api', 'log.requests'])
         Route::delete('/{codsis}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('olimpistas.destroy');
     });
 
-Route::prefix('usuarios')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('usuarios')->group(function () {
     Route::get('/', [App\Http\Controllers\UsuariosController::class, 'index']);
     Route::get('/static', [App\Http\Controllers\UsuariosController::class, 'indexStaticData']);
     Route::get('/{ci}', [App\Http\Controllers\UsuariosController::class, 'show']);
@@ -41,7 +41,7 @@ Route::prefix('fases')->group(function () {
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
 });
 
-Route::prefix('areas')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);
     Route::get('/static', [App\Http\Controllers\AreasController::class, 'indexStaticData']);
@@ -51,7 +51,7 @@ Route::prefix('areas')->group(function () {
     Route::delete('/{sigla}', [App\Http\Controllers\AreasController::class, 'destroy']);
 });
 
-Route::prefix('calificaciones')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EVA'])->prefix('calificaciones')->group(function () {
     Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'calificacionesOlimpistas']);
     Route::post('/grupos', [App\Http\Controllers\CalificacionesController::class, 'calificacionesGrupos']);
     Route::get('/{area}/{fase}', [App\Http\Controllers\CalificacionesController::class, 'showByFase']);
@@ -68,6 +68,7 @@ Route::prefix('clasificaciones')->group(function () {
 Route::post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
 Route::post('/login', [App\Http\Controllers\UsuariosController::class, 'login']);
 
+Route::get('/menus', [App\Http\Controllers\MenuController::class, 'index']);
 Route::post('/menus', [App\Http\Controllers\MenuController::class, 'store']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

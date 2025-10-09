@@ -12,7 +12,9 @@ class MenuController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json([
+            'data' => Menu::with(['roles', 'children'])->get(),
+        ]);
     }
 
     /**

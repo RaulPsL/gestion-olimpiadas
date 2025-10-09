@@ -28,30 +28,30 @@ export default function Header() {
             <div className="flex items-center gap-2 h-full">
                 {role !== "" && (<SidebarTrigger className="flex items-center" />)}
                 
-                {breadcrumbs.length > 0 && (
-                <Breadcrumb className="flex items-center">
-                    <BreadcrumbList>
-                    {breadcrumbs.map((item, index) => (
-                        <div key={item.path} className="flex items-center">
-                        <BreadcrumbItem
-                            className="hidden md:block"
-                            key={index}
-                        >
-                            {item.isLast ? (
-                            <BreadcrumbPage>{item.name}</BreadcrumbPage>
-                            ) : (
-                            <BreadcrumbLink asChild>
-                                <Link to={item.path}>{item.name}</Link>
-                            </BreadcrumbLink>
+                {role !== "" && breadcrumbs.length > 0 && (
+                    <Breadcrumb className="flex items-center">
+                        <BreadcrumbList>
+                        {breadcrumbs.map((item, index) => (
+                            <div key={item.path} className="flex items-center">
+                            <BreadcrumbItem
+                                className="hidden md:block"
+                                key={index}
+                            >
+                                {item.isLast ? (
+                                <BreadcrumbPage>{item.name}</BreadcrumbPage>
+                                ) : (
+                                <BreadcrumbLink asChild>
+                                    <Link to={item.path}>{item.name}</Link>
+                                </BreadcrumbLink>
+                                )}
+                            </BreadcrumbItem>
+                            {!item.isLast && (
+                                <BreadcrumbSeparator className="hidden md:block" />
                             )}
-                        </BreadcrumbItem>
-                        {!item.isLast && (
-                            <BreadcrumbSeparator className="hidden md:block" />
-                        )}
-                        </div>
-                    ))}
-                    </BreadcrumbList>
-                </Breadcrumb>
+                            </div>
+                        ))}
+                        </BreadcrumbList>
+                    </Breadcrumb>
                 )}
             </div>
             

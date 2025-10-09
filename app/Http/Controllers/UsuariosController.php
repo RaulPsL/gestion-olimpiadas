@@ -107,7 +107,7 @@ class UsuariosController extends Controller
     public function show(int $ci)
     {
         try {
-            $usuario = Usuario::where('ci', $ci)->with(['areas', 'roles.menus.children', 'fases'])->get();
+            $usuario = Usuario::where('ci', $ci)->with(['areas', 'roles.menus.children', 'fases'])->first();
             if ($usuario) {
                 return response()->json([
                     'message' => "Usuario obtenido exitosamente.",
@@ -297,6 +297,10 @@ class UsuariosController extends Controller
                     'icon' => $menu->icon,
                 ];
                 if (collect($menu->children)->count() > 0) {
+                    $menu_sup = [
+                        'title' => $menu->title,
+                        'icon' => $menu->icon,
+                    ];
                     $menu_sup['submenu'] = $menu->children;
                 }
                 return $menu_sup;
