@@ -11,7 +11,7 @@ export default function PageInterno({ tipoUsuario }: { tipoUsuario: string }) {
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-                <Header role={true} home/>
+                <Header />
                 <div className="container mx-auto py-10">
                     <div className="flex w-full flex-row gap-6 p-4 items-center">
                         <Users />

@@ -68,7 +68,7 @@ export default function PageLogin() {
     return (
         <SidebarProvider>
             <SidebarInset>
-                <Header role={false} home={false} />
+                <Header />
                 <div className="container mx-auto py-10">
                     <div className="flex w-full flex-col gap-6 p-4 items-center">
                         <div className="flex w-full flex-row gap-6 p-4 items-center justify-center">

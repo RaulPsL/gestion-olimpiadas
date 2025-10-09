@@ -1,6 +1,8 @@
 import { UsuarioForm } from "@/forms/interfaces/Usuario";
 import { axiosPublic, axiosInstance } from "./api";
 import { Login } from "@/forms/interfaces/LoginIntefase";
+import { AuthContext, useAuth } from "@/hooks/use-context";
+import { useContext } from "react";
 
 export const getUsuarios = async () => {
     const { data } = await axiosPublic.get("/usuarios");
@@ -115,7 +117,10 @@ export const login = async (
         }
         const response = await axiosPublic.post("/login", data);
         await new Promise(resolve => setTimeout(resolve, 2000));
+        const { setToken, setData } = useAuth();
         if (response.status === 200) {
+            setToken(response.data.token);
+            setData(response.data.data);
             setIsLoading(false);
             setSuccess(true);
             reset();

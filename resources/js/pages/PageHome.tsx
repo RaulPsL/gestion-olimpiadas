@@ -7,7 +7,7 @@ export default function PageHome() {
     return (
         <SidebarProvider>
             <SidebarInset>
-                <Header role={false} home={false} />
+                <Header />
                 <div className="flex flex-1 flex-col gap-4 p-4">
                     <SectionAccountingOlimpistas />
                     <div className="grid auto-rows-min gap-4 md:grid-cols-3">

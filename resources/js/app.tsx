@@ -7,21 +7,88 @@ import PageFase from './pages/PageFase';
 import PageLogin from './pages/PageLogin';
 import PageCalificaciones from './pages/PageCalificaciones';
 import PageClasificaciones from './pages/PageClasificaciones';
+import { AuthProvider } from './hooks/use-context';
+import { PrivatRoute } from './hooks/use-private-route';
 
 function App() {
     return (
         <div className="flex flex-1 flex-col gap-4 px-4">
-            <Routes>
-                <Route path="/" element={<PageHome />} />
-                <Route path="/login" element={<PageLogin />} />
-                <Route path="/olimpistas" element={<PageOlimpista />} />
-                <Route path="/area" element={<PageArea />} />
-                <Route path="/administrar/encargado-de-area" element={<PageInterno tipoUsuario='Encargado'/>} />
-                <Route path="/administrar/evaluador" element={<PageInterno tipoUsuario='Evaluador'/>} />
-                <Route path="/calificaciones" element={<PageCalificaciones />} />
-                <Route path="/clasificaciones/areas" element={<PageClasificaciones />} />
-                <Route path="/fases" element={<PageFase />} />
-            </Routes>
+            <AuthProvider>
+                <Routes>
+                    <Route path="/" element={<PageHome />} />
+                    <Route path="/login" element={<PageLogin />} />
+                    <Route
+                        path="/olimpistas"
+                        element={
+                            <PrivatRoute
+                                rol={['']}
+                            >
+                                <PageOlimpista />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/area"
+                        element={
+                            <PrivatRoute
+                                rol={['EVA', 'EDA']}
+                            >
+                                <PageArea />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/administrar/encargado-de-area"
+                        element={
+                            <PrivatRoute
+                                rol={['EDA']}
+                            >
+                                <PageInterno tipoUsuario='Encargado'/>
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/administrar/evaluador"
+                        element={
+                            <PrivatRoute
+                                rol={['EDA']}
+                            >
+                                <PageInterno tipoUsuario='Evaluador'/>
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/calificaciones"
+                        element={
+                            <PrivatRoute
+                                rol={['EVA']}
+                            >
+                                <PageCalificaciones />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/clasificaciones/areas"
+                        element={
+                            <PrivatRoute
+                                rol={['EVA', 'EDA']}
+                            >
+                                <PageClasificaciones />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/fases"
+                        element={
+                            <PrivatRoute
+                                rol={['EVA', 'EDA']}
+                            >
+                                <PageFase />
+                            </PrivatRoute>
+                        }
+                    />
+                </Routes>
+            </AuthProvider>
         </div>
     );
 }

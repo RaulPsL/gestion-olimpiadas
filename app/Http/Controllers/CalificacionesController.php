@@ -75,7 +75,7 @@ class CalificacionesController extends Controller
                 'notas' => 'required',
                 'notas.*.nota_olimpista_id' => 'required|integer',
                 'notas.*.nota_fase_id' => 'required|integer',
-                'notas.*.estado_olimpista' => 'required|boolean',
+                'notas.*.estado_olimpista' => 'required|string',
                 'notas.*.nota' => 'required',
             ]);
 
@@ -84,12 +84,12 @@ class CalificacionesController extends Controller
                 $calificacion = Calificacion::where('olimpista_id', $nota['nota_olimpista_id'])
                     ->where('fase_id', $nota['nota_fase_id'])
                     ->first();
-                if (!$nota['estado_olimpista']) {
-                    $olimpista = Olimpista::findOrFail($nota['nota_olimpista_id']);
-                    $olimpista->update([
-                        'estado' => 'desclasificado'
-                    ]);
-                }
+
+                $olimpista = Olimpista::findOrFail($nota['nota_olimpista_id']);
+                $olimpista->update([
+                    'estado' => $nota['estado_olimpista']
+                ]);
+
                 if (!$calificacion) continue;
                 $calificacion->update([
                         'puntaje' => $nota['nota'],

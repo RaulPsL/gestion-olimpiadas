@@ -34,7 +34,7 @@ export default function PageClasificaciones() {
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-                <Header role={true} home/>
+                <Header />
                 <div className="container mx-auto px-4">
                     <div id="headerTablaClasificaciones" className="flex w-full flex-row gap-6 p-4 items-center">
                         <BookUser />
