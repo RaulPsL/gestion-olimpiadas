@@ -37,11 +37,11 @@ export default function PageVerFases() {
                         <Label className="text-2xl">Visualizar usuarios</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue="Matemáticas">
+                        <Tabs defaultValue={areas?.[0]} key={areas?.[0]}>
                             <TabsList>
                                 {
                                     areas ? (
-                                        areas.map((area: string) => <TabsTrigger value={area} id={area}>{area}</TabsTrigger>)
+                                        areas.map((area: string) => <TabsTrigger value={area} key={area}>{area}</TabsTrigger>)
                                     ) : (
                                         <>
                                             <TabsTrigger value="Matemáticas">Matemáticas</TabsTrigger>
@@ -55,7 +55,7 @@ export default function PageVerFases() {
                             {
                                 areas.map(
                                     (area: string) => (
-                                    <TabsContent value={area}>
+                                    <TabsContent value={area} key={area}>
                                         <Card>
                                             <CardContent>
                                                 <DataTable columns={columns} data={fases[area]} />

@@ -17,18 +17,19 @@ import React from "react";
 export default function Header() {
     const breadcrumbs = useBreadcrumb();
     const { data } = useAuth();
-    const [role, setRole] = React.useState<string>("");
+    const [role, setRole] = React.useState<boolean>(false);
     React.useEffect(() => {
-        if (data) {
-            setRole(data?.rol.nombre ?? "");
+        if (data !== null && data !== undefined) {
+            setRole(true);
         }
+        console.log(data);
     }, [data]);
     return (
         <header className="flex h-16 shrink-0 items-center justify-between border-b px-3">
             <div className="flex items-center gap-2 h-full">
-                {role !== "" && (<SidebarTrigger className="flex items-center" />)}
+                {role && (<SidebarTrigger className="flex items-center" />)}
                 
-                {role !== "" && breadcrumbs.length > 0 && (
+                {(role && breadcrumbs.length > 0) && (
                     <Breadcrumb className="flex items-center">
                         <BreadcrumbList>
                         {breadcrumbs.map((item, index) => (
@@ -56,7 +57,7 @@ export default function Header() {
             </div>
             
             <div className="flex items-center h-full">
-                <NavigateMenu role={role !== ""} />
+                <NavigateMenu role={role} />
             </div>
         </header>
     );

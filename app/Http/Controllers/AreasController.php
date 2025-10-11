@@ -28,6 +28,34 @@ class AreasController extends Controller
         }
     }
 
+    public function indexByAreas(Request $request)
+    {
+        $request->validate([
+            'areas' => 'required',
+        ]);
+        try {
+            $areas = Area::with('fases.olimpistas')->whereIn('sigla', $request->areas)->get();
+            $areasFiltradas = collect($areas)->map(function ($area) {
+                return [
+                    'name' => $area->nombre,
+                    'cantidad_fases' => collect($area->fases)->count(),
+                    'descripcion' => $area->descripcion,
+                    'nivel' => $area->nivel,
+                    'sigla' => $area->sigla,
+                ];
+            });
+            return response()->json([
+                'message' => "Areas obtenidas exitosamente.",
+                'data' => $areasFiltradas,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener las areas.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
     public function indexStaticData()
     {
         try {

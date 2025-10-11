@@ -12,7 +12,7 @@ import { getStaticData, updateArea } from "@/api/Areas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-
+// * agregar un campo para cantidad de ganadores
 export default function FormFase() {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
@@ -111,6 +111,26 @@ export default function FormFase() {
                         />
                         {errors.tipo_fase && (
                             <p className="text-sm text-red-500">{errors.tipo_fase.message}</p>
+                        )}
+                    </div>
+
+                    {/* cantidad de ganadores */}
+                    <div className="space-y-2">
+                        <Label htmlFor="cantidad_ganadores">
+                            Cantidad de ganadores <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="cantidad_ganadores"
+                            type="number"
+                            placeholder="10"
+                            {...register("cantidad_ganadores", {
+                                ...newValidationRules.cantidad_ganadores,
+                                valueAsNumber: true
+                            })}
+                            className={errors.cantidad_ganadores ? "border-red-500" : ""}
+                        />
+                        {errors.cantidad_ganadores && (
+                            <p className="text-sm text-red-500">{errors.cantidad_ganadores.message}</p>
                         )}
                     </div>
                 </div>

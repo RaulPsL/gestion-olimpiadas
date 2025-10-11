@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('fases', function (Blueprint $table) {
             $table->integer('cantidad_ganadores')->nullable();
-            $table->string('metodo')->nullable();
         });
     }
 

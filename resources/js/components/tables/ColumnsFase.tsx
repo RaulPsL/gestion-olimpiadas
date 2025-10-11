@@ -29,7 +29,7 @@ export const columns: ColumnDef<Fase>[] = [
         className = "text-white bg-[#b7bfd6] text-sm";
       if (tipo_fase === "finales") 
         className = "text-white bg-[#ffd30e] text-sm";
-      return (<Badge className={className}>{row.original.tipo_fase}</Badge>)
+      return (<Badge className={`${className} capitalize`}>{row.original.tipo_fase}</Badge>)
     }
   },
   {

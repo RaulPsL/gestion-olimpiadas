@@ -1,12 +1,38 @@
-import { axiosPublic, axiosInstance } from "./api";
+import { axiosPrivate } from "./api";
 
 export const getFases = async () => {
-    const { data } = await axiosPublic.get("/fases");
-    return data.data;
+    try {
+        const datosUsuario = JSON.parse(localStorage.getItem('data') ?? "");
+        if (!datosUsuario) {
+            throw Error("No esta autentificado");
+        }
+
+        const { data } = await axiosPrivate.post("/fases", {
+            areas: datosUsuario?.areas?.map((area: any) => area?.nombre)
+        });
+        console.log(data.data);
+        return data.data;
+    } catch (error: any) {
+        console.error("Error al obtener las fases:", error);
+
+        if (error.response?.status === 422) {
+            const backendErrors = error.response.data.errors;
+            if (backendErrors) {
+                const errorMessages = Object.values(backendErrors).flat();
+                console.log(errorMessages.join(", "));
+            } else {
+                console.log(error.response.data.message || "Error de validación");
+            }
+        } else if (error.response?.status === 500) {
+            console.log("Error interno del servidor. Intente nuevamente.");
+        } else {
+            console.log("Error de conexión. Verifique su internet.");
+        }
+    }
 };
 
 export const createFase = async (data: any) => {
-    const response = await axiosInstance.post("/fases", data);
+    const response = await axiosPrivate.post("/fases", data);
     return response.data;
 };
 
@@ -16,7 +42,7 @@ export const createFase = async (data: any) => {
 // };
 
 export const getFase = async (area: string) => {
-    const response = await axiosPublic.get(`/fases/${area}`);
+    const response = await axiosPrivate.get(`/fases/${area}`);
     return response.data;
 };
 

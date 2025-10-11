@@ -22,6 +22,7 @@ class Fase extends Model
         'tipo_fase',
         'sigla',
         'descripcion',
+        'cantidad_ganadores',
         'cantidad_max_participantes',
         'cantidad_min_participantes',
         'estado',

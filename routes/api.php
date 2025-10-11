@@ -36,7 +36,7 @@ Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('usuarios')->group(funct
 });
 
 Route::prefix('fases')->group(function () {
-    Route::get('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
+    Route::post('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
     Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
     Route::put('/', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
@@ -44,6 +44,7 @@ Route::prefix('fases')->group(function () {
 
 Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
+    Route::post('/ver/especifico', [App\Http\Controllers\AreasController::class, 'indexByAreas']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);
     Route::get('/static', [App\Http\Controllers\AreasController::class, 'indexStaticData']);
     Route::get('/{sigla}', [App\Http\Controllers\AreasController::class, 'show']);

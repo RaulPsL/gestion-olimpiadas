@@ -12,6 +12,17 @@ export const validationRules = (
             message: "La descripción debe tener al menos 10 caracteres"
         }
     },
+    cantidad_ganadores: {
+        required: "La cantidad de ganadores es obligatoria",
+        min: {
+            value: 3,
+            message: "Debe ser al menos 3"
+        },
+        validate: (value: number) => {
+            const min = watch("cantidad_max_participantes");
+            return value >= min || "Debe ser menor al maximo de participantes";
+        }
+    },
     cantidad_max_participantes: {
         required: "La cantidad máxima es obligatoria",
         min: {

@@ -13,9 +13,12 @@ class FasesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $request->validate([
+                'areas' => 'required'
+            ]);
             $fases = Fase::with('area')->get();
             $fasesFiltradas = collect($fases)->map(function ($fase) {
                 return[
@@ -28,9 +31,13 @@ class FasesController extends Controller
                     'estado' => $fase->estado,
                 ];
             })->groupBy('area');
+            $fasesPorArea = [];
+            foreach ($request->areas as $key) {
+                $fasesPorArea[$key] = $fasesFiltradas[$key];
+            }
             return response()->json([
                 'message' => "Fases obtenidas exitosamente.",
-                'data' => $fasesFiltradas,
+                'data' => $fasesPorArea,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

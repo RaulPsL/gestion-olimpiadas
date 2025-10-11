@@ -6,20 +6,45 @@ import { ColumnDef } from "@tanstack/react-table";
 export type Area = {
     name: string;
     cantidad_fases: number;
-    estado: string;
+    descripcion: string;
+    nivel: string,
+    sigla: string,
 };
 
 export const columns: ColumnDef<Area>[] = [
   {
     accessorKey: "name",
     header: "Nombre",
+    cell: ({ row }) => (
+      <div className="text-center">{row.original.name}</div>
+    ),
   },
   {
     accessorKey: "cantidad_fases",
     header: "Cantidad de fases",
+    cell: ({ row }) => (
+      <div className="text-center">{row.original.cantidad_fases}</div>
+    ),
   },
   {
-    accessorKey: "estado",
-    header: "Estado",
+    accessorKey: "descripcion",
+    header: "Descripción",
+    cell: ({ row }) => (
+      <div className="text-center">{row.original.descripcion}</div>
+    ),
+  },
+  {
+    accessorKey: "nivel",
+    header: "Nivel",
+    cell: ({ row }) => (
+      <div className="text-center capitalize">{row.original.nivel}</div>
+    ),
+  },
+  {
+    accessorKey: "sigla",
+    header: "Sigla",
+    cell: ({ row }) => (
+      <div className="text-center capitalize">{row.original.sigla}</div>
+    ),
   },
 ]
