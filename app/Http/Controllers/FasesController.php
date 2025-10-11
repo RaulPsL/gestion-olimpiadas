@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Area;
 use App\Models\Fase;
+use App\Models\Olimpista;
 use App\Models\Traits\Casts\EstadoFase;
 use Illuminate\Http\Request;
 
@@ -15,10 +16,21 @@ class FasesController extends Controller
     public function index()
     {
         try {
-            $fases = Fase::all();
+            $fases = Fase::with('area')->get();
+            $fasesFiltradas = collect($fases)->map(function ($fase) {
+                return[
+                    'name' => $fase->sigla,
+                    'tipo_fase' => $fase->tipo_fase,
+                    'area' => $fase->area->nombre,
+                    'cantidad_participantes' => collect($fase->olimpistas())->count(),
+                    'fecha_inicio' => date('d/M/Y', strtotime($fase->fecha_inicio)),
+                    'fecha_fin' => date('d/M/Y', strtotime($fase->fecha_fin)),
+                    'estado' => $fase->estado,
+                ];
+            })->groupBy('area');
             return response()->json([
                 'message' => "Fases obtenidas exitosamente.",
-                'data' => $fases,
+                'data' => $fasesFiltradas,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

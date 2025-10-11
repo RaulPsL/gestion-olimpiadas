@@ -1,27 +1,13 @@
 import FormOlimpista from "@/forms/FormOlimpista";
-import { Input } from "@/components/ui/input";
 import { User } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AccordionInformation } from "@/components/AccordionInformation";
 import FormMassiveOlimista from "@/forms/FormMassiveOlimpista";
 
-export default function PageOlimpista() {
-    const information = [
-        {
-            id: "onlyone",
-            title: "Registro individual",
-            description: "Registro de un olimpista",
-        },
-        {
-            id: "massive",
-            title: "Registro multiple",
-            description: "Registro de varios olimpistas",
-        },
-    ]
+export default function PageRegistroOlimpista() {
     return (
         <SidebarProvider>
             <AppSidebar />

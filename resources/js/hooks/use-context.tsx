@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 
 interface UserData {
-    datosUsuario: any,
+    data: any,
     rol: any,
     areas: string[],
     menu: any,
@@ -20,7 +20,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }:{ children: React.ReactNode}) => {
     const [token, setToken] = React.useState<string | null>(localStorage.getItem('token'));
     const [data, setData] = React.useState<UserData | null>(() => {
-        const dataStored = localStorage.getItem('data');
+        const dataStored = localStorage.getItem('user');
         return dataStored ? JSON.parse(dataStored) : null
     });
 
@@ -32,9 +32,9 @@ export const AuthProvider = ({ children }:{ children: React.ReactNode}) => {
         }
 
         if (data) {
-            localStorage.setItem('data', JSON.stringify(data));
+            localStorage.setItem('user', JSON.stringify(data));
         } else {
-            localStorage.removeItem('data');
+            localStorage.removeItem('user');
         }
     }, [token, data]);
 

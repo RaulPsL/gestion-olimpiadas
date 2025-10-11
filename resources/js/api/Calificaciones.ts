@@ -1,16 +1,16 @@
 import { FormNotas } from "@/components/tables/ColumnsCalificaciones";
-import { axiosPublic, axiosInstance } from "./api";
+import { axiosPrivate } from "./api";
 import { UseFormReset } from "react-hook-form";
 
 export const getCalificacionesOlimpistas = async (siglaAreas: string[]) => {
-    const { data } = await axiosPublic.post("/calificaciones/olimpistas", {
+    const { data } = await axiosPrivate.post("/calificaciones/olimpistas", {
         areas: siglaAreas
     });
     return data.data;
 };
 
 export const getCalificacionesGrupos = async (siglaAreas: string[]) => {
-    const { data } = await axiosPublic.post("/calificaciones/grupos", {
+    const { data } = await axiosPrivate.post("/calificaciones/grupos", {
         areas: siglaAreas
     });
     return data.data;
@@ -40,7 +40,7 @@ export const updateCalificacionesOlimpistas = async (
 
         console.log('Enviando datos...');
 
-        const response = await axiosPublic.put(`/calificaciones/olimpistas`, data);
+        const response = await axiosPrivate.put(`/calificaciones/olimpistas`, data);
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         if (response.status === 200) {
@@ -73,11 +73,11 @@ export const updateCalificacionesOlimpistas = async (
 }
 
 export const getCalificacionesByFase = async (area: string, fase: string) => {
-    const response = await axiosPublic.get(`/calificaciones/${area}/${fase}`);
+    const response = await axiosPrivate.get(`/calificaciones/${area}/${fase}`);
     return response.data;
 }
 
 export const updateCalificacion = async (codsis: number, data: any) => {
-    const response = await axiosInstance.put(`/calificaciones/${codsis}`, data);
+    const response = await axiosPrivate.put(`/calificaciones/${codsis}`, data);
     return response.data;
 };

@@ -1,7 +1,6 @@
 import { Users } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import FormUsuarioInterno from "@/forms/FormUsuarioInterno";
-import TableInternos from "@/tables/TableInterno";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
 import { AppSidebar } from "@/components/AppSidebar";

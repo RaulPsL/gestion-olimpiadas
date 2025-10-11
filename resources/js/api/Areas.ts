@@ -1,13 +1,13 @@
 import { FaseForm } from "@/forms/interfaces/Fase";
-import { axiosPublic, axiosInstance } from "./api";
+import { axiosPrivate } from "./api";
 
 export const getAreas = async () => {
-    const response = await axiosPublic.get("/areas");
-    return response.data;
+    const { data } = await axiosPrivate.get("/areas");
+    return data.data;
 };
 
 export const getStaticData = async ():Promise<StaticDataAreas> => {
-    const { data } = await axiosPublic.get("/areas/static");
+    const { data } = await axiosPrivate.get("/areas/static");
     return {
         areas: data.data.areas,
         fases: data.data.fases,
@@ -16,12 +16,12 @@ export const getStaticData = async ():Promise<StaticDataAreas> => {
 };
 
 export const createArea = async (data: any) => {
-    const response = await axiosInstance.post("/areas", data);
+    const response = await axiosPrivate.post("/areas", data);
     return response.data;
 };
 
 export const getArea = async (fase: string) => {
-    const response = await axiosPublic.get(`/areas/${fase}`);
+    const response = await axiosPrivate.get(`/areas/${fase}`);
     return response.data;
 };
 
@@ -49,7 +49,7 @@ export const updateArea = async (
 
         console.log("Enviando datos de fase:", data);
 
-        const result = await axiosInstance.put(`/areas/${selectedArea}`, {
+        const result = await axiosPrivate.put(`/areas/${selectedArea}`, {
             fases: [data]
         });
         
@@ -79,6 +79,6 @@ export const updateArea = async (
 };
 
 export const deleteArea = async (codsis: number) => {
-    const response = await axiosInstance.delete(`/areas/${codsis}`);
+    const response = await axiosPrivate.delete(`/areas/${codsis}`);
     return response.data;
 };

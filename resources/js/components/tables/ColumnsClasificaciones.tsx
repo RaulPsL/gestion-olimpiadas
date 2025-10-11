@@ -1,7 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "../ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Award, Medal, Trophy } from "lucide-react";
 import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -62,9 +63,38 @@ export const columns: ColumnDef<Clasificacion>[] = [
   {
     accessorKey: "posicion",
     header: "Posición",
-    cell: ({ row }) => (
-        <div className="text-center">{Number(row.id)+1}</div>
-    )
+    cell: ({ row }) => {
+      const posicion = Number(row.id) + 1;
+      if (posicion === 1) 
+        return (
+          <Badge
+            className="text-white bg-[#ffd30e] text-sm"
+          >
+            {posicion} <Trophy size={20}/> 
+          </Badge>)
+      if (posicion === 2) 
+        return (
+          <Badge
+            className="text-#000000 bg-[#b7bfd6] text-sm"
+          >
+            {posicion} <Medal size={20}/>
+          </Badge>)
+      if (posicion === 3) 
+        return (
+          <Badge
+            className="text-#000000 bg-[#da944f] text-sm"
+          >
+            {posicion} <Medal size={20}/> 
+          </Badge>)
+      return (
+        <Badge
+          variant="secondary"
+          className="text-sm"
+        >
+          {posicion} <Award size={20}/> 
+        </Badge>
+      )
+    }
   },
   {
     accessorKey: "nota",

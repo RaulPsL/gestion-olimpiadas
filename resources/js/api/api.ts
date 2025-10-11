@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-context";
 import axios from "axios";
 
 export const axiosInstance = axios.create({
@@ -6,7 +7,10 @@ export const axiosInstance = axios.create({
 
 export const axiosPrivate = axios.create({
     baseURL: "http://localhost:8000/api",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
     withCredentials: true,
 });
 

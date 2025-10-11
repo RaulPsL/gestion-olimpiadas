@@ -1,21 +1,19 @@
 import { UsuarioForm } from "@/forms/interfaces/Usuario";
-import { axiosPublic, axiosInstance } from "./api";
+import { axiosPrivate, axiosInstance, axiosPublic } from "./api";
 import { Login } from "@/forms/interfaces/LoginIntefase";
-import { AuthContext, useAuth } from "@/hooks/use-context";
-import { useContext } from "react";
 
 export const getUsuarios = async () => {
-    const { data } = await axiosPublic.get("/usuarios");
+    const { data } = await axiosPrivate.get("/usuarios");
     return data.data;
 };
 
 export const getUsuario = async (uuid: string) => {
-    const response = await axiosPublic.get(`/usuarios/${uuid}`);
+    const response = await axiosPrivate.get(`/usuarios/${uuid}`);
     return response.data;
 }
 
 export const getStaticData = async ():Promise<StaticDataUsuarios> => {
-    const { data } = await axiosPublic.get("/usuarios/static");
+    const { data } = await axiosPrivate.get("/usuarios/static");
     return {
         areas: data.data.areas,
         roles: data.data.roles,
@@ -59,7 +57,7 @@ export const createUsuario = async (
 
         console.log("Enviando datos de usuario:", formData);
 
-        const result = await axiosInstance.post("/register", formData);
+        const result = await axiosPrivate.post("/register", formData);
         
         console.log("Usuario creado:", result.data);
         setSuccess(true);
@@ -122,7 +120,7 @@ export const login = async (
         await new Promise(resolve => setTimeout(resolve, 2000));
         if (response.status === 200) {
             setToken(response.data.token);
-            setData(response.data.data);
+            setData(response.data.user);
             setSuccess(true);
             setIsLoading(false);
             reset();

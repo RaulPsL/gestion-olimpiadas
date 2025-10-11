@@ -9,7 +9,7 @@ class Log extends Model
 {
     use HasFactory;
 
-    protected $table = 'logs';
+    protected $table = 'log_data';
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +20,8 @@ class Log extends Model
         'usuario_id',
         'accion',
         'tabla',
+        'calificacion_id',
+        'olimpista_id',
     ];
 
     /**
@@ -32,6 +34,7 @@ class Log extends Model
         'created_at',
         'updated_at',
         'usuario_id',
+        'olimpista_id',
     ];
 
     public function usuario() {

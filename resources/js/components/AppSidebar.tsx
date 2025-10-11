@@ -24,7 +24,7 @@ import React from "react";
 
 export function AppSidebar() {
     const { data } = useAuth();
-    const datosUsuario = data?.datos_usuario;
+    const datosUsuario = data?.data;
     const [menu, setMenu] = React.useState<any[]>([]);
     React.useEffect(() => {
         if (data) {

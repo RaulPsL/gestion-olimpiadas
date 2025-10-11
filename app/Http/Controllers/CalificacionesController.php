@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Calificacion;
 use App\Models\Fase;
+use App\Models\Log;
 use App\Models\Olimpista;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ class CalificacionesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function calificacionesOlimpistas(Request $request)
+    public function olimpistas(Request $request)
     {
         try {
             $request->validate([
@@ -78,7 +79,8 @@ class CalificacionesController extends Controller
                 'notas.*.estado_olimpista' => 'required|string',
                 'notas.*.nota' => 'required',
             ]);
-
+            $user = $request->user()->id;
+            $tabla = (new Calificacion())->getTable();
             $cantidad_modificada = 0;
             foreach ($request->notas as $nota) {
                 $calificacion = Calificacion::where('olimpista_id', $nota['nota_olimpista_id'])
@@ -90,14 +92,21 @@ class CalificacionesController extends Controller
                     'estado' => $nota['estado_olimpista']
                 ]);
 
-                if (!$calificacion) continue;
+                if (!$calificacion || ($nota['nota'] == 0 && $nota['comentarios'] != '')) continue;
                 $calificacion->update([
-                        'puntaje' => $nota['nota'],
-                        'comentarios' => $nota['comentarios'] ? $nota['comentarios'] : "",
-                    ]);
+                    'puntaje' => $nota['nota'],
+                    'comentarios' => $nota['comentarios'] ? $nota['comentarios'] : "",
+                ]);
+                
+                Log::create([
+                    'usuario_id' => $user,
+                    'accion' => $request->method(),
+                    'tabla' => $tabla,
+                    'calificacion_id' => $calificacion->id,
+                    'olimpista_id' => $nota['nota_olimpista_id'],
+                ]);
                 $cantidad_modificada++;
             }
-
             return response()->json([
                 'message' => "Calificaciones actualizadas exitosamente.",
                 'data' => $cantidad_modificada,

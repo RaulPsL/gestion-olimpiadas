@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('usuarios')->group(funct
 });
 
 Route::prefix('fases')->group(function () {
+    Route::get('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
     Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
     Route::put('/', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
@@ -52,8 +53,8 @@ Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('areas')->group(function
 });
 
 Route::middleware(['auth:sanctum', 'role:EVA'])->prefix('calificaciones')->group(function () {
-    Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'calificacionesOlimpistas']);
-    Route::post('/grupos', [App\Http\Controllers\CalificacionesController::class, 'calificacionesGrupos']);
+    Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'olimpistas']);
+    Route::post('/grupos', [App\Http\Controllers\CalificacionesController::class, 'grupos']);
     Route::get('/{area}/{fase}', [App\Http\Controllers\CalificacionesController::class, 'showByFase']);
     Route::put('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'updateOlimpistas']);
     Route::put('/grupos', [App\Http\Controllers\CalificacionesController::class, 'updateGrupos']);

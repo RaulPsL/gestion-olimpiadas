@@ -1,14 +1,20 @@
 import { Routes, Route } from 'react-router-dom';
-import PageOlimpista from './pages/PageOlimpista';
-import PageArea from './pages/PageArea';
+import PageOlimpista from './pages/PageCrearOlimpista';
+import PageArea from './pages/PageVerUsuarios';
 import PageInterno from './pages/PageInterno';
 import PageHome from './pages/PageHome';
-import PageFase from './pages/PageFase';
+import PageFase from './pages/PageCrearFase';
 import PageLogin from './pages/PageLogin';
 import PageCalificaciones from './pages/PageCalificaciones';
 import PageClasificaciones from './pages/PageClasificaciones';
 import { AuthProvider } from './hooks/use-context';
 import { PrivatRoute } from './hooks/use-private-route';
+import PageVerOlimpistas from './pages/PageVerOlimpistas';
+import PageVerAreas from './pages/PageVerAreas';
+import PageVerEvaluadores from './pages/PageVerUsuarios';
+import PageVerFases from './pages/PageverFases';
+import PageCrearFase from './pages/PageCrearFase';
+import PageVerAcciones from './pages/PageVerAcciones';
 
 function App() {
     return (
@@ -35,7 +41,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EDA', 'EVA']}
                             >
-                                <PageArea />
+                                <PageVerOlimpistas />
                             </PrivatRoute>
                         }
                     />
@@ -45,7 +51,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EDA', 'EVA']}
                             >
-                                <PageArea />
+                                <PageVerEvaluadores />
                             </PrivatRoute>
                         }
                     />
@@ -55,7 +61,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EVA', 'EDA']}
                             >
-                                <PageArea />
+                                <PageVerAreas />
                             </PrivatRoute>
                         }
                     />
@@ -65,7 +71,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EVA', 'EDA']}
                             >
-                                <PageArea />
+                                <PageVerFases />
                             </PrivatRoute>
                         }
                     />
@@ -100,16 +106,6 @@ function App() {
                         }
                     />
                     <Route
-                        path="/calificaciones"
-                        element={
-                            <PrivatRoute
-                                rol={['EVA']}
-                            >
-                                <PageCalificaciones />
-                            </PrivatRoute>
-                        }
-                    />
-                    <Route
                         path="/calificaciones/olimpistas"
                         element={
                             <PrivatRoute
@@ -135,7 +131,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EDA']}
                             >
-                                <PageClasificaciones />
+                                <PageVerAcciones />
                             </PrivatRoute>
                         }
                     />
@@ -145,7 +141,7 @@ function App() {
                             <PrivatRoute
                                 rol={['ADM']}
                             >
-                                <PageClasificaciones />
+                                <PageVerAcciones />
                             </PrivatRoute>
                         }
                     />
@@ -155,7 +151,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EVA', 'EDA']}
                             >
-                                <PageFase />
+                                <PageCrearFase />
                             </PrivatRoute>
                         }
                     />

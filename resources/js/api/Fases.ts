@@ -1,9 +1,9 @@
 import { axiosPublic, axiosInstance } from "./api";
 
-// export const getFases = async () => {
-//     const response = await axiosPublic.get("/fases");
-//     return response.data;
-// };
+export const getFases = async () => {
+    const { data } = await axiosPublic.get("/fases");
+    return data.data;
+};
 
 export const createFase = async (data: any) => {
     const response = await axiosInstance.post("/fases", data);

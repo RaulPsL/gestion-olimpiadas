@@ -22,7 +22,7 @@ class UsuariosController extends Controller
                 'area.usuarios.roles',
             ])->get();
             
-            $usuariosFiltrados = $fases->map(function ($fase) {
+            $usuariosFiltrados = $fases->flatMap(function ($fase) {
                 return collect($fase->area->usuarios)->map(function ($usuario) use ($fase) {
                     if ($usuario->roles->first()) {
                         $rol = $usuario->roles->first();
@@ -39,21 +39,16 @@ class UsuariosController extends Controller
                         ];
                     }
                 })->filter();
-            });
+            })->unique('ci')->values(); // Filtra por CI único
 
-            $usuariosFinales = [];
-
-            foreach ($usuariosFiltrados as $value) {
-                $usuariosFinales = array_merge($usuariosFinales, $value->toArray());
-            }
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
-                'data' => collect($usuariosFinales)->groupBy('rol'),
+                'data' => $usuariosFiltrados->groupBy('rol'),
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => "Ocurrio un error en el servidor: $th.",
+                'message' => "Ocurrió un error en el servidor: $th.",
                 'status' => 400
             ]);
         }
@@ -307,8 +302,8 @@ class UsuariosController extends Controller
             });
             
             return response()->json([
-                'data' => [
-                    'datos_usuario' => $usuario,
+                'user' => [
+                    'data' => $usuario,
                     'rol' => $rol,
                     'areas' => $areas,
                     'menu' => $menu,

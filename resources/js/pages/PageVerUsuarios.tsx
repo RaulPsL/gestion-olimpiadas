@@ -6,22 +6,17 @@ import Header from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/tables/DataTable";
-import { columns } from "@/components/tables/ColumnsOlimpista";
 import React from "react";
-import { getOlimpistas } from "@/api/Olimpistas";
 import { getUsuarios } from "@/api/Usuarios";
 import { columnsInterno } from "@/components/tables/ColumnsInterno";
 
-export default function PageArea() {
-    const [olimpistas, setOlimpistas] = React.useState<any[]>([]);
+export default function PageVerEvaluadores() {
     const [rolUsuario, setRolUsuario] = React.useState<any>({});
     const [keys, setKeys] = React.useState<any[]>([]);
 
     React.useEffect(() => {
         const staticData = async () => {
-            const staticOlimpistas = await getOlimpistas();
             const staticRol = await getUsuarios();
-            setOlimpistas(staticOlimpistas);
             setRolUsuario(staticRol);
         };
         staticData();
@@ -43,7 +38,6 @@ export default function PageArea() {
                     <div className="flex w-full flex-col gap-6">
                         <Tabs defaultValue="olimpistas">
                             <TabsList>
-                                <TabsTrigger value="olimpistas">Olimpistas</TabsTrigger>
                                 { 
                                     keys?.map((key) => {
                                         const value = String(key).split(" ")[0].toLocaleLowerCase();
@@ -51,13 +45,6 @@ export default function PageArea() {
                                     })
                                 }
                             </TabsList>
-                            <TabsContent value="olimpistas">
-                                <Card>
-                                    <CardContent>
-                                        <DataTable columns={columns} data={olimpistas} />
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
                             {
                                 keys?.map((key) => {
                                     const value = String(key).split(" ")[0].toLocaleLowerCase();

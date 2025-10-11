@@ -1,12 +1,11 @@
 import { FlagTriangleRight } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import TableInternos from "@/tables/TableInterno";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
 import { AppSidebar } from "@/components/AppSidebar";
 import FormFase from "@/forms/FormFase";
 
-export default function PageFase() {
+export default function PageCrearFase() {
     return (
         <SidebarProvider>
             <AppSidebar />
