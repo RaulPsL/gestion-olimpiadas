@@ -20,7 +20,7 @@ class CalificacionesController extends Controller
             $request->validate([
                 'areas' => 'required',
             ]);
-            $fases = Fase::select(['id', 'area_id', 'sigla'])
+            $fases = Fase::select(['id', 'area_id', 'sigla', 'fecha_fin'])
                 ->where('estado', 'en curso')
                 ->with([
                     'olimpistas.tutor',
@@ -29,7 +29,8 @@ class CalificacionesController extends Controller
                     'area:id,nombre,sigla',
                 ])->get();
             $listaFiltrada = collect($fases)->map(function ($fase) {
-                return collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
+                $area = $fase->area->nombre;
+                $calificaciones = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
                     return [
                         'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
                         'estado' => $olimpista->estado,
@@ -45,20 +46,16 @@ class CalificacionesController extends Controller
                         'comentarios' => $olimpista->pivot->comentarios,
                     ];
                 });
-            });
-            $nuevaLista = [];
-            foreach ($listaFiltrada as $value) {
-                $nuevaLista = array_merge($nuevaLista, $value->toArray());
-            }
-
-            $grupoPorArea = collect($nuevaLista)->map( function ($item) use ($request) {
-                if (in_array($item['sigla_area'], $request->areas)) {
-                    return $item;
+                if ($calificaciones->count() > 0) {
+                    return [
+                        'fecha_fin' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
+                        "$area" => $calificaciones
+                    ];
                 }
-            })->sortByDesc('nota')->filter()->groupBy('area');
+            })->filter()->values();
             return response()->json([
                 'message' => "Calificaciones de los olimpistas obtenidos exitosamente.",
-                'data' => $grupoPorArea,
+                'data' => $listaFiltrada,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

@@ -31,13 +31,19 @@ class Log extends Model
      */
     protected $hidden = [
         'id',
-        'created_at',
-        'updated_at',
         'usuario_id',
         'olimpista_id',
     ];
 
     public function usuario() {
         return $this->belongsTo(Usuario::class, 'usuario_id');
+    }
+
+    public function olimpista() {
+        return $this->belongsTo(Olimpista::class, 'olimpista_id');
+    }
+
+    public function calificacion() {
+        return $this->belongsTo(Calificacion::class, 'calificacion_id');
     }
 }

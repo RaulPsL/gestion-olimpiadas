@@ -53,7 +53,7 @@ Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('areas')->group(function
     Route::delete('/{sigla}', [App\Http\Controllers\AreasController::class, 'destroy']);
 });
 
-Route::middleware(['auth:sanctum', 'role:EVA'])->prefix('calificaciones')->group(function () {
+Route::prefix('calificaciones')->group(function () {
     Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'olimpistas']);
     Route::post('/grupos', [App\Http\Controllers\CalificacionesController::class, 'grupos']);
     Route::get('/{area}/{fase}', [App\Http\Controllers\CalificacionesController::class, 'showByFase']);
@@ -65,6 +65,11 @@ Route::prefix('clasificaciones')->group(function () {
     Route::get('/area', [App\Http\Controllers\ClasificasionController::class, 'indexArea']);
     Route::get('/nivel', [App\Http\Controllers\ClasificasionController::class, 'indexNivel']);
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
+});
+
+Route::prefix('log')->group(function () {
+    Route::get('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
+    Route::get('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
 });
 
 Route::post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
