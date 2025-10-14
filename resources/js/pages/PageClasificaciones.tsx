@@ -19,7 +19,6 @@ export default function PageClasificaciones() {
             const response = await getClasificacionesByArea();
                 setClasificaciones(response);
             };
-            console.log('clasificaciones: ', clasificaciones);
         staticData();
     }, []);
 
@@ -35,11 +34,11 @@ export default function PageClasificaciones() {
             <SidebarInset>
                 <Header />
                 <div className="container mx-auto px-4">
-                    <div id="headerTablaClasificaciones" className="flex w-full flex-row gap-6 p-4 items-center">
+                    <div id="headerTablaClasificaciones" className="w-full flex-row gap-6 p-4 items-center">
                         <BookUser />
                         <Label className="text-2xl">Clasificaciones por area</Label>
                     </div>
-                    <div className="flex w-full flex-col gap-6">
+                    <div className="w-full flex-col gap-6">
                         { (keys && keys.length > 0) && (
                             <Tabs defaultValue={ String(keys?.[0]).toLocaleLowerCase() }>
                                 <TabsList>
@@ -49,20 +48,18 @@ export default function PageClasificaciones() {
                                 </TabsList>
                                 { keys?.map((key) => (
                                     <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
-                                        <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                            <Card>
-                                                {
-                                                    Object.keys(clasificaciones?.[key]).map((estadoOlimpista) => (
-                                                        <div key={estadoOlimpista}>
-                                                            <Label className="text-2xl">Olimpistas {estadoOlimpista}s</Label>
-                                                            <CardContent>
-                                                                <DataTable columns={columns} data={clasificaciones?.[key]?.[estadoOlimpista]} />
-                                                            </CardContent>
-                                                        </div>
-                                                    ))
-                                                }
-                                            </Card>
-                                        </div>
+                                        <Card className="w-full gap-6 p-4 justify-center">
+                                            {
+                                                Object.keys(clasificaciones?.[key]).map((estadoOlimpista) => (
+                                                    <div key={estadoOlimpista}>
+                                                        <Label className="text-2xl">Olimpistas {estadoOlimpista}s</Label>
+                                                        <CardContent className="w-full">
+                                                            <DataTable columns={columns} data={clasificaciones?.[key]?.[estadoOlimpista]} />
+                                                        </CardContent>
+                                                    </div>
+                                                ))
+                                            }
+                                        </Card>
                                     </TabsContent>
                                 ))}
                             </Tabs>

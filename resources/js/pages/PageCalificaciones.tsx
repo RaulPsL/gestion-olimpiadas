@@ -7,14 +7,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
 import { getCalificacionesOlimpistas } from "@/api/Calificaciones";
 import TableCalificaciones from "@/tables/TablaCalificaciones";
+import { useAuth } from "@/hooks/use-context";
 
 export default function PageCalificaciones() {
     const [calificaciones, setCalificaciones] = React.useState<any>();
     const [keys, setKeys] = React.useState<string[]>();
+    const { data } = useAuth();
 
     React.useEffect(() => {
+        const areasCalificacionUsuario = data?.areas.map((area) => area.sigla);
         const staticData = async () => {
-            const response = await getCalificacionesOlimpistas(['MAT', 'FIS']);
+            const response = await getCalificacionesOlimpistas(areasCalificacionUsuario as string[]);
                 setCalificaciones(response);
             };
         staticData();
@@ -47,7 +50,7 @@ export default function PageCalificaciones() {
                                 { keys?.map((key) => (
                                     <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
                                         <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                            <TableCalificaciones calificaciones={calificaciones[key]} />
+                                            <TableCalificaciones calificaciones={calificaciones[key]['calificaciones']} />
                                         </div>
                                     </TabsContent>
                                 ))}

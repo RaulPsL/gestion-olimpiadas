@@ -14,20 +14,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['api', 'log.requests'])
-    ->prefix('olimpistas')->group(function () {
-        Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
-        Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
-        Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('olimpistas.store');
-        Route::post('/file', [App\Http\Controllers\OlimpistasController::class, 'storeByFile'])->name('olimpistas.storeByFile');
-        Route::get('/area/{area}', [App\Http\Controllers\OlimpistasController::class, 'showByArea'])->name('olimpistas.area');
-        Route::get('/fase/{area}/{fase}', [App\Http\Controllers\OlimpistasController::class, 'showByFase'])->name('olimpistas.fase');
-        Route::get('/{codsis}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('olimpistas.show');
-        Route::put('/{codsis}', [App\Http\Controllers\OlimpistasController::class, 'update'])->name('olimpistas.update');
-        Route::delete('/{codsis}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('olimpistas.destroy');
-    });
+Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('olimpistas')->group(function () {
+    Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
+    Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
+    Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('olimpistas.store');
+    Route::post('/file', [App\Http\Controllers\OlimpistasController::class, 'storeByFile'])->name('olimpistas.storeByFile');
+    Route::get('/area/{area}', [App\Http\Controllers\OlimpistasController::class, 'showByArea'])->name('olimpistas.area');
+    Route::get('/fase/{area}/{fase}', [App\Http\Controllers\OlimpistasController::class, 'showByFase'])->name('olimpistas.fase');
+    Route::get('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('olimpistas.show');
+    Route::put('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'update'])->name('olimpistas.update');
+    Route::delete('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('olimpistas.destroy');
+});
 
-Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('usuarios')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADM'])->prefix('usuarios')->group(function () {
     Route::get('/', [App\Http\Controllers\UsuariosController::class, 'index']);
     Route::get('/static', [App\Http\Controllers\UsuariosController::class, 'indexStaticData']);
     Route::get('/{ci}', [App\Http\Controllers\UsuariosController::class, 'show']);
@@ -35,14 +34,14 @@ Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('usuarios')->group(funct
     Route::delete('/{ci}', [App\Http\Controllers\UsuariosController::class, 'destroy']);
 });
 
-Route::prefix('fases')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADM,EDA,EVA'])->prefix('fases')->group(function () {
     Route::post('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
     Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
     Route::put('/', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
 });
 
-Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('areas')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADM,EDA,EVA'])->prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
     Route::post('/ver/especifico', [App\Http\Controllers\AreasController::class, 'indexByAreas']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);
@@ -53,10 +52,9 @@ Route::middleware(['auth:sanctum', 'role:EDA'])->prefix('areas')->group(function
     Route::delete('/{sigla}', [App\Http\Controllers\AreasController::class, 'destroy']);
 });
 
-Route::prefix('calificaciones')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('calificaciones')->group(function () {
     Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'olimpistas']);
     Route::post('/grupos', [App\Http\Controllers\CalificacionesController::class, 'grupos']);
-    Route::get('/{area}/{fase}', [App\Http\Controllers\CalificacionesController::class, 'showByFase']);
     Route::put('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'updateOlimpistas']);
     Route::put('/grupos', [App\Http\Controllers\CalificacionesController::class, 'updateGrupos']);
 });
@@ -67,17 +65,13 @@ Route::prefix('clasificaciones')->group(function () {
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
 });
 
-Route::prefix('log')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('log')->group(function () {
     Route::get('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
     Route::get('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
 });
 
-Route::post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
+Route::middleware(['auth:sanctum', 'role:ADM'])->post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
 Route::post('/login', [App\Http\Controllers\UsuariosController::class, 'login']);
 
-Route::get('/menus', [App\Http\Controllers\MenuController::class, 'index']);
-Route::post('/menus', [App\Http\Controllers\MenuController::class, 'store']);
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::get('/menus', [App\Http\Controllers\MenuController::class, 'index']);
+// Route::post('/menus', [App\Http\Controllers\MenuController::class, 'store']);

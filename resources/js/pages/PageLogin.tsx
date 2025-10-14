@@ -45,7 +45,6 @@ export default function PageLogin() {
 
     React.useEffect(() => {
         if (success || apiError !== '') {
-            console.log("Cierre de loading por timeout...");
             const timer = setTimeout(() => {
                 setOpenSpinner(false)
                 if (success) {

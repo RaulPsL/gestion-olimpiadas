@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface UserData {
     data: any,
@@ -17,16 +18,21 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
+const MAX_TIME_LOGIN = 60;
+
 export const AuthProvider = ({ children }:{ children: React.ReactNode}) => {
     const [token, setToken] = React.useState<string | null>(localStorage.getItem('token'));
     const [data, setData] = React.useState<UserData | null>(() => {
         const dataStored = localStorage.getItem('user');
         return dataStored ? JSON.parse(dataStored) : null
     });
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         if (token) {
             localStorage.setItem('token', token);
+            const expireAt = Date.now() + MAX_TIME_LOGIN * 60  * 1000;
+            localStorage.setItem('expireAt', expireAt.toString());
         } else {
             localStorage.removeItem('token');
         }
@@ -38,9 +44,38 @@ export const AuthProvider = ({ children }:{ children: React.ReactNode}) => {
         }
     }, [token, data]);
 
+    React.useEffect(() => {
+        const expireAt = localStorage.getItem('expireAt');
+        if (expireAt && Date.now() > Number(expireAt)) {
+            logout();
+        }
+    }, []);
+
+    React.useEffect(() => {
+        const expireAt = localStorage.getItem('expireAt');
+        if (!expireAt) return;
+
+        const remaing = Number(expireAt) - Date.now();
+        if (remaing <= 0) {
+            logout();
+            return;
+        }
+
+        const timeOut = setTimeout(() => {
+            logout();
+        }, remaing);
+
+        return () => clearTimeout(timeOut);
+    }, [token]);
+
     const logout = () => {
         setToken("");
-
+        setData(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('data');
+        localStorage.removeItem('expireAt');
+        
+        navigate('/login');
     };
 
     return (

@@ -22,13 +22,17 @@ class CalificacionesController extends Controller
             ]);
             $fases = Fase::select(['id', 'area_id', 'sigla', 'fecha_fin'])
                 ->where('estado', 'en curso')
+                ->whereHas('area', function ($query) use ($request) {
+                    $query->whereIn('sigla', $request->areas);
+                })
                 ->with([
                     'olimpistas.tutor',
                     'olimpistas.tutores_academicos',
                     'olimpistas.colegio',
-                    'area:id,nombre,sigla',
+                    'area'
                 ])->get();
-            $listaFiltrada = collect($fases)->map(function ($fase) {
+            $listaFinal = [];
+            foreach (collect($fases) as $fase) {
                 $area = $fase->area->nombre;
                 $calificaciones = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
                     return [
@@ -47,15 +51,15 @@ class CalificacionesController extends Controller
                     ];
                 });
                 if ($calificaciones->count() > 0) {
-                    return [
+                    $listaFinal["$area"] = [
                         'fecha_fin' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
-                        "$area" => $calificaciones
+                        'calificaciones' => $calificaciones
                     ];
                 }
-            })->filter()->values();
+            }
             return response()->json([
                 'message' => "Calificaciones de los olimpistas obtenidos exitosamente.",
-                'data' => $listaFiltrada,
+                'data' => $listaFinal,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -89,20 +93,21 @@ class CalificacionesController extends Controller
                     'estado' => $nota['estado_olimpista']
                 ]);
 
-                if (!$calificacion || ($nota['nota'] == 0 && $nota['comentarios'] != '')) continue;
-                $calificacion->update([
-                    'puntaje' => $nota['nota'],
-                    'comentarios' => $nota['comentarios'] ? $nota['comentarios'] : "",
-                ]);
-                
-                Log::create([
-                    'usuario_id' => $user,
-                    'accion' => $request->method(),
-                    'tabla' => $tabla,
-                    'calificacion_id' => $calificacion->id,
-                    'olimpista_id' => $nota['nota_olimpista_id'],
-                ]);
-                $cantidad_modificada++;
+                if ($calificacion && ($nota['nota'] != 0 || $nota['comentarios'] != '')) {
+                    $calificacion->update([
+                        'puntaje' => $nota['nota'],
+                        'comentarios' => $nota['comentarios'] ? $nota['comentarios'] : "",
+                    ]);
+                    
+                    Log::create([
+                        'usuario_id' => $user,
+                        'accion' => $request->method(),
+                        'tabla' => $tabla,
+                        'calificacion_id' => $calificacion->id,
+                        'olimpista_id' => $nota['nota_olimpista_id'],
+                    ]);
+                    $cantidad_modificada++;
+                }
             }
             return response()->json([
                 'message' => "Calificaciones actualizadas exitosamente.",

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
   NavigationMenu,
@@ -10,8 +10,12 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { Button } from "./ui/button";
+import { useAuth } from "@/hooks/use-context";
 
 export function NavigateMenu({ role }: { role: boolean }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -41,11 +45,11 @@ export function NavigateMenu({ role }: { role: boolean }) {
                 <NavigationMenuLink asChild>
                   <a
                     className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                    href="#"
+                    href="/clasificaciones/areas"
                   >
-                    <div className="text-sm font-medium leading-none">Fases de areas</div>
+                    <div className="text-sm font-medium leading-none">Calificaciones de todas las areas</div>
                     <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                      Mostrara las fases de las areas.
+                      Le dirigira a todas las calificaciones los diferentes olimpistas en las diferentes áreas.
                     </p>
                   </a>
                 </NavigationMenuLink>
@@ -68,7 +72,23 @@ export function NavigateMenu({ role }: { role: boolean }) {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to={"/login"}>{role ? "Cerrar sesion" : "Iniciar sesion"}</Link>
+            {
+              role ? (
+                <Button
+                  variant="ghost"
+                  onClick={
+                    () => { 
+                      logout();
+                      navigate('/login');
+                  }}
+                >
+                  Cerrar sesion
+                </Button>
+              ):(
+                <Link to={"/login"}>{"Iniciar sesion"}</Link>
+              )
+            }
+
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>

@@ -7,24 +7,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/tables/DataTable";
 import React from "react";
-import { getUsuarios } from "@/api/Usuarios";
+import { getLogsCalificaciones, getLogsCierreFases } from "@/api/Usuarios";
 import { columnsInterno } from "@/components/tables/ColumnsInterno";
+import { useAuth } from "@/hooks/use-context";
+import { columnsLogCalificaciones, columnsLogCierreFases } from "@/components/tables/ColumnsLogs";
 
 export default function PageVerAcciones() {
-    const [rolUsuario, setRolUsuario] = React.useState<any>({});
+    const [calificacionesOAcciones, setCalificacionesOAcciones] = React.useState<any>();
     const [keys, setKeys] = React.useState<any[]>([]);
+    const { data } = useAuth();
 
     React.useEffect(() => {
         const staticData = async () => {
-            const staticRol = await getUsuarios();
-            setRolUsuario(staticRol);
+            if (data?.rol.sigla === 'EDA') {
+                const calificaciones = await getLogsCalificaciones();
+                setCalificacionesOAcciones(calificaciones);
+            }
+            if (data?.rol.sigla === 'ADM') {
+                const cierres = await getLogsCierreFases();
+                setCalificacionesOAcciones(cierres);
+            }
         };
         staticData();
     }, []);
-    
+
     React.useEffect(() => {
-        if (rolUsuario) setKeys(Object.keys(rolUsuario));
-    }, [rolUsuario]);
+        if (calificacionesOAcciones && Object.keys(calificacionesOAcciones).length > 0) {
+            setKeys(Object.keys(calificacionesOAcciones));
+        }
+    }, [calificacionesOAcciones]);
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -39,22 +50,35 @@ export default function PageVerAcciones() {
                         <Tabs defaultValue="Encargado de Área">
                             <TabsList>
                                 { 
-                                    keys?.map((key) => {
-                                        return (<TabsTrigger value={key} key={key}>{key}</TabsTrigger>);
-                                    })
+                                    data?.rol.sigla === 'EDA' ? 
+                                        keys?.map((key) => {
+                                            return (<TabsTrigger value={key} key={key}>{key}</TabsTrigger>);
+                                        }) :
+                                        (<TabsTrigger value="acciones" key="acciones">Acciones</TabsTrigger>)
                                 }
                             </TabsList>
                             {
-                                keys?.map((key) => {
+                                data?.rol.sigla === 'EDA' && keys?.map((key) => {
                                     return (
                                     <TabsContent value={key} key={key}>
                                         <Card>
                                             <CardContent>
-                                                <DataTable columns={columnsInterno} data={rolUsuario?.[key]} />
+                                                <DataTable columns={columnsLogCalificaciones} data={calificacionesOAcciones?.[key]} />
                                             </CardContent>
                                         </Card>
                                     </TabsContent>);
                                 })
+                            }
+                            {
+                                data?.rol.sigla === 'ADM' && (
+                                    <TabsContent value="acciones" key="acciones">
+                                        <Card>
+                                            <CardContent>
+                                                <DataTable columns={columnsLogCierreFases} data={calificacionesOAcciones} />
+                                            </CardContent>
+                                        </Card>
+                                    </TabsContent>
+                                )
                             }
                         </Tabs>
                     </div>

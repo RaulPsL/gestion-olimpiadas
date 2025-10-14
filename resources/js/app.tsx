@@ -3,7 +3,6 @@ import PageOlimpista from './pages/PageCrearOlimpista';
 import PageArea from './pages/PageVerUsuarios';
 import PageInterno from './pages/PageInterno';
 import PageHome from './pages/PageHome';
-import PageFase from './pages/PageCrearFase';
 import PageLogin from './pages/PageLogin';
 import PageCalificaciones from './pages/PageCalificaciones';
 import PageClasificaciones from './pages/PageClasificaciones';
@@ -106,22 +105,22 @@ function App() {
                         }
                     />
                     <Route
-                        path="/calificaciones/olimpistas"
+                        path="/olimpistas"
                         element={
                             <PrivatRoute
                                 rol={['EVA']}
                             >
-                                <PageClasificaciones />
+                                <PageCalificaciones />
                             </PrivatRoute>
                         }
                     />
                     <Route
-                        path="/calificaciones/grupos"
+                        path="/grupos"
                         element={
                             <PrivatRoute
                                 rol={['EVA']}
                             >
-                                <PageClasificaciones />
+                                <PageCalificaciones />
                             </PrivatRoute>
                         }
                     />

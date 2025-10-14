@@ -58,13 +58,13 @@ class Usuario extends Authenticatable
 
     public function fases() { return $this->belongsToMany(Fase::class, 'usuario_fases'); }
 
-    public function registrosCreados()
+    public function encargado()
     {
-        return $this->hasMany(VerificacionCierre::class, 'creador_id');
+        return $this->hasMany(VerificacionCierre::class, 'usuario_encargado_id');
     }
 
-    public function registrosAsignados()
+    public function evaluador()
     {
-        return $this->hasMany(VerificacionCierre::class, 'asignado_id');
+        return $this->hasMany(VerificacionCierre::class, 'usuario_evaluador_id');
     }
 }
