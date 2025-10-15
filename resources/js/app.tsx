@@ -105,7 +105,7 @@ function App() {
                         }
                     />
                     <Route
-                        path="/olimpistas"
+                        path="/calificaciones/olimpistas"
                         element={
                             <PrivatRoute
                                 rol={['EVA']}
@@ -115,7 +115,7 @@ function App() {
                         }
                     />
                     <Route
-                        path="/grupos"
+                        path="/calificaciones/grupos"
                         element={
                             <PrivatRoute
                                 rol={['EVA']}

@@ -25,7 +25,7 @@ class ColegioSeeder extends Seeder
             ['id' => 9, 'nombre' => 'Colegio Bolivariano', 'direccion' => 'Zona Villa Montes', 'telefono' => '3899999', 'departamento' => 'Pando'],
             ['id' => 10, 'nombre' => 'Colegio Católico San José', 'direccion' => 'Zona Trinidad', 'telefono' => '3222222', 'departamento' => 'Beni'],
             ['id' => 11, 'nombre' => 'Colegio San Francisco', 'direccion' => 'Av. Túpac Katari', 'telefono' => '2622222', 'departamento' => 'La Paz'],
-            ['id' => 12, 'nombre' => 'Colegio Nacional Junín', 'direccion' => 'Calle Bolívar', 'telefono' => '4623333', 'departamento' => 'Potosi'],
+            ['id' => 12, 'nombre' => 'Colegio Nacional Junín', 'direccion' => 'Calle Bolívar', 'telefono' => '4623333', 'departamento' => 'Potosí'],
             ['id' => 13, 'nombre' => 'Colegio San Vicente', 'direccion' => 'Zona Central', 'telefono' => '3721111', 'departamento' => 'Pando'],
             ['id' => 14, 'nombre' => 'Colegio Instituto Americano', 'direccion' => 'Av. Ballivián', 'telefono' => '2229999', 'departamento' => 'La Paz'],
             ['id' => 15, 'nombre' => 'Colegio Santa Teresa', 'direccion' => 'Zona Sopocachi', 'telefono' => '2233333', 'departamento' => 'La Paz'],

@@ -27,6 +27,7 @@ class Fase extends Model
         'cantidad_min_participantes',
         'estado',
         'fecha_inicio',
+        'fecha_calificacion',
         'fecha_fin',
     ];
 

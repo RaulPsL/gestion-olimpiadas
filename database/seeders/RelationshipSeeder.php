@@ -61,17 +61,28 @@ class RelationshipSeeder extends Seeder
         }
 
         // Usuario Fases
+        // Usuario Fases
         $usuarioFases = [
-            [1, 5], [1, 6], [1, 7],        // Carlos: Fases de Matemáticas
-            [2, 8], [2, 9], [2, 10],       // María: Fases de Física
-            [3, 11], [3, 12], [3, 13],     // Luis: Fases de Química
-            [4, 14], [4, 15], [4, 16],     // Ana: Fases de Biología
-            [5, 17], [5, 18], [5, 19],     // Jorge: Fases de Informática
-            [11, 1], [11, 2], [11, 3], [11, 4], // Sofía: Fases de Robótica
-            [12, 20], [12, 21], [12, 22],  // Miguel: Fases de Astronomía
-            [13, 23], [13, 24], [13, 25],  // Natalia: Fases de Electrónica
-            [14, 5], [14, 6], [14, 7],     // Rodrigo: Fases de Matemáticas
-            [15, 17], [15, 18], [15, 19],  // Camila: Fases de Informática
+            [1, 2], [1, 5], [1, 9],
+            [2, 3], [2, 7],
+            [3, 1], [3, 8], [3, 15],
+            [4, 4], [4, 10],
+            [5, 6], [5, 11], [5, 12],
+            [6, 13], [6, 16],
+            [7, 17], [7, 18], [7, 19],
+            [8, 14], [8, 20],
+            [9, 21], [9, 22],
+            [10, 23],
+            [11, 1], [11, 24],
+            [12, 25], [12, 26], [12, 27],
+            [13, 28], [13, 29],
+            [14, 30],
+            [15, 31], [15, 32],
+            [16, 5],
+            [17, 8], [17, 11],
+            [18, 10], [18, 14],
+            [19, 13], [19, 19],
+            [20, 22], [20, 27],
         ];
 
         foreach ($usuarioFases as [$usuarioId, $faseId]) {
@@ -158,7 +169,7 @@ class RelationshipSeeder extends Seeder
         foreach ($olimpistaAreas as $oa) {
             $fases = DB::table('fases')
                 ->where('area_id', $oa->area_id)
-                ->where('tipo_fase', 'preliminares')
+                ->where('tipo_fase', 'preliminales')
                 ->get();
                 
             foreach ($fases as $fase) {
@@ -200,7 +211,7 @@ class RelationshipSeeder extends Seeder
         foreach ($grupoAreasData as $ga) {
             $fases = DB::table('fases')
                 ->where('area_id', $ga->area_id)
-                ->where('tipo_fase', 'preliminares')
+                ->where('tipo_fase', 'preliminales')
                 ->get();
                 
             foreach ($fases as $fase) {
@@ -217,6 +228,16 @@ class RelationshipSeeder extends Seeder
         
         if (!empty($calificacionGrupos)) {
             DB::table('calificacion_grupos')->insert($calificacionGrupos);
+        }
+
+        $rolesUsuarioData = [[1,1],[1,4],[2,7],[2,11],[2,14],[2,18],[3,19],[3,21],[3,24]];
+        foreach ($rolesUsuarioData as [$rolId, $menuId]) {
+            DB::table('rol_menus')->insert([
+                'rol_id' => $rolId,
+                'menu_id' => $menuId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 }
