@@ -1,5 +1,5 @@
 import { UsuarioForm } from "@/forms/interfaces/Usuario";
-import { axiosPrivate, axiosInstance, axiosPublic } from "./api";
+import { axiosPrivate, axiosPublic } from "./api";
 import { Login } from "@/forms/interfaces/LoginIntefase";
 
 export const getUsuarios = async () => {
@@ -89,24 +89,20 @@ export const createUsuario = async (
 };
 
 export const updateUsuario = async (codsis: number, data: any) => {
-    const response = await axiosInstance.put(`/usuarios/${codsis}`, data);
+    const response = await axiosPrivate.put(`/usuarios/${codsis}`, data);
     return response.data;
 };
 
 export const deleteUsuario = async (codsis: number) => {
-    const response = await axiosInstance.delete(`/usuarios/${codsis}`);
+    const response = await axiosPrivate.delete(`/usuarios/${codsis}`);
     return response.data;
 };
 
-export const getLogsCalificaciones = async () => {
+export const getLogsCalificaciones = async (siglaAreas: string[]) => {
     try {
-        const datosUsuario = JSON.parse(localStorage.getItem('data') ?? "");
-        if (!datosUsuario) {
-            throw Error("No esta autentificado");
-        }
 
         const { data } = await axiosPrivate.post("/logs/calificaciones", {
-            areas: datosUsuario?.areas?.map((area: any) => area?.nombre)
+            areas: siglaAreas
         });
         console.log(data.data);
         return data.data;
@@ -131,11 +127,6 @@ export const getLogsCalificaciones = async () => {
 
 export const getLogsCierreFases = async () => {
     try {
-        const datosUsuario = JSON.parse(localStorage.getItem('data') ?? "");
-        if (!datosUsuario) {
-            throw Error("No esta autentificado");
-        }
-
         const { data } = await axiosPrivate.get("/logs/usuarios");
         
         return data.data;

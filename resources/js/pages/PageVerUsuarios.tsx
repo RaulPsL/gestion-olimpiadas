@@ -36,18 +36,18 @@ export default function PageVerEvaluadores() {
                         <Label className="text-2xl">Visualizar usuarios</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue="olimpistas">
+                        <Tabs defaultValue={keys?.[0]} key={keys?.[0]}>
                             <TabsList>
                                 { 
                                     keys?.map((key) => {
-                                        const value = String(key).split(" ")[0].toLocaleLowerCase();
+                                        const value = String(key);
                                         return (<TabsTrigger value={value} key={value}>{key}</TabsTrigger>);
                                     })
                                 }
                             </TabsList>
                             {
                                 keys?.map((key) => {
-                                    const value = String(key).split(" ")[0].toLocaleLowerCase();
+                                    const value = String(key);
                                     return (
                                     <TabsContent value={value} key={value}>
                                         <Card>

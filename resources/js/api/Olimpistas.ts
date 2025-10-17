@@ -1,15 +1,15 @@
 import { OlimpistaForm } from "@/forms/interfaces/Olimpista";
-import { axiosInstance, axiosPublic } from "./api";
+import { axiosPrivate } from "./api";
 import { MassiveForm } from "@/forms/interfaces/AcademicForm";
 
 export const getOlimpistas = async () => {
-    const { data } = await axiosPublic.get("/olimpistas");
+    const { data } = await axiosPrivate.get("/olimpistas");
     console.log(`Datos obtenidos: `, data.data);
     return data.data;
 };
 
 export const getStaticData = async ():Promise<StaticDataOlimpistas> => {
-    const { data } = await axiosPublic.get("/olimpistas/static");
+    const { data } = await axiosPrivate.get("/olimpistas/static");
     return {
         areas: data.data.areas,
         grados: data.data.grados,
@@ -48,7 +48,7 @@ export const createOlimpista = async (
 
         console.log("Enviando datos:", formData);
 
-        const result = await axiosInstance.post("/olimpistas", formData);
+        const result = await axiosPrivate.post("/olimpistas", formData);
         
         console.log("Respuesta del servidor:", result.data);
         setSuccess(true);
@@ -121,7 +121,7 @@ export const createMassiveOlimpistas = async (
 
         console.log("Enviando FormData...");
 
-        const result = await axiosInstance.post("/olimpistas/file", formData, {
+        const result = await axiosPrivate.post("/olimpistas/file", formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -161,26 +161,26 @@ export const createMassiveOlimpistas = async (
 };
 
 export const getOlimpista = async (codsis: number) => {
-    const response = await axiosPublic.get(`/olimpistas/${codsis}`);
+    const response = await axiosPrivate.get(`/olimpistas/${codsis}`);
     return response.data;
 };
 
 export const getOlimpistasByArea = async (area: string) => {
-    const response = await axiosPublic.get(`/olimpistas/${area}`);
+    const response = await axiosPrivate.get(`/olimpistas/${area}`);
     return response.data;
 }
 
 export const getOlimpistasByFase = async (area: string, fase: string) => {
-    const response = await axiosPublic.get(`/olimpistas/${area}/${fase}`);
+    const response = await axiosPrivate.get(`/olimpistas/${area}/${fase}`);
     return response.data;
 };
 
 export const updateOlimpista = async (codsis: number, data: any) => {
-    const response = await axiosInstance.put(`/olimpistas/${codsis}`, data);
+    const response = await axiosPrivate.put(`/olimpistas/${codsis}`, data);
     return response.data;
 };
 
 export const deleteOlimpista = async (codsis: number) => {
-    const response = await axiosInstance.delete(`/olimpistas/${codsis}`);
+    const response = await axiosPrivate.delete(`/olimpistas/${codsis}`);
     return response.data;
 };

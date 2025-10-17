@@ -1,4 +1,4 @@
-import { axiosPublic, axiosInstance } from "./api";
+import { axiosPublic } from "./api";
 
 export const getClasificacionesByArea = async () => {
     const { data } = await axiosPublic.get("/clasificaciones/area");

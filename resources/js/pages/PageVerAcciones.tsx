@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/tables/DataTable";
 import React from "react";
 import { getLogsCalificaciones, getLogsCierreFases } from "@/api/Usuarios";
-import { columnsInterno } from "@/components/tables/ColumnsInterno";
 import { useAuth } from "@/hooks/use-context";
 import { columnsLogCalificaciones, columnsLogCierreFases } from "@/components/tables/ColumnsLogs";
 
@@ -20,7 +19,7 @@ export default function PageVerAcciones() {
     React.useEffect(() => {
         const staticData = async () => {
             if (data?.rol.sigla === 'EDA') {
-                const calificaciones = await getLogsCalificaciones();
+                const calificaciones = await getLogsCalificaciones(data.areas.map((area) => area?.sigla));
                 setCalificacionesOAcciones(calificaciones);
             }
             if (data?.rol.sigla === 'ADM') {

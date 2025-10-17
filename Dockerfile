@@ -1,37 +1,52 @@
-FROM dunglas/frankenphp:php8.4-bookworm
+FROM php:8.3-fpm
 
-ENV SERVER_NAME=":${PORT:-8080}"
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN install-php-extensions \
+RUN docker-php-ext-install \
+    pdo \
     pdo_pgsql \
+    mbstring \
+    exif \
+    pcntl \
     bcmath \
-    opcache \
-    @composer
+    gd \
+    zip
+    
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+RUN git config --global --add safe.directory /var/www || true
 
-COPY . .
+WORKDIR /var/www
 
-# Instalar dependencias PHP
-RUN composer install \
-  --ignore-platform-reqs \
-  --optimize-autoloader \
-  --prefer-dist \
-  --no-interaction \
-  --no-progress
+COPY composer.json composer.lock ./
 
-# Construir assets de Vite (React + ShadCN)
-RUN apt-get update && apt-get install -y nodejs npm \
-  && npm install \
-  && npm run build \
-  && rm -rf node_modules
+RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
 
-# Generar clave y cachear configuración
-RUN php artisan key:generate \
-  && php artisan config:cache \
-  && php artisan route:cache \
-  && php artisan view:cache
+COPY --chown=www-data:www-data . .
 
-CMD php artisan serve --port=8080
+RUN composer dump-autoload --optimize
 
-EXPOSE 8080
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/storage \
+    && chmod -R 775 /var/www/bootstrap/cache
+
+USER www-data
+
+EXPOSE 8000
+
+# CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

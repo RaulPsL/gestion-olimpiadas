@@ -9,13 +9,15 @@ import { DataTable } from "@/components/tables/DataTable";
 import React from "react";
 import { getAreas } from "@/api/Areas";
 import { columns } from "@/components/tables/ColumnsArea";
+import { useAuth } from "@/hooks/use-context";
 
 export default function PageVerAreas() {
     const [areas, setAreas] = React.useState<any>({});
+    const { data } = useAuth();
 
     React.useEffect(() => {
         const staticData = async () => {
-            const staticAreas = await getAreas();
+            const staticAreas = await getAreas(data?.areas.map((area) => area?.sigla) as string[]);
             setAreas(staticAreas);
         };
         staticData();

@@ -1,20 +1,15 @@
 import { FaseForm } from "@/forms/interfaces/Fase";
 import { axiosPrivate } from "./api";
 
-export const getAreas = async () => {
+export const getAreas = async (siglaAreas: string[]) => {
     try {
-        const datosUsuario = JSON.parse(localStorage.getItem('data') ?? "");
-        if (!datosUsuario) {
-            throw Error("No esta autentificado");
-        }
-
         const { data } = await axiosPrivate.post("/areas/ver/especifico", {
-            areas: datosUsuario?.areas?.map((area: any) => area?.sigla)
+            areas: siglaAreas
         });
         console.log(data.data);
         return data.data;
     } catch (error: any) {
-        console.error("Error al crear usuario:", error);
+        console.error("Error al obtener las areas:", error);
 
         if (error.response?.status === 422) {
             const backendErrors = error.response.data.errors;

@@ -20,36 +20,38 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { useAuth } from "@/hooks/use-context";
+import { Link } from "react-router-dom";
 import React from "react";
 
 export function AppSidebar() {
     const { data } = useAuth();
     const datosUsuario = data?.data;
     const [menu, setMenu] = React.useState<any[]>([]);
+    
     React.useEffect(() => {
         if (data) {
             setMenu(data?.menu);
         }
     }, [data]);
+    
     const handleMenuButton = (item: any, isActive: boolean = false) => {
         return (
             <SidebarMenuButton asChild data-active={isActive}>
                 {
                     item.submenu ? (
-                        <a
+                        <span
                             className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
                             <i className={`${item?.icon ?? ""} w-5 h-5`}></i>
                             <span>{item.title}</span>
                             { item?.submenu && (<ChevronDown className="ml-auto" />) }
-                        </a>
+                        </span>
                     ) : (
-                        <a 
-                            href={item.url}
+                        <Link 
+                            to={item.url}
                             className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
                             <i className={`${item?.icon ?? ""} w-5 h-5`}></i>
                             <span>{item.title}</span>
-                            { item?.submenu && (<ChevronDown className="ml-auto" />) }
-                        </a>
+                        </Link>
                     )
                 }
             </SidebarMenuButton>
@@ -84,10 +86,10 @@ export function AppSidebar() {
                                                         { handleMenuButton(item) }
                                                     </CollapsibleTrigger>
                                                     {item.submenu.map((subitem : any) => {
-                                                        const isActive = window.location.pathname === item.url;
+                                                        const isSubitemActive = window.location.pathname === subitem.url;
                                                         return <CollapsibleContent key={subitem.title}>
                                                             <SidebarMenuSub>
-                                                                { handleMenuButton(subitem, isActive) }
+                                                                { handleMenuButton(subitem, isSubitemActive) }
                                                             </SidebarMenuSub>
                                                         </CollapsibleContent>
                                                     })}

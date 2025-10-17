@@ -26,7 +26,7 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('olimpistas')->group
     Route::delete('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('olimpistas.destroy');
 });
 
-Route::middleware(['auth:sanctum', 'role:ADM'])->prefix('usuarios')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('usuarios')->group(function () {
     Route::get('/', [App\Http\Controllers\UsuariosController::class, 'index']);
     Route::get('/static', [App\Http\Controllers\UsuariosController::class, 'indexStaticData']);
     Route::get('/{ci}', [App\Http\Controllers\UsuariosController::class, 'show']);

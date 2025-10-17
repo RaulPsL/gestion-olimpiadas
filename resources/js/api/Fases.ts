@@ -1,14 +1,10 @@
 import { axiosPrivate } from "./api";
 
-export const getFases = async () => {
+export const getFases = async (siglaAreas: string[]) => {
     try {
-        const datosUsuario = JSON.parse(localStorage.getItem('data') ?? "");
-        if (!datosUsuario) {
-            throw Error("No esta autentificado");
-        }
 
         const { data } = await axiosPrivate.post("/fases", {
-            areas: datosUsuario?.areas?.map((area: any) => area?.nombre)
+            areas: siglaAreas
         });
         console.log(data.data);
         return data.data;

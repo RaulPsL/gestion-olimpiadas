@@ -1,0 +1,76 @@
+services:
+  # 1. Primero PostgreSQL (sin dependencias)
+  pgsql:
+    image: postgres:17
+    container_name: gestion-olimpiadas-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-postgres}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - pgsql:/var/lib/postgresql/data
+    networks:
+      - gestion
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Luego Laravel (depende de pgsql)
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+      - /var/www/node_modules
+    ports:
+      - "8000:8000"
+    networks:
+      - gestion
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    environment:
+      - DB_HOST=pgsql
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_DATABASE:-postgres}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+
+  # 3. Finalmente React/Vite (depende de laravel)
+  react:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: vite_react
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - /var/www/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - gestion
+    depends_on:
+      - laravel
+    command: npm run dev -- --host 0.0.0.0
+    environment:
+      - VITE_APP_NAME=${APP_NAME}
+
+networks:
+  gestion:
+    driver: bridge
+
+volumes:
+  pgsql:
