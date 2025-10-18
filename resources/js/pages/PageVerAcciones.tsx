@@ -13,13 +13,13 @@ import { columnsLogCalificaciones, columnsLogCierreFases } from "@/components/ta
 
 export default function PageVerAcciones() {
     const [calificacionesOAcciones, setCalificacionesOAcciones] = React.useState<any>();
-    const [keys, setKeys] = React.useState<any[]>([]);
     const { data } = useAuth();
+    const otherKeys = data?.areas.map((area) => area?.nombre);
 
     React.useEffect(() => {
         const staticData = async () => {
             if (data?.rol.sigla === 'EDA') {
-                const calificaciones = await getLogsCalificaciones(data.areas.map((area) => area?.sigla));
+                const calificaciones = await getLogsCalificaciones(data.areas.map((area) => area?.nombre));
                 setCalificacionesOAcciones(calificaciones);
             }
             if (data?.rol.sigla === 'ADM') {
@@ -30,11 +30,6 @@ export default function PageVerAcciones() {
         staticData();
     }, []);
 
-    React.useEffect(() => {
-        if (calificacionesOAcciones && Object.keys(calificacionesOAcciones).length > 0) {
-            setKeys(Object.keys(calificacionesOAcciones));
-        }
-    }, [calificacionesOAcciones]);
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -46,23 +41,30 @@ export default function PageVerAcciones() {
                         <Label className="text-2xl">Visualizar usuarios</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue="Encargado de Área">
+                        <Tabs defaultValue={data?.rol.sigla === 'EDA' ? otherKeys?.[0] : 'acciones'}>
                             <TabsList>
                                 { 
                                     data?.rol.sigla === 'EDA' ? 
-                                        keys?.map((key) => {
+                                        otherKeys?.map((key) => {
                                             return (<TabsTrigger value={key} key={key}>{key}</TabsTrigger>);
                                         }) :
                                         (<TabsTrigger value="acciones" key="acciones">Acciones</TabsTrigger>)
                                 }
                             </TabsList>
                             {
-                                data?.rol.sigla === 'EDA' && keys?.map((key) => {
+                                data?.rol.sigla === 'EDA' && otherKeys?.map((key) => {
                                     return (
                                     <TabsContent value={key} key={key}>
                                         <Card>
                                             <CardContent>
-                                                <DataTable columns={columnsLogCalificaciones} data={calificacionesOAcciones?.[key]} />
+                                                <DataTable
+                                                    columns={columnsLogCalificaciones}
+                                                    data={
+                                                        calificacionesOAcciones?.[key]?.lengt > 0 ? 
+                                                            calificacionesOAcciones?.[key] : []
+                                                    }
+                                                    fieldSearch={"usuario"}
+                                                />
                                             </CardContent>
                                         </Card>
                                     </TabsContent>);
@@ -73,7 +75,11 @@ export default function PageVerAcciones() {
                                     <TabsContent value="acciones" key="acciones">
                                         <Card>
                                             <CardContent>
-                                                <DataTable columns={columnsLogCierreFases} data={calificacionesOAcciones} />
+                                                <DataTable
+                                                    columns={columnsLogCierreFases}
+                                                    data={calificacionesOAcciones}
+                                                    fieldSearch={"usuario"}
+                                                />
                                             </CardContent>
                                         </Card>
                                     </TabsContent>

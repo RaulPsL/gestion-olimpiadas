@@ -23,7 +23,6 @@ function App() {
                     <Route path="/" element={<PageHome />} />
                     <Route path="/login" element={<PageLogin />} />
                     <Route path="/clasificaciones/areas" element={ <PageClasificaciones /> } />
-                
                     <Route
                         path="/olimpistas/registrar olimpista(s)"
                         element={

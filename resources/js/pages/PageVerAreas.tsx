@@ -41,7 +41,10 @@ export default function PageVerAreas() {
                             <TabsContent value="areas">
                                 <Card>
                                     <CardContent>
-                                        <DataTable columns={columns} data={areas} />
+                                        <DataTable
+                                            columns={columns}
+                                            data={areas}
+                                        />
                                     </CardContent>
                                 </Card>
                             </TabsContent>

@@ -28,11 +28,13 @@ import { ChevronDown } from "lucide-react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[],
   data: TData[],
+  fieldSearch?: string,
 };
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  fieldSearch,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -62,14 +64,18 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Buscar por nombre del olimpista..."
-          value={(table.getColumn("nombre")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("nombre")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        {
+          fieldSearch && (
+            <Input
+              placeholder="Buscar por nombre..."
+              value={(table?.getColumn(fieldSearch)?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                table?.getColumn(fieldSearch)?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+          )
+        }
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -77,8 +83,7 @@ export function DataTable<TData, TValue>({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
+            {table?.getAllColumns()
               .filter((column) => column.getCanHide())
               .map((column) => {
                 return (
@@ -100,7 +105,7 @@ export function DataTable<TData, TValue>({
       <div className="w-full overflow-hidden rounded-md border">
         <Table  className="w-full">
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table?.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
@@ -118,8 +123,8 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody className="w-full">
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {table?.getRowModel().rows?.length ? (
+              table?.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
@@ -140,7 +145,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Sin resultados.
+                  Sin resultados aun.
                 </TableCell>
               </TableRow>
             )}

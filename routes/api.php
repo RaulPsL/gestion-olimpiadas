@@ -59,15 +59,15 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('calificaciones')->g
     Route::put('/grupos', [App\Http\Controllers\CalificacionesController::class, 'updateGrupos']);
 });
 
+Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('logs')->group(function () {
+    Route::post('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
+    Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
+});
+
 Route::prefix('clasificaciones')->group(function () {
     Route::get('/area', [App\Http\Controllers\ClasificasionController::class, 'indexArea']);
     Route::get('/nivel', [App\Http\Controllers\ClasificasionController::class, 'indexNivel']);
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
-});
-
-Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('log')->group(function () {
-    Route::get('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
-    Route::get('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
 });
 
 Route::middleware(['auth:sanctum', 'role:ADM'])->post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);

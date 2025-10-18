@@ -42,6 +42,8 @@ import { Spinner } from "../ui/spinner";
 interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   columns: ColumnDef<TData, TValue>[],
   data: TData[],
+  fechaCalificacion: string,
+  fechaFin: string,
   handleSubmit: () => void,
   isLoading: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -56,6 +58,8 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
 export function DataTableCalificaciones<TData, TValue, TFormValues extends FieldValues>({
   columns,
   data,
+  fechaCalificacion,
+  fechaFin,
   handleSubmit,
   isLoading,
   setIsLoading,
@@ -75,6 +79,9 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   });
   const [openToEdition, setOpenToEdition] = React.useState<boolean>(false);
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+  const currentDate = new Date();
+  const fin = new Date(fechaFin);
+  const calificacion = new Date(fechaCalificacion);
 
   const table = useReactTable({
     data,
@@ -104,7 +111,8 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
       }, 3000);
       return () => clearTimeout(timer);
     }
-    console.log('Termino el tiempo...');
+    console.log('Datos de calificaciones: ', data);
+
   }, [isLoading, dialogOpen]);
 
   const handleConfirmSave = () => {
@@ -140,6 +148,23 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
           <DropdownMenuTrigger className="ml-auto"/>
           
           <div className="flex flex-row content-between">
+            { (calificacion < fin && fin < currentDate) ? (
+                <Alert variant="destructive" className="items-center">
+                  <CircleAlert className="h-4 w-4" />
+                  <AlertDescription>
+                    Se termino la fase.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert className="border-green-200 bg-green-50">
+                  <CircleAlert className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-700">
+                    Esperando avalacion
+                  </AlertDescription>
+                </Alert>
+              )
+            }
+
             { openToEdition ? 
               (<AlertDialog
                 open={dialogOpen}
@@ -241,7 +266,9 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                 onClick={() => {
                   setOpenToEdition(true)
                   handleToggleEdicion(true)
-                }}>
+                }}
+                // disabled={fin < currentDate && calificacion < fin}
+              >
                 Calificar <NotebookPen />
               </Button>)
             }

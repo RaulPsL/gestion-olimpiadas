@@ -9,13 +9,15 @@ import { DataTable } from "@/components/tables/DataTable";
 import React from "react";
 import { columns } from "@/components/tables/ColumnsFase";
 import { getFases } from "@/api/Fases";
+import { useAuth } from "@/hooks/use-context";
 
 export default function PageVerFases() {
     const [fases, setFases] = React.useState<any>({});
     const [areas, setAreas] = React.useState<any>([]);
+    const { data } = useAuth();
     React.useEffect(() => {
         const staticData = async () => {
-            const staticfases = await getFases();
+            const staticfases = await getFases(data?.areas.map((area) => area?.sigla) as string[]);
             setFases(staticfases);
         };
         staticData();

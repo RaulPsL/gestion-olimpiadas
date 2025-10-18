@@ -72,7 +72,7 @@ export const columnsLogCalificaciones: ColumnDef<LogsCalificaciones>[] = [
   },
   {
     accessorKey: "fecha_modificacion",
-    header: "Fecha de acción",
+    header: "Fecha de modificación",
     cell: ({ row }) => (
       <div className="text-center capitalize">{row.original.fecha_modificacion}</div>
     ),

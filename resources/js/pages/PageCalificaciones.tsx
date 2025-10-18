@@ -22,7 +22,7 @@ export default function PageCalificaciones() {
             };
         staticData();
     }, []);
-
+    
     React.useEffect(() => {
         if (calificaciones) {
             setKeys(Object.keys(calificaciones));
@@ -50,7 +50,7 @@ export default function PageCalificaciones() {
                                 { keys?.map((key) => (
                                     <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
                                         <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                            <TableCalificaciones calificaciones={calificaciones[key]['calificaciones']} />
+                                            <TableCalificaciones calificaciones={calificaciones[key]} />
                                         </div>
                                     </TabsContent>
                                 ))}

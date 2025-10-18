@@ -39,7 +39,11 @@ export default function PageVerOlimpistas() {
                             <TabsContent value="olimpistas">
                                 <Card>
                                     <CardContent>
-                                        <DataTable columns={columns} data={olimpistas} />
+                                        <DataTable
+                                            columns={columns}
+                                            data={olimpistas}
+                                            fieldSearch="nombre"
+                                        />
                                     </CardContent>
                                 </Card>
                             </TabsContent>

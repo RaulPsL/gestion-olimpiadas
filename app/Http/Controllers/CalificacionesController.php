@@ -52,6 +52,7 @@ class CalificacionesController extends Controller
                 });
                 if ($calificaciones->count() > 0) {
                     $listaFinal["$area"] = [
+                        'fecha_calificacion' => date('d/M/Y H:i', strtotime($fase->fecha_calificacion)),
                         'fecha_fin' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
                         'calificaciones' => $calificaciones
                     ];

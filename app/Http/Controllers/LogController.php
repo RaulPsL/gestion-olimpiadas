@@ -29,12 +29,12 @@ class LogController extends Controller
                     "accion" => $calificacion->accion,
                     "fecha_creacion" => date('d/M/Y H:i', strtotime($calificacion->create_at)),
                     "fecha_modificacion" => date('d/M/Y H:i', strtotime($calificacion->update_at)),
-                    "nota" => $calificacion->calificacion->nota,
+                    "nota" => $calificacion->calificacion->puntaje,
                 ];
             })->groupBy('area');
             $logsPorArea = [];
             foreach ($request->areas as $key) {
-                $logsPorArea["$key"] = $logCalificaciones["$key"];
+                if (key_exists($key, $logCalificaciones->toArray())) $logsPorArea["$key"] = $logCalificaciones["$key"];
             }
             return response()->json([
                 'data' => $logsPorArea,

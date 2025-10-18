@@ -52,7 +52,11 @@ export default function PageVerEvaluadores() {
                                     <TabsContent value={value} key={value}>
                                         <Card>
                                             <CardContent>
-                                                <DataTable columns={columnsInterno} data={rolUsuario?.[key]} />
+                                                <DataTable
+                                                    columns={columnsInterno}
+                                                    data={rolUsuario?.[key]}
+                                                    fieldSearch="nombre"
+                                                />
                                             </CardContent>
                                         </Card>
                                     </TabsContent>);

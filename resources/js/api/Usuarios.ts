@@ -98,11 +98,11 @@ export const deleteUsuario = async (codsis: number) => {
     return response.data;
 };
 
-export const getLogsCalificaciones = async (siglaAreas: string[]) => {
+export const getLogsCalificaciones = async (areas: string[]) => {
     try {
 
         const { data } = await axiosPrivate.post("/logs/calificaciones", {
-            areas: siglaAreas
+            areas: areas
         });
         console.log(data.data);
         return data.data;
