@@ -161,26 +161,26 @@ export const createMassiveOlimpistas = async (
 };
 
 export const getOlimpista = async (codsis: number) => {
-    const response = await axiosPrivate.get(`/olimpistas/${codsis}`);
-    return response.data;
+    const { data } = await axiosPrivate.get(`/olimpistas/${codsis}`);
+    return data.data;
 };
 
 export const getOlimpistasByArea = async (area: string) => {
-    const response = await axiosPrivate.get(`/olimpistas/${area}`);
-    return response.data;
+    const { data } = await axiosPrivate.get(`/olimpistas/${area}`);
+    return data.data;
 }
 
 export const getOlimpistasByFase = async (area: string, fase: string) => {
-    const response = await axiosPrivate.get(`/olimpistas/${area}/${fase}`);
-    return response.data;
+    const { data } = await axiosPrivate.get(`/olimpistas/${area}/${fase}`);
+    return data.data;
 };
 
-export const updateOlimpista = async (codsis: number, data: any) => {
-    const response = await axiosPrivate.put(`/olimpistas/${codsis}`, data);
-    return response.data;
+export const updateOlimpista = async (codsis: number, formData: any) => {
+    const { data } = await axiosPrivate.put(`/olimpistas/${codsis}`, formData);
+    return data.data;
 };
 
 export const deleteOlimpista = async (codsis: number) => {
-    const response = await axiosPrivate.delete(`/olimpistas/${codsis}`);
-    return response.data;
+    const { data } = await axiosPrivate.delete(`/olimpistas/${codsis}`);
+    return data.data;
 };

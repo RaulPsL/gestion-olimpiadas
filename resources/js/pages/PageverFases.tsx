@@ -17,7 +17,7 @@ export default function PageVerFases() {
     const { data } = useAuth();
     React.useEffect(() => {
         const staticData = async () => {
-            const staticfases = await getFases(data?.areas.map((area) => area?.sigla) as string[]);
+            const staticfases = await getFases(data?.areas.map((area) => area?.nombre) as string[]);
             setFases(staticfases);
         };
         staticData();
