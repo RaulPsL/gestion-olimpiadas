@@ -118,10 +118,14 @@ export function Combobox({
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popper-anchor-width] p-0" align="start">
           <Command>
-            <CommandInput 
-              placeholder={searchPlaceholder} 
-              className="h-9" 
-            />
+            {
+              items.length > 7 && (
+                <CommandInput 
+                  placeholder={searchPlaceholder} 
+                  className="h-9" 
+                />
+              )
+            }
             <CommandList>
               <CommandEmpty>{emptyMessage}</CommandEmpty>
               <CommandGroup>

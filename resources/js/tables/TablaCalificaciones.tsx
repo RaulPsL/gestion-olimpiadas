@@ -1,7 +1,8 @@
 import { updateCalificacionesOlimpistas } from "@/api/Calificaciones";
-import { createColumnsCalificaciones, FormNotas } from "@/components/tables/ColumnsCalificaciones";
+import { createColumnsCalificaciones } from "@/components/tables/ColumnsCalificaciones";
 import { DataTableCalificaciones } from "@/components/tables/DataTableCalificaciones";
 import { Card, CardContent } from "@/components/ui/card";
+import { FormNotas } from "@/forms/interfaces/Notas";
 import React from "react";
 import { useForm } from "react-hook-form";
 
@@ -49,7 +50,7 @@ export default function TableCalificaciones(
     );
   }
 
-  const columns = createColumnsCalificaciones(register);
+  const columns = createColumnsCalificaciones(register, new Date(calificaciones.fecha_calificacion));
   return (
     <Card>
       <CardContent>

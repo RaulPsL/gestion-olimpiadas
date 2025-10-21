@@ -1,11 +1,12 @@
-import { FormNotas } from "@/components/tables/ColumnsCalificaciones";
+import { FormNotas } from "@/forms/interfaces/Notas";
 import { axiosPrivate } from "./api";
 import { UseFormReset } from "react-hook-form";
 
-export const getCalificacionesOlimpistas = async (siglaAreas: string[]) => {
+export const getCalificacionesOlimpistas = async (areas: string[]) => {
     const { data } = await axiosPrivate.post("/calificaciones/olimpistas", {
-        areas: siglaAreas
+        areas: areas
     });
+    console.log('Calificaciones: ', data);
     return data.data;
 };
 

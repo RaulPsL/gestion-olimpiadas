@@ -175,7 +175,6 @@ export const login = async (
             setSuccess(true);
             setIsLoading(false);
             reset();
-            console.log("Acceso al sistema existoso", response.data.user);
             return;
         }
     } catch (error: any) {

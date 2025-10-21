@@ -25,4 +25,9 @@ class VerificacionCierre extends Model
     {
         return $this->belongsTo(Usuario::class, 'usuario_evaluador_id');
     }
+
+    public function fase()
+    {
+        return $this->belongsTo(Fase::class);
+    }
 }

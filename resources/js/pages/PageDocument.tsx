@@ -1,14 +1,11 @@
-import FormOlimpista from "@/forms/FormOlimpista";
-import { BookCopy, User } from "lucide-react";
+import { BookCopy } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FormMassiveOlimista from "@/forms/FormMassiveOlimpista";
 import { SectionAccountingOlimpistas } from "@/components/SectionAccoutingOlimpistas";
 
-export default function GreneratDocs() {
+export default function PageGenerarDocs() {
     return (
         <SidebarProvider>
             <AppSidebar />

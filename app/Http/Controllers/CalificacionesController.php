@@ -21,10 +21,7 @@ class CalificacionesController extends Controller
                 'areas' => 'required',
             ]);
             $fases = Fase::select(['id', 'area_id', 'sigla', 'fecha_fin'])
-                ->where('estado', 'en curso')
-                ->whereHas('area', function ($query) use ($request) {
-                    $query->whereIn('sigla', $request->areas);
-                })
+                // ->where('estado', ['en curso', 'pendiente'])
                 ->with([
                     'olimpistas.tutor',
                     'olimpistas.tutores_academicos',

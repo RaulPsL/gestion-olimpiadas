@@ -9,6 +9,7 @@ import {
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { UseFormRegister } from "react-hook-form";
+import { FormNotas } from "@/forms/interfaces/Notas";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -27,18 +28,9 @@ export type Calificacion = {
     comentarios: string
 };
 
-export type FormNotas = {
-  notas: {
-    nota_olimpista_id: number;
-    nota_fase_id: number;
-    estado_olimpista: string;
-    nota: number;
-    comentarios: string;
-  }[];
-};
-
 export const createColumnsCalificaciones = (
-  register: UseFormRegister<FormNotas>
+  register: UseFormRegister<FormNotas>,
+  fechaCalificacion: Date,
 ): ColumnDef<Calificacion>[] => [
   {
     accessorKey: "nombre",
@@ -135,33 +127,36 @@ export const createColumnsCalificaciones = (
     header: "Posición",
     cell: ({ row }) => {
       const posicion = Number(row.id) + 1;
-      if (posicion === 1) 
-        return (
-          <Badge
-            className="text-white bg-[#ffd30e] text-sm"
-          >
-            {posicion} <Trophy size={20}/> 
-          </Badge>)
-      if (posicion === 2) 
-        return (
-          <Badge
-            className="text-#000000 bg-[#b7bfd6] text-sm"
-          >
-            {posicion} <Medal size={20}/>
-          </Badge>)
-      if (posicion === 3) 
-        return (
-          <Badge
-            className="text-#000000 bg-[#da944f] text-sm"
-          >
-            {posicion} <Medal size={20}/> 
-          </Badge>)
+      const currentDate = new Date();
+      if (row.original.nota > 0 && fechaCalificacion >= currentDate) {
+        if (posicion === 1) 
+          return (
+            <Badge
+              className="text-white bg-[#ffd30e] text-sm"
+            >
+              {posicion} <Trophy size={20}/> 
+            </Badge>)
+        if (posicion === 2) 
+          return (
+            <Badge
+              className="text-#000000 bg-[#b7bfd6] text-sm"
+            >
+              {posicion} <Medal size={20}/>
+            </Badge>)
+        if (posicion === 3) 
+          return (
+            <Badge
+              className="text-#000000 bg-[#da944f] text-sm"
+            >
+              {posicion} <Medal size={20}/> 
+            </Badge>)
+      }
       return (
         <Badge
           variant="secondary"
           className="text-sm"
         >
-          {posicion} <Award size={20}/> 
+          {fechaCalificacion > currentDate ? posicion : ""} <Award size={20}/> 
         </Badge>
       )
     }
@@ -183,6 +178,8 @@ export const createColumnsCalificaciones = (
           defaultValue={nota}
           readOnly={!estadoEdicion}
           disabled={!estadoEdicion}
+          max={100.00}
+          min={0.00}
           { ...register(`notas.${row.index}.nota`, { valueAsNumber: true }) }
           onChange={(e) => {
             row.original.nota = Number(e.target.value);

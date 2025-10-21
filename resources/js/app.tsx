@@ -14,6 +14,8 @@ import PageVerEvaluadores from './pages/PageVerUsuarios';
 import PageVerFases from './pages/PageverFases';
 import PageCrearFase from './pages/PageCrearFase';
 import PageVerAcciones from './pages/PageVerAcciones';
+import PageCierreFases from './pages/PageCierreFases';
+import PageGenerarDocs from './pages/PageDocument';
 
 function App() {
     return (
@@ -37,7 +39,7 @@ function App() {
                         path="/olimpistas/ver olimpistas"
                         element={
                             <PrivatRoute
-                                rol={['EDA', 'EVA']}
+                                rol={['EDA', 'EVA', 'ADM']}
                             >
                                 <PageVerOlimpistas />
                             </PrivatRoute>
@@ -57,7 +59,7 @@ function App() {
                         path="/areas/ver areas"
                         element={
                             <PrivatRoute
-                                rol={['EVA', 'EDA']}
+                                rol={['EVA', 'EDA', 'ADM']}
                             >
                                 <PageVerAreas />
                             </PrivatRoute>
@@ -67,7 +69,7 @@ function App() {
                         path="/areas/ver fases"
                         element={
                             <PrivatRoute
-                                rol={['EVA', 'EDA']}
+                                rol={['EVA', 'EDA', 'ADM']}
                             >
                                 <PageVerFases />
                             </PrivatRoute>
@@ -150,6 +152,36 @@ function App() {
                                 rol={['EVA', 'EDA']}
                             >
                                 <PageCrearFase />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/fases/cierre de fase"
+                        element={
+                            <PrivatRoute
+                                rol={['EVA', 'EDA']}
+                            >
+                                <PageCierreFases />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/fases/ver cierres"
+                        element={
+                            <PrivatRoute
+                                rol={['ADM']}
+                            >
+                                <PageCierreFases />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/reportes/generar"
+                        element={
+                            <PrivatRoute
+                                rol={['ADM']}
+                            >
+                                <PageGenerarDocs />
                             </PrivatRoute>
                         }
                     />

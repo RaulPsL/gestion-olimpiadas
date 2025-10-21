@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('verificacion_cierres', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('usuario_encargado_id');
+            $table->unsignedBigInteger('usuario_encargado_id')->nullable();
             $table->foreign('usuario_encargado_id')
                 ->references('id')
                 ->on('usuarios')
                 ->onDelete('cascade');
-            $table->unsignedBigInteger('usuario_evaluador_id');
+            $table->unsignedBigInteger('usuario_evaluador_id')->nullable();
             $table->foreign('usuario_evaluador_id')
                 ->references('id')
                 ->on('usuarios')
                 ->onDelete('cascade');
-            $table->foreignId('fase_id')->constrained()->onDelete('cascade');
+            $table->foreignId('fase_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

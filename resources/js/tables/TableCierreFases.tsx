@@ -1,30 +1,26 @@
-import { updateCalificacionesOlimpistas } from "@/api/Calificaciones";
-import { createColumnsCalificaciones, FormNotas } from "@/components/tables/ColumnsCalificaciones";
-import { DataTableCalificaciones } from "@/components/tables/DataTableCalificaciones";
+import { updateCierreFases } from "@/api/Fases";
+import { createColumnsCierres } from "@/components/tables/ColumnsCierre";
+
+import { DataTableCierrresFases } from "@/components/tables/DataTableCierreFases";
 import { Card, CardContent } from "@/components/ui/card";
+import { FormCierreFase } from "@/forms/interfaces/CierreFaseForm";
+import { useAuth } from "@/hooks/use-context";
+
 import React from "react";
 import { useForm } from "react-hook-form";
 
-export default function TableCalificaciones(
-  { calificaciones } : {
-    calificaciones: {
-      fecha_calificacion: string,
-      fecha_fin: string,
-      calificaciones: any[]
-    }
-  }
+export default function TablecierreFases(
+  { cierres } : { cierres: any[]}
 ) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [apiError, setApiError] = React.useState<string>("");
   const [success, setSuccess] = React.useState<boolean>(false);
 
-  const initialFormData: FormNotas = {
-    notas: calificaciones.calificaciones.map(item => ({
-      nota_olimpista_id: item.nota_olimpista_id,
-      nota_fase_id: item.nota_fase_id,
-      estado_olimpista: item.estado,
-      nota: item.nota,
-      comentarios: item.comentarios
+  const initialFormData: FormCierreFase = {
+    cierres: cierres?.map(item => ({
+      usuario_encargado_id: item.usuario_encargado_id ?? null,
+      usuario_evaluador_id: item.usuario_evaluador_id ?? null,
+      fase_id: item.fase_id,
     }))
   };
 
@@ -32,13 +28,15 @@ export default function TableCalificaciones(
     register,
     handleSubmit,
     reset,
-  } = useForm<FormNotas>({
+  } = useForm<FormCierreFase>({
     defaultValues: initialFormData
   });
 
   const [nuevaLista, setNuevaLista] = React.useState<any[]>(
-    calificaciones.calificaciones.map(item => ({ ...item, edicion: false }))
+    cierres.map(item => ({ ...item, edicion: false }))
   );
+
+  const { data } = useAuth();
 
   const handleToggleEdicion = (edicion: boolean) => {
     setNuevaLista(prevData => 
@@ -49,17 +47,15 @@ export default function TableCalificaciones(
     );
   }
 
-  const columns = createColumnsCalificaciones(register);
+  const columns = createColumnsCierres(register, data);
   return (
     <Card>
       <CardContent>
-        <DataTableCalificaciones
+        <DataTableCierrresFases
           columns={columns}
           data={nuevaLista}
-          fechaCalificacion={calificaciones.fecha_calificacion}
-          fechaFin={calificaciones.fecha_fin}
           handleSubmit={
-            handleSubmit((data) => updateCalificacionesOlimpistas(
+            handleSubmit((data) => updateCierreFases(
                 data,
                 setIsLoading,
                 setSuccess,

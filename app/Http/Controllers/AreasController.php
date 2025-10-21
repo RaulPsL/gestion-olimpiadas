@@ -128,12 +128,14 @@ class AreasController extends Controller
                 $creacion_fases = true;
             } else {
                 $nueva_area->fases()->create([
-                    'sigla' => $request->sigla."F1",
-                    'descripcion' => 'Fase 1',
+                    'sigla' => "PRE$request->sigla",
+                    'descripcion' => "Fase preliminal del area $request->nombre",
                     'cantidad_max_participantes' => 10,
                     'cantidad_min_participantes' => 20,
+                    'cantidad_ganadores' => 10,
                     'fecha_inicio' => now(),
-                    'fecha_fin' => now()->addWeeks(2),
+                    'fecha_calificacion' => now()->addDays(3),
+                    'fecha_fin' => now()->addDays(5),
                 ]);
             }
             return response()->json([
@@ -209,8 +211,10 @@ class AreasController extends Controller
                     'fases.*.tipo_fase' => 'required|string',
                     'fases.*.descripcion' => 'required|string',
                     'fases.*.cantidad_max_participantes' => 'required|integer',
+                    'fases.*.cantidad_ganadores' => 'required|integer',
                     'fases.*.cantidad_min_participantes' => 'required|integer',
                     'fases.*.fecha_inicio' => 'required|date',
+                    'fases.*.fecha_calificacion' => 'required|date',
                     'fases.*.fecha_fin' => 'required|date',
                     'fases.*.usuarios' => 'required|exists:usuarios,ci',
                 ]);
@@ -224,7 +228,9 @@ class AreasController extends Controller
                         'descripcion' => $faseData['descripcion'] ?? 'Fase sin descripción',
                         'cantidad_max_participantes' => $faseData['cantidad_max_participantes'],
                         'cantidad_min_participantes' => $faseData['cantidad_min_participantes'],
+                        'cantidad_ganadores' => $faseData['cantidad_ganadores'],
                         'fecha_inicio' => $faseData['fecha_inicio'],
+                        'fecha_calificacion' => $faseData['fecha_calificacion'],
                         'fecha_fin' => $faseData['fecha_fin'],
                     ]);
 
@@ -234,13 +240,14 @@ class AreasController extends Controller
                 $creacion_fases = true;
             } else {
                 $area->fases()->create([
-                    'sigla' => $request->sigla."F1",
-                    'tipo_fase' => TipoFase::Preliminales->value,
-                    'descripcion' => 'Fase 1',
+                    'sigla' => "PRE$request->sigla",
+                    'descripcion' => "Fase preliminal del area $request->nombre",
                     'cantidad_max_participantes' => 10,
                     'cantidad_min_participantes' => 20,
+                    'cantidad_ganadores' => 10,
                     'fecha_inicio' => now(),
-                    'fecha_fin' => now()->addWeeks(2),
+                    'fecha_calificacion' => now()->addDays(3),
+                    'fecha_fin' => now()->addDays(5),
                 ]);
             }
             return response()->json([

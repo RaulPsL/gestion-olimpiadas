@@ -6,8 +6,9 @@ import { Participante } from './interfaces/ParticipantePDF';
 // Función para generar el PDF
 export function generarListaPDF(
   usuarios: Usuario[] | Participante[],
-  area: string | null,
-  tipoPdf: string,
+  area?: string,
+  tipoPdf?: string,
+  olimpistas?: boolean,
 ): void {
   // Crear nueva instancia de jsPDF
   const doc = new jsPDF();
@@ -31,7 +32,7 @@ export function generarListaPDF(
 
   let columnsStyles = {};
 
-  if (area && area === '') {
+  if (!olimpistas) {
     dataUsuario = (usuarios as Usuario[]).map((usuario) => [
       usuario.ci,
       usuario.nombre,
@@ -47,9 +48,11 @@ export function generarListaPDF(
       3: { cellWidth: 15 },
       4: { cellWidth: 45 }
     };
-  } else {
+  }
+
+  if (olimpistas) {
     dataUsuario = (usuarios as Participante[]).map((usuario) => [
-      usuario.nombreParticipante,
+      usuario.nombre,
       usuario.colegio,
       area,
       usuario.nivel,
@@ -64,13 +67,11 @@ export function generarListaPDF(
       4: { cellWidth: 10 }
     };
   }
-  
-
 
   // Generar tabla con autoTable
   autoTable(doc, {
-    head: area && area !== '' ? headersParticipante : headersUsuario,
-    body: area && area !== '' ? dataParticipante : dataUsuario,
+    head: olimpistas ? headersParticipante : headersUsuario,
+    body: olimpistas ? dataParticipante : dataUsuario,
     startY: 35,
     theme: 'striped',
     headStyles: {

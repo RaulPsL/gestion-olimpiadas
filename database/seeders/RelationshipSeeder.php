@@ -21,6 +21,8 @@ class RelationshipSeeder extends Seeder
             // Encargados de Área (usuarios 6-10, 16-20)
             [6, 2], [7, 2], [8, 2], [9, 2], [10, 2],
             [16, 2], [17, 2], [18, 2], [19, 2], [20, 2],
+            // Administrador
+            [21, 3],
         ];
 
         foreach ($usuarioRoles as [$usuarioId, $rolId]) {
@@ -44,7 +46,8 @@ class RelationshipSeeder extends Seeder
             [17, 5], [17, 6], // Paola: Biología e Informática
             [18, 4], [18, 3], // Andrés: Química y Física
             [19, 7], [19, 8], // Verónica: Astronomía y Electrónica
-            [20, 1], [20, 2], [20, 3], [20, 4], [20, 5], [20, 6], [20, 7], [20, 8], // Hernán: Todas las áreas
+            [20, 1], [20, 2], [20, 3], // Hernán: Todas las áreas
+            [21, 1], [21, 2], [21, 3], [21, 4], [21, 5], [21, 6], [21, 7], [21, 8], 
 
             // Evaluadores por área
             [1, 2], [2, 3], [3, 4], [4, 5], [5, 6],
@@ -169,7 +172,7 @@ class RelationshipSeeder extends Seeder
         foreach ($olimpistaAreas as $oa) {
             $fases = DB::table('fases')
                 ->where('area_id', $oa->area_id)
-                ->where('tipo_fase', 'preliminales')
+                ->where('tipo_fase', 'preliminares')
                 ->get();
                 
             foreach ($fases as $fase) {
@@ -211,7 +214,7 @@ class RelationshipSeeder extends Seeder
         foreach ($grupoAreasData as $ga) {
             $fases = DB::table('fases')
                 ->where('area_id', $ga->area_id)
-                ->where('tipo_fase', 'preliminales')
+                ->where('tipo_fase', 'preliminares')
                 ->get();
                 
             foreach ($fases as $fase) {
@@ -230,7 +233,10 @@ class RelationshipSeeder extends Seeder
             DB::table('calificacion_grupos')->insert($calificacionGrupos);
         }
 
-        $rolesUsuarioData = [[1,1],[1,4],[2,7],[2,11],[2,14],[2,18],[3,19],[3,21],[3,24]];
+        $rolesUsuarioData = [
+            [1,1],[1,4],[1,7],[1,18],
+            [2,8],[2,12],[2,15],[2,19],[2,20],
+            [3,18],[3,21],[3,23],[3,26],[3,27], [3,28]];
         foreach ($rolesUsuarioData as [$rolId, $menuId]) {
             DB::table('rol_menus')->insert([
                 'rol_id' => $rolId,

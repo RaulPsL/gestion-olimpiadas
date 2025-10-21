@@ -13,9 +13,9 @@ export default function PageCalificaciones() {
     const [calificaciones, setCalificaciones] = React.useState<any>();
     const [keys, setKeys] = React.useState<string[]>();
     const { data } = useAuth();
+    const areasCalificacionUsuario = data?.areas.map((area) => area.nombre);
 
     React.useEffect(() => {
-        const areasCalificacionUsuario = data?.areas.map((area) => area.sigla);
         const staticData = async () => {
             const response = await getCalificacionesOlimpistas(areasCalificacionUsuario as string[]);
                 setCalificaciones(response);
@@ -24,6 +24,7 @@ export default function PageCalificaciones() {
     }, []);
     
     React.useEffect(() => {
+        console.log(calificaciones);
         if (calificaciones) {
             setKeys(Object.keys(calificaciones));
         }
@@ -40,22 +41,20 @@ export default function PageCalificaciones() {
                         <Label className="text-2xl">Calificaciones por area</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        { (keys && keys.length > 0) && (
-                            <Tabs defaultValue={ String(keys?.[0]).toLocaleLowerCase() }>
-                                <TabsList>
-                                    { keys?.map((key) => (
-                                        <TabsTrigger value={String(key).toLocaleLowerCase()} key={key}>{key}</TabsTrigger>
-                                    ))}
-                                </TabsList>
-                                { keys?.map((key) => (
-                                    <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
-                                        <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                            <TableCalificaciones calificaciones={calificaciones[key]} />
-                                        </div>
-                                    </TabsContent>
+                        <Tabs defaultValue={ areasCalificacionUsuario?.[0] }>
+                            <TabsList>
+                                { areasCalificacionUsuario?.map((key) => (
+                                    <TabsTrigger value={key} key={key}>{key}</TabsTrigger>
                                 ))}
-                            </Tabs>
-                        )}
+                            </TabsList>
+                            { keys?.map((key) => (
+                                <TabsContent value={key} key={key}>
+                                    <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                        <TableCalificaciones calificaciones={calificaciones[key]} />
+                                    </div>
+                                </TabsContent>
+                            ))}
+                        </Tabs>
                     </div>
                 </div>
             </SidebarInset>

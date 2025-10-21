@@ -19,6 +19,7 @@ class Fase extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'area_id',
         'tipo_fase',
         'sigla',
         'descripcion',
@@ -39,7 +40,7 @@ class Fase extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'id_area',
+        'area_id',
     ];
 
     /**
@@ -73,5 +74,9 @@ class Fase extends Model
     public function grupos() {
         return $this->belongsToMany(Grupo::class, 'calificacion_grupos')
             ->withPivot('puntaje', 'comentarios');
+    }
+
+    public function cierre() {
+        return $this->hasOne(VerificacionCierre::class);
     }
 }

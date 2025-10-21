@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Area;
 use App\Models\Fase;
-use App\Models\Olimpista;
 use App\Models\Traits\Casts\EstadoFase;
+use App\Models\Usuario;
+use App\Models\VerificacionCierre;
 use Illuminate\Http\Request;
 
 class FasesController extends Controller
@@ -47,6 +48,50 @@ class FasesController extends Controller
         }
     }
 
+    public function indexCierreFases(Request $request) {
+        try {
+            $request->validate([
+                'areas' => 'required'
+            ]);
+            $cierres = Fase::with(['area', 'cierre.encargado', 'cierre.evaluador'])->get();
+            $cierresFiltrados = collect($cierres)->map(function ($fase) {
+                $encargado = $fase->cierre ? $fase->cierre->encargado : null;
+                $evaluador = $fase->cierre ? $fase->cierre->evaluador : null;
+                $area = $fase->area;
+                $nuevo_cierre = [
+                    'encargado' => $encargado ? "$encargado->nombre $encargado->apellido" : "",
+                    'evaluador' => $evaluador ? "$evaluador->nombre $evaluador->apellido" : "",
+                    'fase' => "$fase->sigla - $area->nombre",
+                    'estado' => $fase->estado,
+                    'area' => $fase->area->nombre,
+                    'fecha_creacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->created_at)) : "" ,
+                    'fecha_modificacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->updated_at)) : "" ,
+                    'fecha_fin_fase' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
+                    'fecha_calificacion_fase' => date('d/M/Y H:i', strtotime($fase->fecha_calificacion)),
+                    'usuario_encargado_id' => $fase->cierre ? $fase->cierre->usuario_encargado_id : null ,
+                    'usuario_evaluador_id' => $fase->cierre ? $fase->cierre->usuario_evaluador_id : null ,
+                    'fase_id' => $fase->id,
+                ];
+                
+                return $nuevo_cierre;
+            })->groupBy('area');
+
+            $cierresArea = [];
+            foreach ($request->areas as $key) {
+                $cierresArea[$key] = $cierresFiltrados[$key];
+            }
+            return response()->json([
+                'message' => "Cierres de fases obtenidos exitosamente.",
+                'data' => $cierresArea,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener las fases.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
     /**
      * Display the specified resource.
      */
@@ -77,17 +122,41 @@ class FasesController extends Controller
         try {
             $request->validate([
                 'fases' => 'required',
-                'fases.*.id' => 'required|exists:fases,id',
-                'fases.*.estado' => 'required|in:' . implode(',', array_keys(EstadoFase::cases())),
+                'fases.*.fase_id' => 'required|exists:fases,id',
+                'fases.*.estado' => 'required',
             ]);
+            $count_fases = [
+                'fases_finalizadas' => 0,
+                'fases_pendientes' => 0
+            ];
             if ($request->has('fases')) {
                 $fases = $request->fases;
-                foreach ($fases as $value) {
-                    Fase::where('estado', $value['id'])->update($value);
+                foreach ($fases as $fase) {
+                    $cierre = VerificacionCierre::where('fase_id', $fase->fase_id);
+                    $fase_actual = Fase::findOrFail($fase->fase_id);
+                    $usuarios = [];
+                    if (key_exists('usuario_encargado_id', $request->toArray())) {
+                        $usuarios['usuario_encargado_id'] = Usuario::where('ci', $request->usuario_encargado_id)->get();
+                    }
+                    if (key_exists('usuario_evaluador_id', $request->toArray())) {
+                        $usuarios['usuario_evaluador_id'] = Usuario::where('ci', $request->usuario_evaluador_id)->get();
+                    }
+                    if ($cierre) {
+                        $cierre = $cierre->update($usuarios);
+                        if (!empty($cierre['usuario_evaluador_id']) && !empty($cierre['usuario_evaluador_id'])) {
+                            $fase_actual->update(['estado' => 'finalizada']);
+                        }
+                        $count_fases['fases_finalizadas'] = $count_fases['fases_finalizadas'] + 1;
+                    } else {
+                        $usuarios['fase_id'] = $fase->fase_id;
+                        VerificacionCierre::create($usuarios);
+                        $fase_actual->update(['estado' => 'pendiente']);
+                        $count_fases['fases_pendientes'] = $count_fases['fases_pendientes'] + 1;
+                    }
                 }
                 return response()->json([
-                    'message' => "Fases actualizadas exitosamente.",
-                    'data' => Fase::whereIn('id', array_column($fases, 'id'))->get(),
+                    'message' => "Verificacion de cierre de fases ejecutada con exito.",
+                    'data' => $count_fases,
                 ], 202);
             }
             return response()->json([

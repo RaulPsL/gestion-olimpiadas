@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('olimpistas')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EDA,EVA,ADM'])->prefix('olimpistas')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
     Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
     Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('olimpistas.store');
@@ -34,8 +34,9 @@ Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('usuarios')->group(f
     Route::delete('/{ci}', [App\Http\Controllers\UsuariosController::class, 'destroy']);
 });
 
-Route::middleware(['auth:sanctum', 'role:ADM,EDA,EVA'])->prefix('fases')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EDA,EVA,ADM'])->prefix('fases')->group(function () {
     Route::post('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
+    Route::post('/cierres', [App\Http\Controllers\FasesController::class, 'indexCierreFases'])->name('fases.cierres');
     Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
     Route::put('/', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');

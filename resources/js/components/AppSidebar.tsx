@@ -1,4 +1,5 @@
 import 'lucide-static/font/lucide.css';
+import '@tabler/icons-webfont/dist/tabler-icons.min.css';
 
 import {
     ChevronDown,

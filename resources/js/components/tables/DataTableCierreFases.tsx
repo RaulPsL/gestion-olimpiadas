@@ -37,8 +37,6 @@ import { Spinner } from "../ui/spinner";
 interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   columns: ColumnDef<TData, TValue>[],
   data: TData[],
-  fechaCalificacion: string,
-  fechaFin: string,
   handleSubmit: () => void,
   isLoading: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -47,14 +45,12 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   success: boolean,
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
   reset: UseFormReset<TFormValues>,
-  handleToggleEdicion: (edicion: boolean) => void
+  handleToggleEdicion: (edicion: boolean) => void,
 };
 
-export function DataTableCalificaciones<TData, TValue, TFormValues extends FieldValues>({
+export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldValues>({
   columns,
   data,
-  fechaCalificacion,
-  fechaFin,
   handleSubmit,
   isLoading,
   setIsLoading,
@@ -63,20 +59,17 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   success,
   setSuccess,
   reset,
-  handleToggleEdicion
+  handleToggleEdicion,
 }: DataTableProps<TData, TValue, TFormValues>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
-    nota_olimpista_id: false,
-    nota_fase_id: false,
-    edicion: false,
+    usuario_encargado_id: false,
+    usuario_evaluador_id: false,
+    fase_id: false,
   });
   const [openToEdition, setOpenToEdition] = React.useState<boolean>(false);
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
-  const currentDate = new Date();
-  const fin = new Date(fechaFin);
-  const calificacion = new Date(fechaCalificacion);
 
   const table = useReactTable({
     data,
@@ -106,12 +99,11 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
       }, 3000);
       return () => clearTimeout(timer);
     }
-    console.log('Datos de calificaciones: ', data);
+    console.log('Datos de cierres: ', data);
 
   }, [isLoading, dialogOpen]);
 
   const handleConfirmSave = () => {
-    console.log(`Datos guardandose, cargand: ${isLoading}, exito: ${success}, dialog abierto?: ${dialogOpen}`);
     setIsLoading(true);
     handleSubmit();
     if (success) {
@@ -131,35 +123,10 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Buscar por nombre del olimpista..."
-          value={(table.getColumn("nombre")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("nombre")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
         <DropdownMenu>
           <DropdownMenuTrigger className="ml-auto"/>
           
           <div className="flex flex-row content-between">
-            { (calificacion < fin && fin < currentDate) ? (
-                <Alert variant="destructive" className="items-center">
-                  <CircleAlert className="h-4 w-4" />
-                  <AlertDescription>
-                    Se termino la fase.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <Alert className="border-green-200 bg-green-50">
-                  <CircleAlert className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-700">
-                    Esperando avalacion
-                  </AlertDescription>
-                </Alert>
-              )
-            }
-
             { openToEdition ? 
               (<AlertDialog
                 open={dialogOpen}
@@ -262,9 +229,8 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                   setOpenToEdition(true)
                   handleToggleEdicion(true)
                 }}
-                // disabled={fin < currentDate && calificacion < fin}
               >
-                Calificar <NotebookPen />
+                Guardar <NotebookPen />
               </Button>)
             }
             {
@@ -282,8 +248,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
             }
           </div>
           <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
+            {table?.getAllColumns()
               .filter((column) => column.getCanHide())
               .map((column) => {
                 return (
@@ -323,8 +288,8 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {table?.getRowModel().rows?.length ? (
+              table?.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
@@ -345,7 +310,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No se encontraron resultados.
                 </TableCell>
               </TableRow>
             )}
