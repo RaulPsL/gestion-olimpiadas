@@ -21,29 +21,65 @@ import { useAuth } from "@/hooks/use-context";
 import { Button } from "./ui/button";
 import { generarListaPDF } from "@/pdfs/ListUsersPDF";
 import React from "react";
-import { getOlimpistas } from "@/api/Olimpistas";
+import { getOlimpistas, getReport, getStatistics } from "@/api/Olimpistas";
 import { Usuario } from "@/pdfs/interfaces/UsuarioPDF";
+import { generarExcelMultiplesHojas } from "@/pdfs/ListUsersXLS";
 
 export function SectionAccountingOlimpistas() {
 
   const { data } = useAuth();
-  const [olimpistas, setOlimpistas] = React.useState<any[]>();
+  const [olimpistas, setOlimpistas] = React.useState<any>();
+  const [statistics, setStatistics] = React.useState<any>();
 
+  // Arreglar useEffect - quitar olimpistas de las dependencias
   React.useEffect(() => {
     const staticData = async () => {
-      const result = await getOlimpistas();
-      setOlimpistas(result);
+      try {
+        const result = await getReport();
+        const statics = await getStatistics();
+        setOlimpistas(result);
+        setStatistics(statics);
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+      }
     }
     staticData();
-  }, []);
+  }, []); // Array vacío para que solo se ejecute una vez
+
+  const handleGenerarPDF = () => {
+    try {
+      generarListaPDF({
+        usuarios: olimpistas,
+        tipoPdf: 'todos los olimpistas',
+        olimpistas: true
+      });
+      console.log('PDF generado exitosamente');
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+    }
+  };
+
+  // Función handler para generar Excel
+  const handleGenerarExcel = () => {
+    try {
+      generarExcelMultiplesHojas({
+        usuarios: olimpistas,
+        tipoPdf: 'todos los olimpistas',
+        olimpistas: true
+      });
+      console.log('Excel generado exitosamente');
+    } catch (error) {
+      console.error('Error al generar Excel:', error);
+    }
+  };
 
   let datos = [
     {
       title: 'Total concursantes',
-      descripction: 250,
+      descripction: statistics?.total,
       badge: {
         icon: IconUsers,
-        content: 250,
+        content: statistics?.total,
       },
       footer: {
         description: 'Todos los concursantes que aun participan de todas las áreas.',
@@ -52,7 +88,11 @@ export function SectionAccountingOlimpistas() {
       options: [
         {
           title: "Generar en PDF",
-          action: "",
+          action: handleGenerarPDF, // Usar la función handler
+        },
+        {
+          title: "Generar en XLS",
+          action: handleGenerarExcel, // Usar la función handler
         }
       ],
     },
@@ -135,13 +175,14 @@ export function SectionAccountingOlimpistas() {
       options: [],
     },
   ];
-  // if (data?.rol.sigla === 'ADM') {
-  //   datos = [];
-  // }
+
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-      { datos?.map((dato) => (
-        <Card className="@container/card group relative cursor-pointer overflow-hidden duration-300 active:scale-95">
+      { datos?.map((dato, index) => (
+        <Card 
+          key={index}
+          className="@container/card group relative cursor-pointer overflow-hidden duration-300 active:scale-95"
+        >
           {/* Contenido original de la card */}
           <CardHeader>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
@@ -166,14 +207,16 @@ export function SectionAccountingOlimpistas() {
               data && dato?.options.length > 0 ? (
                 <>
                   {
-                    dato.options.map((option) => (
+                    dato.options.map((option, idx) => (
                       <Button 
+                        key={idx}
                         variant="ghost"
-                        onClick={
-                          () => generarListaPDF(olimpistas as Usuario[], '', 'todos los olimpistas', true)
-                        }
+                        onClick={option.action} // Llamar sin parámetros
+                        disabled={!olimpistas} // Deshabilitar si no hay datos
+                        className="text-white hover:bg-white/20"
                       >
                         { option.title }
+                        {!olimpistas && ' (Cargando...)'}
                       </Button>
                     ))
                   }

@@ -56,7 +56,7 @@ class Olimpista extends Model
         'estado' => EstadoOlimpista::class,
     ];
 
-    public function calificacion() { return $this->belongsTo(Calificacion::class); }
+    public function calificacion() { return $this->belongsTo(Calificacion::class, 'olimpista_id'); }
 
     public function areas() {
         return $this->belongsToMany(Area::class, 'olimpista_areas');

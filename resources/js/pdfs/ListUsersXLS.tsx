@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { Participante } from './interfaces/ParticipantePDF';
+import { Usuario } from './interfaces/UsuarioPDF';
 
 // Función para generar a CSV usando PapaParse
 export function generarCSV(
@@ -65,39 +66,28 @@ export function generarExcel(
 }
 
 // Función para generar múltiples hojas en Excel
-export function generarExcelMultiplesHojas(
-    participantes: Participante[],
-    area: string,
-): void {
+export function generarExcelMultiplesHojas({
+  usuarios,
+  area,
+  tipoPdf,
+  olimpistas,
+} : {
+  usuarios: any,
+  area?: string,
+  tipoPdf?: string,
+  olimpistas?: boolean,
+}): void {
   const workbook = XLSX.utils.book_new();
-
-  // Hoja 1: Todos los usuarios
-  const worksheet1 = XLSX.utils.json_to_sheet(participantes);
-  worksheet1['!cols'] = [
-    { wch: 5 }, { wch: 20 }, { wch: 25 }, { wch: 15 }, 
-    { wch: 15 }, { wch: 8 }, { wch: 10 }, { wch: 15 }
-  ];
-  XLSX.utils.book_append_sheet(workbook, worksheet1, 'Todos los Usuarios');
-
-  // Hoja 2: Solo usuarios activos
-  const participantesActivos = participantes.filter(u => u.activo);
-  const worksheet2 = XLSX.utils.json_to_sheet(participantesActivos);
-  worksheet2['!cols'] = [
-    { wch: 5 }, { wch: 20 }, { wch: 25 }, { wch: 15 }, 
-    { wch: 15 }, { wch: 8 }, { wch: 10 }, { wch: 15 }
-  ];
-  XLSX.utils.book_append_sheet(workbook, worksheet2, 'Usuarios Activos');
-
-  // Hoja 3: Estadísticas
-  const estadisticas = [
-    { Métrica: 'Total Usuarios', Valor: participantes.length },
-    { Métrica: 'Usuarios Activos', Valor: participantesActivos.length },
-    { Métrica: 'Usuarios Inactivos', Valor: participantes.filter(u => !u.activo).length },
-    { Métrica: 'Edad Promedio', Valor: Math.round(participantes.reduce((sum, u) => sum + u.edad, 0) / participantes.length) }
-  ];
-  const worksheet3 = XLSX.utils.json_to_sheet(estadisticas);
-  worksheet3['!cols'] = [{ wch: 20 }, { wch: 15 }];
-  XLSX.utils.book_append_sheet(workbook, worksheet3, 'Estadísticas');
+  console.log('usuarios', usuarios)
+  Object.keys(usuarios).map((key) => {
+    const worksheet1 = XLSX.utils.json_to_sheet(usuarios[key]);
+    worksheet1['!cols'] = [
+      { wch: 5 }, { wch: 20 }, { wch: 25 }, { wch: 15 }, 
+      { wch: 15 }, { wch: 8 }, { wch: 10 }, { wch: 15 },
+      { wch: 15 }, { wch: 8 }, { wch: 10 }, { wch: 15 }
+    ];
+    XLSX.utils.book_append_sheet(workbook, worksheet1, key);
+  });
 
   // Exportar el archivo
   XLSX.writeFile(workbook, `reporte_estado_de_participantes_${Date.now()}.xlsx`);

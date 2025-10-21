@@ -171,6 +171,89 @@ export const createColumnsCalificaciones = (
     cell: ({ row }) => {
       const nota = Number(row.original.nota).toFixed(2);
       const estadoEdicion = row.getValue("edicion") as boolean;
+
+      const handleNotaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = Number(e.target.value);
+
+        // Restringir el valor entre 0 y 100
+        if (value > 100) {
+          value = 100;
+          e.target.value = "100";
+        } else if (value < 0) {
+          value = 0;
+          e.target.value = "0";
+        }
+
+        row.original.nota = value;
+      };
+
+      const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const allowedControlKeys = [
+        "Backspace", "Delete", "Tab", "Escape", "Enter",
+        "ArrowLeft", "ArrowRight"
+      ];
+
+      // Permitir teclas de control o atajos
+      if (
+        allowedControlKeys.includes(e.key) ||
+        (e.ctrlKey && ["a", "c", "v", "x", "A", "C", "V", "X"].includes(e.key))
+      ) {
+        return;
+      }
+
+      const input = e.target as HTMLInputElement;
+      const selectionStart = input.selectionStart ?? 0;
+      const selectionEnd = input.selectionEnd ?? 0;
+      const currentValue = input.value;
+      const key = e.key;
+
+      // Solo permitir dígitos y punto decimal
+      if (!/[\d.]/.test(key)) {
+        e.preventDefault();
+        return;
+      }
+
+      // Construir el nuevo valor
+      const newValue =
+        currentValue.substring(0, selectionStart) +
+        key +
+        currentValue.substring(selectionEnd);
+
+      // 1️⃣ Evitar ceros a la izquierda innecesarios
+      if (/^0\d+/.test(newValue)) {
+        e.preventDefault();
+        return;
+      }
+
+      // 2️⃣ Evitar más de un punto decimal
+      if ((newValue.match(/\./g) || []).length > 1) {
+        e.preventDefault();
+        return;
+      }
+
+      // 3️⃣ Evitar valores mayores a 100
+      const numericValue = Number(newValue);
+      if (!isNaN(numericValue) && numericValue > 100) {
+        e.preventDefault();
+      }
+    };
+
+
+      const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        let value = Number(e.target.value);
+
+        // Validar al perder el foco
+        if (value > 100) {
+          value = 100;
+        } else if (value < 0 || isNaN(value)) {
+          value = 0;
+        }
+
+        // Formatear a 2 decimales
+        e.target.value = value.toFixed(2);
+        row.original.nota = value;
+      };
+
       return (
         <Input
           type="number"
@@ -178,15 +261,19 @@ export const createColumnsCalificaciones = (
           defaultValue={nota}
           readOnly={!estadoEdicion}
           disabled={!estadoEdicion}
-          max={100.00}
-          min={0.00}
-          { ...register(`notas.${row.index}.nota`, { valueAsNumber: true }) }
-          onChange={(e) => {
-            row.original.nota = Number(e.target.value);
-          }}
+          max={100.0}
+          min={0.0}
+          {...register(`notas.${row.index}.nota`, {
+            valueAsNumber: true,
+            min: 0,
+            max: 100,
+          })}
+          onChange={handleNotaChange}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
         />
-      )
-    }
+      );
+    },
   },
   {
     accessorKey: "comentarios",

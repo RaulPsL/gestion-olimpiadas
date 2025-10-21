@@ -1,9 +1,9 @@
 export interface Participante {
-  nombre: string,
+  nombreParticipante: string,
   puesto: string,
   nivel: string,
   nota: number,
-  tutor_academico: string,
+  nombreTutor: string,
   nombreEncargado: string,
   colegio: string,
   departamento: string,

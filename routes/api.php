@@ -63,6 +63,10 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('calificaciones')->g
 Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('logs')->group(function () {
     Route::post('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
     Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
+    Route::get('/statistics', [App\Http\Controllers\LogController::class, 'statistics']);
+    Route::get('/report/olimpistas', [App\Http\Controllers\LogController::class, 'olimpistas']);
+    Route::get('/report/usuarios', [App\Http\Controllers\LogController::class, 'usuarios']);
+    // Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
 });
 
 Route::prefix('clasificaciones')->group(function () {

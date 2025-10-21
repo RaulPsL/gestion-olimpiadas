@@ -8,6 +8,18 @@ export const getOlimpistas = async () => {
     return data.data;
 };
 
+export const getStatistics = async () => {
+    const { data } = await axiosPrivate.get("/logs/statistics");
+    console.log(`Datos obtenidos: `, data.data);
+    return data.data;
+};
+
+export const getReport = async () => {
+    const { data } = await axiosPrivate.get("/logs/report/olimpistas");
+    console.log(`Datos obtenidos: `, data.data);
+    return data.data;
+};
+
 export const getStaticData = async ():Promise<StaticDataOlimpistas> => {
     const { data } = await axiosPrivate.get("/olimpistas/static");
     return {
