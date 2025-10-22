@@ -52,7 +52,7 @@ class Usuario extends Authenticatable
 
     public function hasAnyRol(array $roles) { return $this->roles()->whereIn('sigla', $roles)->exists(); }
 
-    public function rol() { return $this->belongsTo(Rol::class); }
+    public function primerRol() { return $this->roles()->first(); }
 
     public function areas() { return $this->belongsToMany(Area::class, 'usuario_areas'); }
 

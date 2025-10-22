@@ -1,4 +1,3 @@
-import { BookUser } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -8,6 +7,7 @@ import React from "react";
 import { getCalificacionesOlimpistas } from "@/api/Calificaciones";
 import TableCalificaciones from "@/tables/TablaCalificaciones";
 import { useAuth } from "@/hooks/use-context";
+import { ListChecksIcon } from "lucide-react";
 
 export default function PageCalificaciones() {
     const [calificaciones, setCalificaciones] = React.useState<any>();
@@ -18,18 +18,18 @@ export default function PageCalificaciones() {
     React.useEffect(() => {
         const staticData = async () => {
             const response = await getCalificacionesOlimpistas(areasCalificacionUsuario as string[]);
-                setCalificaciones(response);
-            };
+            setCalificaciones(response);
+        };
         staticData();
     }, []);
-    
+
     React.useEffect(() => {
         console.log(calificaciones);
         if (calificaciones) {
             setKeys(Object.keys(calificaciones));
         }
     }, [calificaciones]);
-    
+
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -37,17 +37,17 @@ export default function PageCalificaciones() {
                 <Header />
                 <div className="container mx-auto px-4">
                     <div id="headerTablaClasificaciones" className="flex w-full flex-row gap-6 p-4 items-center">
-                        <BookUser />
+                        <ListChecksIcon />
                         <Label className="text-2xl">Calificaciones por area</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue={ areasCalificacionUsuario?.[0] }>
+                        <Tabs defaultValue={areasCalificacionUsuario?.[0]}>
                             <TabsList>
-                                { areasCalificacionUsuario?.map((key) => (
+                                {areasCalificacionUsuario?.map((key) => (
                                     <TabsTrigger value={key} key={key}>{key}</TabsTrigger>
                                 ))}
                             </TabsList>
-                            { keys?.map((key) => (
+                            {keys?.map((key) => (
                                 <TabsContent value={key} key={key}>
                                     <div className="flex w-full flex-row gap-6 p-4 justify-center">
                                         <TableCalificaciones calificaciones={calificaciones[key]} />

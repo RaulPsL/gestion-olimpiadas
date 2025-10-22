@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('calificaciones')->g
     Route::put('/grupos', [App\Http\Controllers\CalificacionesController::class, 'updateGrupos']);
 });
 
-Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('logs')->group(function () {
+Route::prefix('logs')->group(function () {
     Route::post('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
     Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
     Route::get('/statistics', [App\Http\Controllers\LogController::class, 'statistics']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Fase;
 use App\Models\Log;
 use App\Models\Olimpista;
+use App\Models\Usuario;
 use App\Models\VerificacionCierre;
 use Illuminate\Http\Request;
 
@@ -83,14 +84,39 @@ class LogController extends Controller
     public function statistics() {
         try {
             $olimpistas = Olimpista::all();
+            $usuarios = Usuario::with(['roles'])->get()->map(function ($usuario) {
+                $rol = $usuario->roles->first();
+                return [
+                    'nombre' => $usuario->nombre,
+                    'apellido' => $usuario->apellido,
+                    'email' => $usuario->email,
+                    'celular' => $usuario->celular,
+                    'ci' => $usuario->ci,
+                    'rol' => $rol?->nombre,
+                ];
+            });
             $olimpistasByEstado = $olimpistas->groupBy('estado');
+            $usuariosByRol = $usuarios->groupBy('rol');
+            $datosEstadisticos = [
+                'totalOlimpistas' => $olimpistas->count(),
+                'clasificados' => 0,
+                'desclasificados' => 0,
+                'no clasificados' => 0,
+                'totalUsuarios' => $usuarios->count(),
+                'encargados' => collect($usuariosByRol['Encargado de Área'])->count(),
+                'evaluadores' => collect($usuariosByRol['Evaluador'])->count(),
+            ];
+            if (key_exists('clasificado', $olimpistasByEstado->toArray())) {
+                $datosEstadisticos['clasificados'] = $olimpistasByEstado['clasificado']->count();
+            }
+            if (key_exists('no clasificado', $olimpistasByEstado->toArray())) {
+                $datosEstadisticos['desclasificados'] = $olimpistasByEstado['desclasificado']->count();
+            }
+            if (key_exists('desclasificado', $olimpistasByEstado->toArray())) {
+                $datosEstadisticos['no clasificados'] = $olimpistasByEstado['no clasificado']->count();
+            }
             return response()->json([
-                'data' => [
-                    'total' => $olimpistas->count(),
-                    'clasificados' => $olimpistasByEstado['clasificado']->count(),
-                    'desclasificados' => $olimpistasByEstado['desclasificado']->count(),
-                    'no clasificados' => $olimpistasByEstado['no clasificado']->count(),
-                ],
+                'data' => $datosEstadisticos,
                 'message' => 'Log de fases obtenidas con exito.',
             ], 200);
         } catch (\Throwable $th) {
@@ -102,12 +128,11 @@ class LogController extends Controller
 
     public function olimpistas() {
         try {
-            $fases = Fase::with([
+            $olimpistas = Fase::with([
                 'olimpistas.colegio',
                 'olimpistas.tutores_academicos',
                 'area.usuarios.roles'
-            ])->get();
-            $olimpistas = collect($fases)->flatMap(function ($fase) {
+            ])->get()->flatMap(function ($fase) {
                 $area = $fase->area;
                 return collect($fase->olimpistas)->map(function ($olimpista) use ($area) {
                     $tutor_academico = $olimpista->tutores_academicos->first();
@@ -132,8 +157,26 @@ class LogController extends Controller
                 return $olimpista;
             })->groupBy('estado');
 
+            $usuarios = Usuario::with(['roles'])->get()->map(function ($usuario) {
+                $rol = $usuario->roles->first();
+                return [
+                    'nombre' => $usuario->nombre,
+                    'apellido' => $usuario->apellido,
+                    'email' => $usuario->email,
+                    'celular' => $usuario->celular,
+                    'ci' => $usuario->ci,
+                    'rol' => $rol?->nombre,
+                ];
+            })->groupBy('rol');
+
             return response()->json([
-                'data' => $olimpistas,
+                'data' => [
+                    'olimpistas' => $olimpistas,
+                    'usuarios' => [
+                        'encargados' => $usuarios['Encargado de Área'],
+                        'evaluadores' => $usuarios['Evaluador'],
+                    ],
+                ],
                 'message' => 'Log de fases obtenidas con exito.',
             ], 200);
         } catch (\Throwable $th) {

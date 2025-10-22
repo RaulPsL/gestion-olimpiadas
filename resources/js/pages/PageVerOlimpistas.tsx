@@ -29,7 +29,7 @@ export default function PageVerOlimpistas() {
                 <div className="container mx-auto px-4">
                     <div className="flex w-full flex-row gap-6 p-4 items-center">
                         <BookUser />
-                        <Label className="text-2xl">Visualizar usuarios</Label>
+                        <Label className="text-2xl">Visualizar olimpistas</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
                         <Tabs defaultValue="olimpistas">
