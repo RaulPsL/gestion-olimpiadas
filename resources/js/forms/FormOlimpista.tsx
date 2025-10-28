@@ -23,6 +23,7 @@ export default function FormOlimpista() {
     const [grados, setGrados] = React.useState<any[]>();
     const [niveles, setNiveles] = React.useState<any[]>();
     const [departamentos, setDepartamentos] = React.useState<any[]>();
+    const [provincias, setProvincias] = React.useState<any[]>();
     
     React.useEffect(() => {
         const staticData = async () => {
@@ -31,6 +32,7 @@ export default function FormOlimpista() {
             setGrados(staticData.grados);
             setNiveles(staticData.niveles);
             setDepartamentos(staticData.departamentos);
+            setProvincias(staticData.provincias);
         };
         staticData();
     }, []);

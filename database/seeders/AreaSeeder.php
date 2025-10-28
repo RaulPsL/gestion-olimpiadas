@@ -2,30 +2,57 @@
 
 namespace Database\Seeders;
 
-use App\Models\Area;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AreaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * @return void
      */
-    public function run(): void
+    public function run()
     {
         $areas = [
-            ['id' => 1, 'nombre' => 'Robótica', 'sigla' => 'ROB', 'descripcion' => 'Área de robótica aplicada', 'nivel' => 'primaria'],
-            ['id' => 2, 'nombre' => 'Matemáticas', 'sigla' => 'MAT', 'descripcion' => 'Resolución de problemas matemáticos', 'nivel' => 'primaria'],
-            ['id' => 3, 'nombre' => 'Física', 'sigla' => 'FIS', 'descripcion' => 'Experimentos y teoría física', 'nivel' => 'secundaria'],
-            ['id' => 4, 'nombre' => 'Química', 'sigla' => 'QUI', 'descripcion' => 'Laboratorio y teoría química', 'nivel' => 'secundaria'],
-            ['id' => 5, 'nombre' => 'Biología', 'sigla' => 'BIO', 'descripcion' => 'Estudios de la vida y organismos', 'nivel' => 'secundaria'],
-            ['id' => 6, 'nombre' => 'Informática', 'sigla' => 'INF', 'descripcion' => 'Programación y algoritmos', 'nivel' => 'primaria'],
-            ['id' => 7, 'nombre' => 'Astronomía', 'sigla' => 'AST', 'descripcion' => 'Estudio de cuerpos celestes', 'nivel' => 'secundaria'],
-            ['id' => 8, 'nombre' => 'Electrónica', 'sigla' => 'ELE', 'descripcion' => 'Circuitos y sistemas electrónicos', 'nivel' => 'primaria'],
+            [
+                'nombre' => 'ASTRONOMÍA - ASTROFÍSICA',
+                'sigla' => 'AST',
+                'descripcion' => 'Área de astronomía y astrofísica enfocada en el estudio del universo, los cuerpos celestes y fenómenos astronómicos.',
+            ],
+            [
+                'nombre' => 'BIOLOGÍA',
+                'sigla' => 'BIO',
+                'descripcion' => 'Área de biología dedicada al estudio de los seres vivos, su estructura, función, evolución y relaciones.',
+            ],
+            [
+                'nombre' => 'FÍSICA',
+                'sigla' => 'FIS',
+                'descripcion' => 'Área de física enfocada en el estudio de la materia, energía y sus interacciones en el universo.',
+            ],
+            [
+                'nombre' => 'INFORMÁTICA',
+                'sigla' => 'INF',
+                'descripcion' => 'Área de informática centrada en programación, algoritmos y resolución de problemas computacionales.',
+            ],
+            [
+                'nombre' => 'MATEMÁTICAS',
+                'sigla' => 'MAT',
+                'descripcion' => 'Área de matemáticas dedicada al estudio de números, estructuras, patrones y resolución de problemas lógicos.',
+            ],
+            [
+                'nombre' => 'QUÍMICA',
+                'sigla' => 'QUI',
+                'descripcion' => 'Área de química enfocada en el estudio de la composición, estructura y propiedades de la materia.',
+            ],
+            [
+                'nombre' => 'ROBÓTICA',
+                'sigla' => 'ROB',
+                'descripcion' => 'Área de robótica dedicada al diseño, construcción y programación de robots y sistemas automatizados.',
+            ],
+            ['nombre' => 'Electrónica', 'sigla' => 'ELE', 'descripcion' => 'Circuitos y sistemas electrónicos'],
         ];
 
-        foreach ($areas as $area) {
-            Area::create($area);
-        }
+        DB::table('areas')->insert($areas);
     }
 }

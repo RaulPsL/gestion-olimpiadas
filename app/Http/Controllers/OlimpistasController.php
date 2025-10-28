@@ -5,15 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Colegio;
 use App\Models\Fase;
+use App\Models\Grupo;
+use App\Models\Nivel;
 use App\Models\Olimpista;
-use App\Models\Traits\Casts\Departamento;
-use App\Models\Traits\Casts\GradoOlimpista;
-use App\Models\Traits\Casts\NivelArea;
 use App\Models\Tutor;
-use App\Models\TutorAcademico;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class OlimpistasController extends Controller
@@ -47,29 +45,22 @@ class OlimpistasController extends Controller
             // });
             $fases = Fase::select(['id', 'sigla', 'area_id'])
                 ->with([
-                    'olimpistas.tutor',
-                    'olimpistas.tutores_academicos',
-                    'olimpistas.colegio',
+                    'olimpistas.tutores',
+                    'olimpistas.colegio.departamento->provincia',
                     'area:id,nombre'])->get();
             $listaFiltrada = collect($fases)->map(function ($fase) {
                 return collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
-                    $tutores_academicos = '';
-                    if (count($olimpista->tutores_academicos) > 0) {
-                        $list_tutores = [];
-                        foreach ($olimpista->tutores_academicos as $value) {
-                            $list_tutores[] = "$value->nombre $value->apellidos";
-                        };
-                        $tutores_academicos = implode(', ', array_unique($list_tutores));
-                    }
+                    $tutor = $olimpista->tutores->map(function ($tutor) { return "$tutor->nombre $tutor->apellido";});
                     return [
                         'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
                         'ci' => $olimpista->ci,
                         'colegio' => $olimpista->colegio->nombre,
-                        'departamento' => $olimpista->colegio->departamento,
-                        'tutor' => $olimpista->tutor->nombre,
-                        'tutor_academico' => $tutores_academicos,
+                        'departamento' => $olimpista->colegio->provincia->departamento->nombre,
+                        'provincia' => $olimpista->colegio->provincia->nombre,
+                        'tutor' => $tutor->join(','),
                         'area' => $fase->area->nombre,
                         'fase' => $fase->sigla,
+                        'nivel' => $fase->nivel->nombre,
                     ];
                 });
             });
@@ -80,6 +71,42 @@ class OlimpistasController extends Controller
             return response()->json([
                 'message' => "Olimpistas obtenidos exitosamente.",
                 'data' => $nuevaLista,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener los olimpistas.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function indexGrupos()
+    {
+        try {
+            $grupos = Grupo::with([
+                    'olimpistas',
+                    'colegio',
+                    'fases.area'])->get();
+            // $listaFiltrada = collect($grupos)->map(function ($grupo) {
+            //     return collect($grupo->olimpistas)->map(function ($olimpista) use ($grupo) {
+            //         return [
+            //             'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+            //             'ci' => $olimpista->ci,
+            //             'colegio' => $olimpista->colegio->nombre,
+            //             'departamento' => $olimpista->colegio->departamento,
+            //             'tutor' => $olimpista->tutor->nombre,
+            //             'area' => $grupo->area->nombre,
+            //             'grupo' => $grupo->sigla,
+            //         ];
+            //     });
+            // });
+            // $nuevaLista = [];
+            // foreach ($listaFiltrada as $value) {
+            //     $nuevaLista = array_merge($nuevaLista, $value->toArray());
+            // }
+            return response()->json([
+                'message' => "Grupos obtenidos exitosamente.",
+                'data' => $grupos,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -104,31 +131,41 @@ class OlimpistasController extends Controller
                     'label' => $area->nombre,
                 ];
             });
-            $departamentos = collect(Departamento::cases())->map(function ($departamento, $index) {
+            $departamentos = DB::table('departamentos')->map(function ($departamento, $index) {
                 return [
                     'id' => $index+1,
-                    'value' => $departamento->value,
-                    'label' => $departamento->value,
+                    'value' => $departamento->id,
+                    'label' => $departamento->nombre,
                 ];
             });
-            $grados = collect(GradoOlimpista::cases())->map(function ($grado, $index) {
+            $provincias = DB::table('provincias')->map(function ($provincia, $index) {
                 return [
                     'id' => $index+1,
-                    'value' => $grado->value,
-                    'label' => $grado->name,
+                    'departamento_id' => $provincia->departamento_id,
+                    'value' => $provincia->id,
+                    'label' => $provincia->nombre,
                 ];
             });
-            $niveles = collect(NivelArea::cases())->map(function ($area, $index) {
+
+            $grados = DB::table('grados')->map(function ($grado, $index) {
                 return [
                     'id' => $index+1,
-                    'value' => $area->value,
-                    'label' => $area->name,
+                    'value' => $grado->id,
+                    'label' => $grado->nombre,
+                ];
+            });
+            $niveles = DB::table('nivels')->map(function ($area, $index) {
+                return [
+                    'id' => $index+1,
+                    'value' => $area->id,
+                    'label' => $area->nombre,
                 ];
             });
             return response()->json([
                 'data' => [
                     'areas' => $areas,
                     'departamentos' => $departamentos,
+                    'provincias' => $provincias,
                     'grados' => $grados,
                     'niveles' => $niveles,
                 ],
@@ -185,23 +222,16 @@ class OlimpistasController extends Controller
                     'departamento' => $request->colegio['departamento_colegio'],]);
             }
 
-            $tutor = Tutor::where('nombre', $request->tutor['nombre_tutor'])->first();
-            if (!$tutor) {
-                $tutor = Tutor::create([
-                    'nombre' => $request->tutor['nombre_tutor'],
-                    'referencia' => $request->tutor['referencia_tutor'],]);
-            }
-
             $new_olimpista = Olimpista::create([
                 'nombres' => $request->nombres,
                 'apellido_paterno' => $request->apellido_paterno,
                 'apellido_materno' => $request->apellido_materno,
                 'ci' => $request->ci,
+                'email' => $request->email,
                 'celular' => $request->celular,
-                'grado_escolar' => $request->grado_escolar,
-                'nivel_competencia'=> $request->nivel_competencia,
+                'grado_id' => $request->grado_id,
                 'colegio_id' => $colegio->id,
-                'tutor_id' => $tutor->id,]);
+            ]);
 
             if ($request->has('areas') and count($request->areas) > 0) {
                 $areas = Area::whereIn('sigla', $request->areas)->with('fases')->get();
@@ -216,17 +246,17 @@ class OlimpistasController extends Controller
                 }
             }
 
-            if ($request->has('tutor_academico')) {
-                $tutor_academico = TutorAcademico::where('ci', $request->tutor_academico['ci_tutor_academico'])->first();
-                if (!$tutor_academico) {
-                    $tutor_academico = TutorAcademico::create([
-                        'nombre' => $request->tutor_academico['nombre'],
-                        'apellidos' => $request->tutor_academico['apellidos'],
-                        'celular' => $request->tutor_academico['celular'],
-                        'email' => $request->tutor_academico['email'],
-                        'ci' => $request->tutor_academico['ci']]);
+            if ($request->has('tutor')) {
+                $tutor = Tutor::where('ci', $request->tutor['ci_tutor'])->first();
+                if (!$tutor) {
+                    $tutor = Tutor::create([
+                        'nombre' => $request->tutor['nombre'],
+                        'apellidos' => $request->tutor['apellidos'],
+                        'celular' => $request->tutor['celular'],
+                        'email' => $request->tutor['email'],
+                        'ci' => $request->tutor['ci']]);
                 }
-                $new_olimpista->tutores_academicos()->attach($tutor_academico->id);
+                $new_olimpista->tutores_academicos()->attach($tutor->id);
             }
 
             $new_olimpista = Olimpista::with([
@@ -297,14 +327,14 @@ class OlimpistasController extends Controller
             }
 
             $insertData = [];
-            $tutor_academico = TutorAcademico::where('ci', $request->tutor_academico['ci_tutor_academico'])->first();
-            if (!$tutor_academico) {
-                $tutor_academico = TutorAcademico::create([
-                    'nombre' => $request->tutor_academico['nombre_tutor_academico'],
-                    'apellidos' => $request->tutor_academico['apellidos_tutor_academico'],
-                    'celular' => $request->tutor_academico['celular_tutor_academico'],
-                    'email' => $request->tutor_academico['email_tutor_academico'],
-                    'ci' => $request->tutor_academico['ci_tutor_academico']
+            $tutor = Tutor::where('ci', $request->tutor['ci_tutor'])->first();
+            if (!$tutor) {
+                $tutor = Tutor::create([
+                    'nombre' => $request->tutor['nombre_tutor'],
+                    'apellidos' => $request->tutor['apellidos_tutor'],
+                    'celular' => $request->tutor['celular_tutor'],
+                    'email' => $request->tutor['email_tutor'],
+                    'ci' => $request->tutor['ci_tutor']
                 ]);
             }
 
@@ -323,17 +353,20 @@ class OlimpistasController extends Controller
                     continue;
                 }
 
-                $tutor = null;
-                if (!empty($dato['nombre_tutor'] ?? null) and !empty($dato['referencia_tutor'] ?? null)) {
-                    $tutor = Tutor::where('nombre', $dato['nombre_tutor'])->first();
-                    if (!$tutor) {
-                        $tutor = Tutor::create([
+                $otroTutor = null;
+                if (empty($dato['nombres_tutor'] ?? null) || empty($dato['ci_tutor'] ?? null)) {
+                    $otroTutor = Tutor::where('ci', $dato['ci_tutor'])->first();
+                    if (!$otroTutor) {
+                        $otroTutor = Tutor::create([
                             'nombre' => $dato['nombre_tutor'],
-                            'referencia' => $dato['referencia_tutor'],
+                            'apellidos' => $dato['apellidos_tutor'],
+                            'celular' => $dato['celular_tutor'],
+                            'email' => $dato['email_tutor'],
+                            'ci' => $dato['ci_tutor']
                         ]);
                     }
                 }
-                
+
                 $olimpista = Olimpista::where('ci', $dato['ci'])->first();
                 if (!$olimpista) {
                     $olimpista = Olimpista::create([
@@ -341,16 +374,17 @@ class OlimpistasController extends Controller
                         'apellido_paterno' => $dato['apellido_paterno'],
                         'apellido_materno' => $dato['apellido_materno'],
                         'ci' => $dato['ci'],
+                        'email' => $dato['email'],
                         'celular' => $dato['celular'],
-                        'grado_escolar' => $dato['grado_escolar'],
-                        'nivel_competencia' => $dato['nivel_competencia'],
+                        'grado_id' => $dato['grado_escolar'],
                         'colegio_id' => $colegio->id,
-                        'tutor_id' => $tutor->id
                     ]);
                     $insertData[] = $olimpista;
                 }
 
-                $olimpista->tutores_academicos()->attach($tutor_academico->id);
+                $olimpista->tutores_academicos()->attach($tutor->id);
+
+                if ($otroTutor) $olimpista->tutores_academicos()->attach($otroTutor->id);
 
                 if (!empty($dato['areas'] ?? null)) {
                     $areas = Area::whereIn('sigla', explode(',', $dato['areas']))->with('fases')->get();

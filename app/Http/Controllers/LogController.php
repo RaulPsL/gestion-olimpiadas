@@ -129,25 +129,28 @@ class LogController extends Controller
     public function olimpistas() {
         try {
             $olimpistas = Fase::with([
-                'olimpistas.colegio',
-                'olimpistas.tutores_academicos',
+                'olimpistas.colegio.departamento.provincia',
+                'olimpistas.tutor',
                 'area.usuarios.roles'
             ])->get()->flatMap(function ($fase) {
                 $area = $fase->area;
-                return collect($fase->olimpistas)->map(function ($olimpista) use ($area) {
-                    $tutor_academico = $olimpista->tutores_academicos->first();
+                return collect($fase->olimpistas)->map(function ($olimpista) use ($area, $fase) {
+                    $tutor_academico = $olimpista->tutor->first();
                     $encargado = $area->usuarios->first();
                     $nombreTutor = !empty($tutor_academico) ? "$tutor_academico->nombre $tutor_academico->apellidos" : "";
                     $nombreEncargado = "$encargado->nombre $encargado->apellido";
                     return [
-                        'nombreParticipante' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+                        'nombreParticipante' => "$olimpista->nombres",
+                        'apellidoParticipante' => "$olimpista->apellido_paterno $olimpista->apellido_materno",
                         'estado' => $olimpista->estado,
-                        'nivel' => $area->nivel,
+                        'nivel' => $fase->nivel,
                         'nota' => $olimpista->pivot->puntaje,
+                        'area' => $area->nombre,
                         'nombreTutor' => $nombreTutor,
                         'nombreEncargado' => $nombreEncargado,
                         'colegio' => $olimpista->colegio->nombre,
-                        'departamento' => $olimpista->colegio->departamento,
+                        'departamento' => $olimpista->colegio->provincia->departamento->nombre,
+                        'provincia' => $olimpista->colegio->provincia->nombre,
                     ];
                 });
             })->sortByDesc('nota');

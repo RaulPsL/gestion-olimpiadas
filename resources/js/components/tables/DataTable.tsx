@@ -23,7 +23,8 @@ import React from "react";
 import { Input } from "../ui/input";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ZoomIn, ZoomOut } from "lucide-react";
+import { Combobox } from "../Combobox";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[],
@@ -31,18 +32,39 @@ interface DataTableProps<TData, TValue> {
   fieldSearch?: string,
 };
 
+const nivelesItems = [
+  {
+    id: "todos",
+    value: "todos",
+    label: "Todos los niveles",
+  },
+  {
+    id: "primaria",
+    value: "primaria",
+    label: "Primaria",
+  },
+  {
+    id: "secundaria",
+    value: "secundaria",
+    label: "Secundaria",
+  },
+];
+
 export function DataTable<TData, TValue>({
   columns,
   data,
   fieldSearch,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  )
+  );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [openSearch, setOpenSearch] = React.useState<boolean>(false);
+  const [selectedNivel, setSelectedNivel] = React.useState<(string | number)[]>([]);
+
   const table = useReactTable({
     data,
     columns,
@@ -61,19 +83,65 @@ export function DataTable<TData, TValue>({
       rowSelection,
     },
   })
+
+  const handleNivelChange = (values: (string | number)[]) => {
+    setSelectedNivel(values);
+
+    // Si selecciona "todos" o no hay selección, limpiar el filtro
+    if (values.length === 0 || values.includes("todos")) {
+      table.getColumn("nivel")?.setFilterValue("");
+      setSelectedNivel([]);
+    } else {
+      // Si hay un valor seleccionado, aplicar el filtro
+      table.getColumn("nivel")?.setFilterValue(values[0]);
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         {
-          fieldSearch && (
-            <Input
-              placeholder="Buscar por nombre..."
-              value={(table?.getColumn(fieldSearch)?.getFilterValue() as string) ?? ""}
-              onChange={(event) =>
-                table?.getColumn(fieldSearch)?.setFilterValue(event.target.value)
-              }
-              className="max-w-sm"
-            />
+          (fieldSearch && !openSearch) && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setOpenSearch(true)}
+              >
+                <ZoomIn />
+              </Button>
+
+              {/* Combobox para filtrar por nivel */}
+              <Combobox
+                items={nivelesItems}
+                value={selectedNivel}
+                onChange={handleNivelChange}
+                placeholder="Filtrar por nivel..."
+                searchPlaceholder="Buscar nivel..."
+                emptyMessage="No se encontró el nivel."
+                multiple={false}
+                className="w-[200px]"
+              />
+            </>
+          )
+        }
+        {
+          (fieldSearch && openSearch) && (
+            <>
+              <Input
+                placeholder={`Buscar por ${fieldSearch}...`}
+                value={(table.getColumn(fieldSearch)?.getFilterValue() as string) ?? ""}
+                onChange={(event) =>
+                  table.getColumn(fieldSearch)?.setFilterValue(event.target.value)
+                }
+                className="max-w-sm"
+              />
+              <Button
+                variant="outline"
+                onClick={() => setOpenSearch(false)}
+              >
+                <ZoomOut />
+              </Button>
+            </>
           )
         }
         <DropdownMenu>
@@ -103,28 +171,28 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
       <div className="w-full overflow-hidden rounded-md border">
-        <Table  className="w-full">
+        <Table>
           <TableHeader>
-            {table?.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="text-center">
+                    <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   )
                 })}
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="w-full">
-            {table?.getRowModel().rows?.length ? (
-              table?.getRowModel().rows.map((row) => (
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
@@ -145,7 +213,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Sin resultados aun.
+                  No results.
                 </TableCell>
               </TableRow>
             )}

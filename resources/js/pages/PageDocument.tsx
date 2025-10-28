@@ -28,10 +28,15 @@ export default function PageGenerarDocs() {
     React.useEffect(() => {
         const staticData = async () => {
             try {
-                const [statistics, reports] = await Promise.all([
+                let requests = [
                     getStatistics(),
-                    getReport()
-                ]);
+                ];
+                if (data) {
+                    requests.push(getReport());
+                }
+                const [statistics, reports] = await Promise.all(
+                    requests
+                );
 
                 setUsuarios(reports?.usuarios || []);
                 setOlimpistas(reports?.olimpistas || []);
@@ -70,7 +75,8 @@ export default function PageGenerarDocs() {
                         description: 'Todos los concursantes que aun participan de todas las áreas.',
                         icon: TrendingUpDown,
                     },
-                    options: [
+                    options: data ? 
+                    [
                         {
                             title: "Generar en PDF",
                             action: () => generarListaPDF({
@@ -83,7 +89,7 @@ export default function PageGenerarDocs() {
                             title: "Generar en XLS",
                             action: () => generarExcelMultiplesHojas(olimpistas, 'olimpistas'),
                         }
-                    ],
+                    ] : [],
                 },
                 {
                     title: 'Concursantes clasificados',
@@ -96,7 +102,8 @@ export default function PageGenerarDocs() {
                         description: 'Concursantes que pasaron a la siguiente fase en general.',
                         icon: IconTrendingUp,
                     },
-                    options: [
+                    options: data ? 
+                    [
                         {
                             title: "Generar en PDF",
                             action: () => generarListaPDF({
@@ -109,7 +116,7 @@ export default function PageGenerarDocs() {
                             title: "Generar en XLS",
                             action: () => generarExcel(olimpistas.clasificados, 'clasificados'),
                         }
-                    ],
+                    ] : [],
                 },
                 {
                     title: 'Concursantes no clasificados',
@@ -122,7 +129,8 @@ export default function PageGenerarDocs() {
                         description: 'Concursantes que no pasaron a la siguiente fase en general.',
                         icon: IconTrendingDown,
                     },
-                    options: [
+                    options: data ? 
+                    [
                         {
                             title: "Generar en PDF",
                             action: () => generarListaPDF({
@@ -135,7 +143,7 @@ export default function PageGenerarDocs() {
                             title: "Generar en XLS",
                             action: () => generarExcel(olimpistas['no clasificados'], 'no_clasificados'),
                         }
-                    ],
+                    ] : [],
                 },
                 {
                     title: 'Concursantes desclasificados',
@@ -148,7 +156,8 @@ export default function PageGenerarDocs() {
                         description: 'Concursantes que salieron de la competencia en general.',
                         icon: IconTrendingDown,
                     },
-                    options: [
+                    options: data ? 
+                    [
                         {
                             title: "Generar en PDF",
                             action: () => generarListaPDF({
@@ -161,7 +170,7 @@ export default function PageGenerarDocs() {
                             title: "Generar en XLS",
                             action: () => generarExcel(olimpistas.desclasificados, 'desclasificados'),
                         }
-                    ],
+                    ] : [],
                 },
                 {
                     title: 'Usuarios',
@@ -174,7 +183,8 @@ export default function PageGenerarDocs() {
                         description: 'Todos los usuarios de todas las areas.',
                         icon: TrendingUpDown,
                     },
-                    options: [
+                    options: data ? 
+                    [
                         {
                             title: "Generar en PDF",
                             action: () => generarListaPDF({
@@ -187,7 +197,7 @@ export default function PageGenerarDocs() {
                             title: "Generar en XLS",
                             action: () => generarExcelMultiplesHojas(usuarios, 'usuarios'),
                         }
-                    ],
+                    ] : [],
                 },
                 {
                     title: 'Evaluadores',
@@ -200,7 +210,8 @@ export default function PageGenerarDocs() {
                         description: 'Todos los evaluadores de todas las áreas.',
                         icon: TrendingUpDown,
                     },
-                    options: [
+                    options: data ? 
+                    [
                         {
                             title: "Generar en PDF",
                             action: () => generarListaPDF({
@@ -213,7 +224,7 @@ export default function PageGenerarDocs() {
                             title: "Generar en XLS",
                             action: () => generarExcel(usuarios.evaluadores, 'evaluadores'),
                         }
-                    ],
+                    ] : [],
                 },
                 {
                     title: 'Encargados de area',
@@ -226,7 +237,8 @@ export default function PageGenerarDocs() {
                         description: 'Todos los encargados de todas las áreas',
                         icon: TrendingUpDown,
                     },
-                    options: [
+                    options: data ? 
+                    [
                         {
                             title: "Generar en PDF",
                             action: () => generarListaPDF({
@@ -239,7 +251,7 @@ export default function PageGenerarDocs() {
                             title: "Generar en XLS",
                             action: () => generarExcel(usuarios.encargados, 'encargados'),
                         }
-                    ],
+                    ] : [],
                 },
             ]
             setDatos(nuevosDatos);
@@ -248,7 +260,7 @@ export default function PageGenerarDocs() {
 
     return (
         <SidebarProvider>
-            <AppSidebar />
+            { data && <AppSidebar /> }
             <SidebarInset>
                 <Header />
                 <div className="container mx-auto px-4">

@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\TutorAcademico;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Tutor;
 use Illuminate\Database\Seeder;
 
 class TutorAcademicoSeeder extends Seeder
@@ -27,7 +26,7 @@ class TutorAcademicoSeeder extends Seeder
         ];
 
         foreach ($tutoresAcademicos as $tutor) {
-            TutorAcademico::create($tutor);
+            Tutor::create($tutor);
         }
     }
 }

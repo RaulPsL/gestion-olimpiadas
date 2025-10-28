@@ -30,6 +30,7 @@ class Fase extends Model
         'fecha_inicio',
         'fecha_calificacion',
         'fecha_fin',
+        'nivel_id',
     ];
 
     /**
@@ -78,5 +79,9 @@ class Fase extends Model
 
     public function cierre() {
         return $this->hasOne(VerificacionCierre::class);
+    }
+
+    public function nivel() {
+        return $this->hasOne(Nivel::class);
     }
 }

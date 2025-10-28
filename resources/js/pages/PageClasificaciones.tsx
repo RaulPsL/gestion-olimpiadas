@@ -1,7 +1,6 @@
 import { BookUser } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
@@ -17,8 +16,8 @@ export default function PageClasificaciones() {
     React.useEffect(() => {
         const staticData = async () => {
             const response = await getClasificacionesByArea();
-                setClasificaciones(response);
-            };
+            setClasificaciones(response);
+        };
         staticData();
     }, []);
 
@@ -28,7 +27,7 @@ export default function PageClasificaciones() {
         }
         console.log('Keys: ', keys);
     }, [clasificaciones]);
-    
+
     return (
         <SidebarProvider>
             <SidebarInset>
@@ -39,14 +38,14 @@ export default function PageClasificaciones() {
                         <Label className="text-2xl">Clasificaciones por area</Label>
                     </div>
                     <div className="w-full flex-col gap-6">
-                        { (keys && keys.length > 0) && (
-                            <Tabs defaultValue={ String(keys?.[0]).toLocaleLowerCase() }>
+                        {(keys && keys.length > 0) && (
+                            <Tabs defaultValue={String(keys?.[0]).toLocaleLowerCase()}>
                                 <TabsList>
-                                    { keys?.map((key) => (
+                                    {keys?.map((key) => (
                                         <TabsTrigger value={String(key).toLocaleLowerCase()} key={key}>{key}</TabsTrigger>
                                     ))}
                                 </TabsList>
-                                { keys?.map((key) => (
+                                {keys?.map((key) => (
                                     <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
                                         <Card className="w-full gap-6 p-4 justify-center">
                                             {
@@ -54,7 +53,11 @@ export default function PageClasificaciones() {
                                                     <div key={estadoOlimpista}>
                                                         <Label className="text-2xl">Olimpistas {estadoOlimpista}s</Label>
                                                         <CardContent className="w-full">
-                                                            <DataTable columns={columns} data={clasificaciones?.[key]?.[estadoOlimpista]} />
+                                                            <DataTable
+                                                                columns={columns}
+                                                                data={clasificaciones?.[key]?.[estadoOlimpista]}
+                                                                fieldSearch="nombre"
+                                                            />
                                                         </CardContent>
                                                     </div>
                                                 ))

@@ -13,8 +13,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AreaSeeder::class,
+            NivelesSeeder::class,
+            GradosSeeder::class,
+            DepartamentosSeeder::class,
+            ProvinciasSeeder::class,
             ColegioSeeder::class,
-            TutorSeeder::class,
             UsuarioSeeder::class,
             FaseSeeder::class,
             RolSeeder::class,

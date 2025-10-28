@@ -157,8 +157,8 @@ class RelationshipSeeder extends Seeder
         ];
 
         foreach ($tutorAcademicoOlimpistas as [$tutorAcademicoId, $olimpistaId]) {
-            DB::table('tutor_academico_olimpistas')->insert([
-                'tutor_academico_id' => $tutorAcademicoId,
+            DB::table('tutor_olimpistas')->insert([
+                'tutor_id' => $tutorAcademicoId,
                 'olimpista_id' => $olimpistaId,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -245,5 +245,121 @@ class RelationshipSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+
+        $gradoNivel = [
+            // ASTRONOMÍA - ASTROFÍSICA
+            // Nivel: 3P (id: 1) -> 3ro Primaria (grado_id: 1)
+            [1, 1],
+            
+            // Nivel: 4P (id: 2) -> 4to Primaria (grado_id: 2)
+            [2, 2],
+            
+            // Nivel: 5P (id: 3) -> 5to Primaria (grado_id: 3)
+            [3, 3],
+            
+            // Nivel: 6P (id: 4) -> 6to Primaria (grado_id: 4)
+            [4, 4],
+            
+            // Nivel: 1S (id: 5) -> 1ro Secundaria (grado_id: 5)
+            [5, 5],
+            
+            // Nivel: 2S (id: 6) -> 2do Secundaria (grado_id: 6)
+            [6, 6],
+            
+            // Nivel: 3S (id: 7) -> 3ro Secundaria (grado_id: 7)
+            [7, 7],
+            
+            // Nivel: 4S (id: 8) -> 4to Secundaria (grado_id: 8)
+            [8, 8],
+            
+            // Nivel: 5S (id: 9) -> 5to Secundaria (grado_id: 9)
+            [9, 9],
+            
+            // Nivel: 6S (id: 10) -> 6to Secundaria (grado_id: 10)
+            [10, 10],
+
+            // INFORMÁTICA
+            // Nivel: Guscanayo (id: 17) -> 5to a 6to Primaria (grados: 3, 4)
+            [3, 17],
+            [4, 17],
+            
+            // Nivel: Guanaco (id: 18) -> 1ro a 3ro Secundaria (grados: 5, 6, 7)
+            [5, 18],
+            [6, 18],
+            [7, 18],
+            
+            // Nivel: Londra (id: 19) -> 1ro a 3ro Secundaria (grados: 5, 6, 7)
+            [5, 19],
+            [6, 19],
+            [7, 19],
+            
+            // Nivel: Jucumari (id: 20) -> 4to a 6to Secundaria (grados: 8, 9, 10)
+            [8, 20],
+            [9, 20],
+            [10, 20],
+            
+            // Nivel: Búfeo (id: 21) -> 1ro a 3ro Secundaria (grados: 5, 6, 7)
+            [5, 21],
+            [6, 21],
+            [7, 21],
+            
+            // Nivel: Puma (id: 22) -> 4to a 6to Secundaria (grados: 8, 9, 10)
+            [8, 22],
+            [9, 22],
+            [10, 22],
+
+            // MATEMÁTICAS
+            // Nivel: Primer Nivel (id: 11) -> 1ro Secundaria (grado_id: 5)
+            [5, 11],
+            
+            // Nivel: Segundo Nivel (id: 12) -> 2do Secundaria (grado_id: 6)
+            [6, 12],
+            
+            // Nivel: Tercer Nivel (id: 13) -> 3ro Secundaria (grado_id: 7)
+            [7, 13],
+            
+            // Nivel: Cuarto Nivel (id: 14) -> 4to Secundaria (grado_id: 8)
+            [8, 14],
+            
+            // Nivel: Quinto Nivel (id: 15) -> 5to Secundaria (grado_id: 9)
+            [9, 15],
+            
+            // Nivel: Sexto Nivel (id: 16) -> 6to Secundaria (grado_id: 10)
+            [10, 16],
+
+            // ROBÓTICA
+            // Nivel: Builders P (id: 23) -> 5to a 6to Primaria (grados: 3, 4)
+            [3, 23],
+            [4, 23],
+            
+            // Nivel: Builders S (id: 24) -> 1ro a 6to Secundaria (grados: 5, 6, 7, 8, 9, 10)
+            [5, 24],
+            [6, 24],
+            [7, 24],
+            [8, 24],
+            [9, 24],
+            [10, 24],
+            
+            // Nivel: Lego P (id: 25) -> 5to a 6to Primaria (grados: 3, 4)
+            [3, 25],
+            [4, 25],
+            
+            // Nivel: Lego S (id: 26) -> 1ro a 6to Secundaria (grados: 5, 6, 7, 8, 9, 10)
+            [5, 26],
+            [6, 26],
+            [7, 26],
+            [8, 26],
+            [9, 26],
+            [10, 26],
+        ];
+
+        foreach ($gradoNivel as [$gradoId, $nivelId]) {
+            DB::table('niveles_grados')->insert([
+                'grado_id' => $gradoId,
+                'nivel_id' => $nivelId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }        
     }
 }

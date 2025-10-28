@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::create('colegios', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('direccion');
             $table->string('telefono');
             $table->enum('departamento', array_column(Departamento::cases(), 'value'))->default('Cochabamba');
             $table->timestamps();

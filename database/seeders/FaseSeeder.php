@@ -11,11 +11,12 @@ class FaseSeeder extends Seeder
     public function run()
     {
         $now = Carbon::now();
-        
+
         $fases = [
-            // Robótica (area_id: 1) - 5 fases
+            // Robótica (area_id: 7) - Tiene niveles: Builders P (23), Builders S (24), Lego P (25), Lego S (26)
             [
-                'area_id' => 1,
+                'area_id' => 7,
+                'nivel_id' => 23, // Builders P
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'ROBPRE1',
                 'descripcion' => 'Preliminar de Robótica',
@@ -28,7 +29,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(11)
             ],
             [
-                'area_id' => 1,
+                'area_id' => 7,
+                'nivel_id' => 24, // Builders S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'ROBCLA1',
                 'descripcion' => 'Clasificatoria 1 de Robótica',
@@ -41,7 +43,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(6)
             ],
             [
-                'area_id' => 1,
+                'area_id' => 7,
+                'nivel_id' => 25, // Lego P
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'ROBCLA2',
                 'descripcion' => 'Clasificatoria 2 de Robótica',
@@ -54,7 +57,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(2)
             ],
             [
-                'area_id' => 1,
+                'area_id' => 7,
+                'nivel_id' => 26, // Lego S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'ROBCLA3',
                 'descripcion' => 'Clasificatoria 3 de Robótica',
@@ -67,7 +71,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(7)
             ],
             [
-                'area_id' => 1,
+                'area_id' => 7,
+                'nivel_id' => 24, // Builders S
                 'tipo_fase' => 'finales',
                 'sigla' => 'ROBFIN1',
                 'descripcion' => 'Final de Robótica',
@@ -80,9 +85,10 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(12)
             ],
 
-            // Matemáticas (area_id: 2) - 5 fases
+            // Matemáticas (area_id: 5) - Niveles: Primer Nivel (11) a Sexto Nivel (16)
             [
-                'area_id' => 2,
+                'area_id' => 5,
+                'nivel_id' => 11, // Primer Nivel
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'MATPRE1',
                 'descripcion' => 'Preliminar de Matemáticas',
@@ -95,7 +101,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(16)
             ],
             [
-                'area_id' => 2,
+                'area_id' => 5,
+                'nivel_id' => 12, // Segundo Nivel
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'MATCLA1',
                 'descripcion' => 'Clasificatoria 1 de Matemáticas',
@@ -108,7 +115,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(11)
             ],
             [
-                'area_id' => 2,
+                'area_id' => 5,
+                'nivel_id' => 13, // Tercer Nivel
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'MATCLA2',
                 'descripcion' => 'Clasificatoria 2 de Matemáticas',
@@ -121,7 +129,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(6)
             ],
             [
-                'area_id' => 2,
+                'area_id' => 5,
+                'nivel_id' => 14, // Cuarto Nivel
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'MATCLA3',
                 'descripcion' => 'Clasificatoria 3 de Matemáticas',
@@ -134,7 +143,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(3)
             ],
             [
-                'area_id' => 2,
+                'area_id' => 5,
+                'nivel_id' => 15, // Quinto Nivel
                 'tipo_fase' => 'finales',
                 'sigla' => 'MATFIN1',
                 'descripcion' => 'Final de Matemáticas',
@@ -147,9 +157,10 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(8)
             ],
 
-            // Física (area_id: 3) - 5 fases
+            // Física (area_id: 3) - Niveles de secundaria (5-10: 1S a 6S)
             [
                 'area_id' => 3,
+                'nivel_id' => 8, // 4S
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'FISPRE1',
                 'descripcion' => 'Preliminar de Física',
@@ -163,6 +174,7 @@ class FaseSeeder extends Seeder
             ],
             [
                 'area_id' => 3,
+                'nivel_id' => 9, // 5S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'FISCLA1',
                 'descripcion' => 'Clasificatoria 1 de Física',
@@ -176,6 +188,7 @@ class FaseSeeder extends Seeder
             ],
             [
                 'area_id' => 3,
+                'nivel_id' => 10, // 6S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'FISCLA2',
                 'descripcion' => 'Clasificatoria 2 de Física',
@@ -189,6 +202,7 @@ class FaseSeeder extends Seeder
             ],
             [
                 'area_id' => 3,
+                'nivel_id' => 9, // 5S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'FISCLA3',
                 'descripcion' => 'Clasificatoria 3 de Física',
@@ -202,6 +216,7 @@ class FaseSeeder extends Seeder
             ],
             [
                 'area_id' => 3,
+                'nivel_id' => 10, // 6S
                 'tipo_fase' => 'finales',
                 'sigla' => 'FISFIN1',
                 'descripcion' => 'Final de Física',
@@ -214,9 +229,10 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(16)
             ],
 
-            // Química (area_id: 4) - 4 fases
+            // Química (area_id: 6) - Niveles de secundaria
             [
-                'area_id' => 4,
+                'area_id' => 6,
+                'nivel_id' => 6, // 2S
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'QUIPRE1',
                 'descripcion' => 'Preliminar de Química',
@@ -229,7 +245,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(2)
             ],
             [
-                'area_id' => 4,
+                'area_id' => 6,
+                'nivel_id' => 8, // 4S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'QUICLA1',
                 'descripcion' => 'Clasificatoria 1 de Química',
@@ -242,7 +259,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(7)
             ],
             [
-                'area_id' => 4,
+                'area_id' => 6,
+                'nivel_id' => 9, // 5S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'QUICLA2',
                 'descripcion' => 'Clasificatoria 2 de Química',
@@ -255,7 +273,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(12)
             ],
             [
-                'area_id' => 4,
+                'area_id' => 6,
+                'nivel_id' => 10, // 6S
                 'tipo_fase' => 'finales',
                 'sigla' => 'QUIFIN1',
                 'descripcion' => 'Final de Química',
@@ -268,9 +287,10 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(17)
             ],
 
-            // Biología (area_id: 5) - 5 fases
+            // Biología (area_id: 2) - Niveles de secundaria
             [
-                'area_id' => 5,
+                'area_id' => 2,
+                'nivel_id' => 6, // 2S
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'BIOPRE1',
                 'descripcion' => 'Preliminar de Biología',
@@ -283,7 +303,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(18)
             ],
             [
-                'area_id' => 5,
+                'area_id' => 2,
+                'nivel_id' => 7, // 3S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'BIOCLA1',
                 'descripcion' => 'Clasificatoria 1 de Biología',
@@ -296,7 +317,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(13)
             ],
             [
-                'area_id' => 5,
+                'area_id' => 2,
+                'nivel_id' => 8, // 4S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'BIOCLA2',
                 'descripcion' => 'Clasificatoria 2 de Biología',
@@ -309,7 +331,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(8)
             ],
             [
-                'area_id' => 5,
+                'area_id' => 2,
+                'nivel_id' => 9, // 5S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'BIOCLA3',
                 'descripcion' => 'Clasificatoria 3 de Biología',
@@ -322,7 +345,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(3)
             ],
             [
-                'area_id' => 5,
+                'area_id' => 2,
+                'nivel_id' => 10, // 6S
                 'tipo_fase' => 'finales',
                 'sigla' => 'BIOFIN1',
                 'descripcion' => 'Final de Biología',
@@ -335,9 +359,10 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(3)
             ],
 
-            // Informática (area_id: 6) - 4 fases
+            // Informática (area_id: 4) - Niveles: Guscanayo (17) a Puma (22)
             [
-                'area_id' => 6,
+                'area_id' => 4,
+                'nivel_id' => 17, // Guscanayo
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'INFPRE1',
                 'descripcion' => 'Preliminar de Informática',
@@ -350,7 +375,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(5)
             ],
             [
-                'area_id' => 6,
+                'area_id' => 4,
+                'nivel_id' => 18, // Guanaco
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'INFCLA1',
                 'descripcion' => 'Clasificatoria 1 de Informática',
@@ -363,7 +389,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(10)
             ],
             [
-                'area_id' => 6,
+                'area_id' => 4,
+                'nivel_id' => 20, // Jucumari
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'INFCLA2',
                 'descripcion' => 'Clasificatoria 2 de Informática',
@@ -376,7 +403,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(15)
             ],
             [
-                'area_id' => 6,
+                'area_id' => 4,
+                'nivel_id' => 22, // Puma
                 'tipo_fase' => 'finales',
                 'sigla' => 'INFFIN1',
                 'descripcion' => 'Final de Informática',
@@ -389,9 +417,10 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(20)
             ],
 
-            // Astronomía (area_id: 7) - 4 fases
+            // Astronomía (area_id: 1) - Niveles: 3P (1) a 6S (10)
             [
-                'area_id' => 7,
+                'area_id' => 1,
+                'nivel_id' => 1, // 3P
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'ASTPRE1',
                 'descripcion' => 'Preliminar de Astronomía',
@@ -404,7 +433,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(8)
             ],
             [
-                'area_id' => 7,
+                'area_id' => 1,
+                'nivel_id' => 5, // 1S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'ASTCLA1',
                 'descripcion' => 'Clasificatoria 1 de Astronomía',
@@ -417,7 +447,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->subDays(3)
             ],
             [
-                'area_id' => 7,
+                'area_id' => 1,
+                'nivel_id' => 7, // 3S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'ASTCLA2',
                 'descripcion' => 'Clasificatoria 2 de Astronomía',
@@ -430,7 +461,8 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(3)
             ],
             [
-                'area_id' => 7,
+                'area_id' => 1,
+                'nivel_id' => 9, // 5S
                 'tipo_fase' => 'finales',
                 'sigla' => 'ASTFIN1',
                 'descripcion' => 'Final de Astronomía',
@@ -443,9 +475,10 @@ class FaseSeeder extends Seeder
                 'fecha_fin' => $now->copy()->addDays(8)
             ],
 
-            // Electrónica (area_id: 8) - 4 fases
+            // Electrónica (area_id: 8) - Niveles de secundaria
             [
                 'area_id' => 8,
+                'nivel_id' => 7, // 3S
                 'tipo_fase' => 'preliminares',
                 'sigla' => 'ELEPRE1',
                 'descripcion' => 'Preliminar de Electrónica',
@@ -459,6 +492,7 @@ class FaseSeeder extends Seeder
             ],
             [
                 'area_id' => 8,
+                'nivel_id' => 8, // 4S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'ELECLA1',
                 'descripcion' => 'Clasificatoria 1 de Electrónica',
@@ -472,6 +506,7 @@ class FaseSeeder extends Seeder
             ],
             [
                 'area_id' => 8,
+                'nivel_id' => 9, // 5S
                 'tipo_fase' => 'clasificatorias',
                 'sigla' => 'ELECLA2',
                 'descripcion' => 'Clasificatoria 2 de Electrónica',
@@ -485,6 +520,7 @@ class FaseSeeder extends Seeder
             ],
             [
                 'area_id' => 8,
+                'nivel_id' => 10, // 6S
                 'tipo_fase' => 'finales',
                 'sigla' => 'ELEFIN1',
                 'descripcion' => 'Final de Electrónica',

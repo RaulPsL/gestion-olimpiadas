@@ -3,6 +3,7 @@ interface StaticDataOlimpistas {
     grados: any[];
     niveles: any[];
     departamentos: any[];
+    provincias: any[];
 }
 
 interface StaticDataUsuarios {

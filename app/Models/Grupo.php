@@ -47,5 +47,7 @@ class Grupo extends Model
             ->withPivot('puntaje', 'comentarios');
     }
 
-    public function tutor_academico() { return $this->belongsTo(TutorAcademico::class); }
+    public function tutor() { return $this->belongsTo(Tutor::class); }
+
+    public function colegio() { return $this->belongsTo(Colegio::class); }
 }

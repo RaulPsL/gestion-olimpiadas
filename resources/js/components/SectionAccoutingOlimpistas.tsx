@@ -12,7 +12,7 @@ import { Button } from "./ui/button";
 export function SectionAccountingOlimpistas( datos?: any ) {
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-      { datos?.staticData?.map((dato, index) => (
+      { datos?.staticData?.map((dato: any, index: any) => (
         <Card 
           key={index}
           className="@container/card group relative cursor-pointer overflow-hidden duration-300 active:scale-95"
@@ -41,7 +41,7 @@ export function SectionAccountingOlimpistas( datos?: any ) {
               dato && dato?.options.length > 0 ? (
                 <>
                   {
-                    dato.options.map((option, idx) => (
+                    dato.options.map((option: any, idx: any) => (
                       <Button
                         key={idx}
                         variant="ghost"

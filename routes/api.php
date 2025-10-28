@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum', 'role:EDA,EVA,ADM'])->prefix('olimpistas')->group(function () {
+Route::prefix('olimpistas')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
+    Route::get('/grupos', [App\Http\Controllers\OlimpistasController::class, 'indexGrupos'])->name('olimpistas.indexGrupos');
     Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
     Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('olimpistas.store');
     Route::post('/file', [App\Http\Controllers\OlimpistasController::class, 'storeByFile'])->name('olimpistas.storeByFile');
@@ -60,10 +61,9 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('calificaciones')->g
     Route::put('/grupos', [App\Http\Controllers\CalificacionesController::class, 'updateGrupos']);
 });
 
-Route::prefix('logs')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EDA,ADM'])->prefix('logs')->group(function () {
     Route::post('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
     Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
-    Route::get('/statistics', [App\Http\Controllers\LogController::class, 'statistics']);
     Route::get('/report/olimpistas', [App\Http\Controllers\LogController::class, 'olimpistas']);
     Route::get('/report/usuarios', [App\Http\Controllers\LogController::class, 'usuarios']);
     // Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
@@ -76,6 +76,8 @@ Route::prefix('clasificaciones')->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'role:ADM'])->post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
+
+Route::get('/statistics', [App\Http\Controllers\LogController::class, 'statistics']);
 Route::post('/login', [App\Http\Controllers\UsuariosController::class, 'login']);
 
 // Route::get('/menus', [App\Http\Controllers\MenuController::class, 'index']);

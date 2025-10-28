@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tutor_academico_olimpistas', function (Blueprint $table) {
+        Schema::create('tutor_olimpistas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('olimpista_id')->constrained()->onDelete('cascade');
-            $table->foreignId('tutor_academico_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('tutor_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tutor_academico_olimpistas');
+        Schema::dropIfExists('tutor_olimpistas');
     }
 };

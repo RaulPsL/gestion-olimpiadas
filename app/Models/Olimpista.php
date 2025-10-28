@@ -25,11 +25,9 @@ class Olimpista extends Model
         'apellido_materno',
         'ci',
         'celular',
-        'grado_escolar',
-        'nivel_escolar',
         'estado',
         'colegio_id',
-        'tutor_id',
+        'grado_id',
     ];
 
     /**
@@ -51,8 +49,6 @@ class Olimpista extends Model
     protected $casts = [
         'ci' => 'integer',
         'celular' => 'integer',
-        'grado_escolar' => GradoOlimpista::class,
-        'nivel_escolar' => NivelArea::class,
         'estado' => EstadoOlimpista::class,
     ];
 
@@ -73,7 +69,7 @@ class Olimpista extends Model
 
     public function colegio() { return $this->belongsTo(Colegio::class); }
 
-    public function tutores_academicos() { return $this->belongsToMany(TutorAcademico::class, 'tutor_academico_olimpistas'); }
+    public function tutores() { return $this->belongsToMany(Tutor::class, 'tutor_olimpistas'); }
 
-    public function tutor() { return $this->belongsTo(Tutor::class); }
+
 }

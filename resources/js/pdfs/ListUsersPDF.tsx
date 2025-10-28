@@ -20,7 +20,7 @@ export function generarListaPDF({
 
   // Preparar headers
   const headersUsuario = [['CI', 'Nombre completo', 'Área que gestiona/evalua', 'Rol usuario', 'Fases que gestiona/evalua']];
-  const headersParticipante = [['Participante', 'Puesto', 'Nivel', 'Tutor', 'Encargado', 'Colegio', 'Departamento']];
+  const headersParticipante = [['Apellidos', 'Nombres', 'Colegio', 'Departamento', 'Provincia']];
 
   // Agregar título principal
   doc.setFontSize(18);
@@ -73,19 +73,19 @@ export function generarListaPDF({
       };
     } else {
       data = (listaUsuarios as Participante[]).map((usuario) => [
-        usuario.nombre,
+        usuario.apellidoParticipante,
+        usuario.nombreParticipante,
         usuario.colegio,
-        area,
-        usuario.nivel,
-        usuario.puesto,
+        usuario.departamento,
+        usuario.provincia,
       ]);
 
       columnsStyles = {
-        0: { cellWidth: 45 },
-        1: { cellWidth: 45 },
-        2: { cellWidth: 15 },
-        3: { cellWidth: 15 },
-        4: { cellWidth: 10 }
+        0: { cellWidth: 25 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 45 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 25 }
       };
     }
 
@@ -107,7 +107,7 @@ export function generarListaPDF({
       columnStyles: columnsStyles,
       didDrawPage: (data) => {
         // Actualizar currentY después de dibujar la tabla
-        currentY = data.cursor.y;
+        currentY = data.cursor?.y as number;
       }
     });
 

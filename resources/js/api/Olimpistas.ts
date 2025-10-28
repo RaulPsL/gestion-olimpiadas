@@ -1,5 +1,5 @@
 import { OlimpistaForm } from "@/forms/interfaces/Olimpista";
-import { axiosPrivate } from "./api";
+import { axiosPrivate, axiosPublic } from "./api";
 import { MassiveForm } from "@/forms/interfaces/AcademicForm";
 
 export const getOlimpistas = async () => {
@@ -9,7 +9,7 @@ export const getOlimpistas = async () => {
 };
 
 export const getStatistics = async () => {
-    const { data } = await axiosPrivate.get("/logs/statistics");
+    const { data } = await axiosPublic.get("/statistics");
     console.log(`Datos obtenidos: `, data.data);
     return data.data;
 };
@@ -27,6 +27,7 @@ export const getStaticData = async ():Promise<StaticDataOlimpistas> => {
         grados: data.data.grados,
         niveles: data.data.niveles,
         departamentos: data.data.departamentos,
+        provincias: data.data.provincias,
     };
 };
 

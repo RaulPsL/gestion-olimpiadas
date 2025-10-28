@@ -18,8 +18,11 @@ class Colegio extends Model
         'nombre',
         'direccion',
         'telefono',
-        'departamento',
+        'provincia_id',
     ];
 
     public function olimpistas() { return $this->hasMany(Olimpista::class); }
+
+    public function provincia() { return $this->hasOne(Provincia::class)->departamento(); }
+
 }
