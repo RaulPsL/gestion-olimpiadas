@@ -23,6 +23,6 @@ class Colegio extends Model
 
     public function olimpistas() { return $this->hasMany(Olimpista::class); }
 
-    public function provincia() { return $this->hasOne(Provincia::class)->departamento(); }
+    public function provincia() { return $this->belongsTo(Provincia::class); }
 
 }

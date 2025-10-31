@@ -6,6 +6,7 @@ use App\Models\Area;
 use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AreasController extends Controller
 {
@@ -59,21 +60,22 @@ class AreasController extends Controller
     public function indexStaticData()
     {
         try {
-            $evaluadores = Usuario::whereHas('roles', 
-                    function ($query) { $query->where('sigla', 'EVA'); }
-                )
-                ->select('ci', 'nombre', 'apellido')
-                ->get()
-                ->map(function ($evaluador, $index) {
+            $areas = Area::whereHas('usuarios.roles', 
+                function ($query) { $query->where('sigla', 'EVA'); }
+            )
+            ->select(['id', 'sigla', 'nombre'])
+            ->get()
+            ->map(function ($area, $index) {
+                $usuarios = $area->usuarios->map(function ($usuario, $index) {
                     return [
-                    'id' => $index+1,
-                    'value' => $evaluador->ci,
-                    'label' => "$evaluador->nombre $evaluador->apellido",
+                        'id' => $index + 1,
+                        'value' => $usuario->ci,
+                        'label' => "$usuario->nombre $usuario->apellido",
                     ];
                 });
-            $areas = Area::all(['sigla', 'nombre'])->map(function ($area, $index) {
                 return [
-                    'id' => $index+1,
+                    'id' => $index + 1,
+                    'evaluadores' => $usuarios,
                     'value' => $area->sigla,
                     'label' => $area->nombre,
                 ];
@@ -81,17 +83,26 @@ class AreasController extends Controller
 
             $fases = collect(TipoFase::cases())->map(function ($fase, $index) {
                 return [
-                    'id' => $index+1,
+                    'id' => $index + 1,
                     'value' => $fase->value,
                     'label' => $fase->name,
                 ];
             });
+
+            $niveles = DB::table('nivels')->get()
+                ->map(function ($nivel, $index) {
+                    return [
+                        'id' => $index + 1,
+                        'value' => $nivel->id,
+                        'label' => $nivel->nombre,
+                    ];
+                });
             return response()->json([
                 'message' => "Datos obtenidos exitosamente.",
                 'data' => [
                     'areas' => $areas,
                     'fases' => $fases,
-                    'evaluadores' => $evaluadores,
+                    'niveles' => $niveles,
                 ],
             ], 200);
         } catch (\Throwable $th) {
@@ -139,10 +150,9 @@ class AreasController extends Controller
                 ]);
             }
             return response()->json([
-                'message' => "Area ".$creacion_fases ? "" : "con fases "."creada exitosamente.",
+                'message' => "Area " . $creacion_fases ? "" : "con fases " . "creada exitosamente.",
                 'data' => $nueva_area,
             ], 201);
-
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al crear el area.',
@@ -251,7 +261,7 @@ class AreasController extends Controller
                 ]);
             }
             return response()->json([
-                'message' => "Area con". $creacion_fases ? " fase por defecto " : " nuevas fases " ."actualizada exitosamente.",
+                'message' => "Area con" . $creacion_fases ? " fase por defecto " : " nuevas fases " . "actualizada exitosamente.",
                 'data' => $area->fases()->with('usuarios')->get(),
             ], 201);
         } catch (\Throwable $th) {

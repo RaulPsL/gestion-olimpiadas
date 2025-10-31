@@ -11,12 +11,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { DateTimePickerProps } from "./interfaces/DateTime";
+import { es } from "date-fns/locale";
 
 export function DateTimePicker({ titleDate, 
   titleTime, 
   value,
   onChange,
-  disabled = false,
+  disabledTime = false,
+  disabledCalendar = false,
+  disabledDate,
   placeholder = "Seleccionar fecha"
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false);
@@ -104,7 +107,7 @@ export function DateTimePicker({ titleDate,
               variant="outline"
               id="date-picker"
               className="w-40 justify-between font-normal"
-              disabled={disabled}
+              disabled={disabledCalendar}
             >
               {formatDate(internalDate)}
               <ChevronDown className="h-4 w-4" />
@@ -113,10 +116,13 @@ export function DateTimePicker({ titleDate,
           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
             <Calendar
               mode="single"
+              locale={es}
               selected={internalDate}
               captionLayout="dropdown"
               onSelect={handleDateChange}
-              disabled={disabled}
+              disabled={
+                disabledDate
+              }
             />
           </PopoverContent>
         </Popover>
@@ -131,7 +137,7 @@ export function DateTimePicker({ titleDate,
           step="1"
           value={getDefaultTime()}
           onChange={handleTimeChange}
-          disabled={disabled}
+          disabled={disabledTime}
           className="w-32 bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
         />
       </div>

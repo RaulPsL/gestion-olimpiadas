@@ -46,13 +46,16 @@ class Area extends Model
 
     public function fases() { return $this->hasMany(Fase::class); }
 
+    public function niveles() { return $this->belongsToMany(Nivel::class, 'niveles_areas'); }
+
     public function primeraFase() { return $this->fases()->first(); }
 
     public function olimpistas() {
         return $this->belongsToMany(Olimpista::class, 'olimpista_areas'); 
     }
 
+    public function grupos() { return $this->belongsToMany(Grupo::class, 'grupo_areas'); }
+
     public function usuarios() { return $this->belongsToMany(Usuario::class, 'usuario_areas');}
 
-    public function grupos() { return $this->belongsToMany(Grupo::class, 'grupo_areas'); }
 }

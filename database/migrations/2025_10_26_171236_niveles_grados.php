@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('niveles_grados', function (Blueprint $table) {
             $table->id();
-            $table->string('nivel_id');
-            $table->string('grado_id');
+            $table->foreignId('nivel_id')->constrained()->onDelete('cascade');
+            $table->foreignId('grado_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

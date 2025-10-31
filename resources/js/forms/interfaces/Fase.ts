@@ -7,6 +7,8 @@ export interface FaseForm {
     cantidad_min_participantes: number;
     fecha_inicio: Date;
     fecha_fin: Date;
+    fecha_calificacion: Date;
     area: string;
+    nivel: string;
     usuarios: string[];
 }

@@ -23,9 +23,7 @@ class CalificacionesController extends Controller
             $fases = Fase::select(['id', 'area_id', 'sigla', 'fecha_fin'])
                 // ->where('estado', ['en curso', 'pendiente'])
                 ->with([
-                    'olimpistas.tutor',
-                    'olimpistas.tutores_academicos',
-                    'olimpistas.colegio',
+                    'olimpistas.colegio.provincia.departamento',
                     'area'
                 ])->get();
             $listaFinal = [];
@@ -36,7 +34,8 @@ class CalificacionesController extends Controller
                         'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
                         'estado' => $olimpista->estado,
                         'colegio' => $olimpista->colegio->nombre,
-                        'departamento' => $olimpista->colegio->departamento,
+                        'departamento' => $olimpista->colegio->provincia->departamento->nombre,
+                        'provincia' => $olimpista->colegio->provincia->nombre,
                         'area' => $fase->area->nombre,
                         'fase' => $fase->sigla,
                         'sigla_area' => $fase->area->sigla,

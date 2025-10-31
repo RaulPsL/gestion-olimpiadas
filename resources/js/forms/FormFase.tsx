@@ -12,14 +12,18 @@ import { getStaticData, updateArea } from "@/api/Areas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-// * agregar un campo para cantidad de ganadores
+
 export default function FormFase() {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
     const [areas, setAreas] = React.useState<any[]>();
+    const [niveles, setNiveles] = React.useState<any[]>();
     const [fases, setFases] = React.useState<any[]>();
     const [evaluadores, setEvaluadores] = React.useState<any[]>();
+    
+    // Estado para la fecha compartida
+    const [sharedDate, setSharedDate] = React.useState<Date>(new Date());
 
     useEffect(() => {
         const staticData = async () => {
@@ -27,6 +31,7 @@ export default function FormFase() {
             setAreas(staticData.areas);
             setFases(staticData.fases);
             setEvaluadores(staticData.evaluadores);
+            setNiveles(staticData.niveles);
         };
         staticData();
     }, []);
@@ -48,8 +53,10 @@ export default function FormFase() {
             cantidad_max_participantes: 20,
             cantidad_min_participantes: 10,
             fecha_inicio: new Date(),
-            fecha_fin: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 2 semanas después
+            fecha_calificacion: new Date(Date.now() + 60 * 60 * 1000),
+            fecha_fin: new Date(Date.now() + 120 * 60 * 1000),
             area: "",
+            nivel: "",
             usuarios: []
         }
     });
@@ -58,14 +65,39 @@ export default function FormFase() {
     const tipoFaseField = useComboboxField("tipo_fase", setValue, false, trigger);
     const areaField = useComboboxField("area", setValue, false, trigger);
     const evaluadoresField = useComboboxField("usuarios", setValue, true, trigger);
+    const nivelesField = useComboboxField("nivel", setValue, true, trigger);
 
     React.useEffect(() => {
         register('area', newValidationRules.area);
         register('tipo_fase', newValidationRules.tipo_fase);
         register('usuarios', newValidationRules.usuarios);
         register('fecha_inicio', newValidationRules.fecha_inicio);
+        register('fecha_calificacion', newValidationRules.fecha_fin);
         register('fecha_fin', newValidationRules.fecha_fin);
     });
+
+    const handleDateChange = (newDate: Date | undefined, field: 'fecha_inicio' | 'fecha_calificacion' | 'fecha_fin') => {
+        if (!newDate) return;
+
+        setSharedDate(newDate);
+
+        const fechaInicio = getValues('fecha_inicio');
+        const fechaCalificacion = getValues('fecha_calificacion');
+        const fechaFin = getValues('fecha_fin');
+
+        const newFechaInicio = new Date(newDate);
+        newFechaInicio.setHours(fechaInicio.getHours(), fechaInicio.getMinutes(), fechaInicio.getSeconds());
+
+        const newFechaCalificacion = new Date(newDate);
+        newFechaCalificacion.setHours(fechaCalificacion.getHours(), fechaCalificacion.getMinutes(), fechaCalificacion.getSeconds());
+
+        const newFechaFin = new Date(newDate);
+        newFechaFin.setHours(fechaFin.getHours(), fechaFin.getMinutes(), fechaFin.getSeconds());
+        
+        setValue('fecha_inicio', newFechaInicio);
+        setValue('fecha_calificacion', newFechaCalificacion);
+        setValue('fecha_fin', newFechaFin);
+    };
 
     return (
         <Card className="w-full">
@@ -94,7 +126,37 @@ export default function FormFase() {
                     </Alert>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                        <Label>Área de Competencia <span className="text-red-500">*</span></Label>
+                        <Combobox
+                            items={areas}
+                            value={areaField.value}
+                            onChange={areaField.onChange}
+                            placeholder="Seleccionar área..."
+                            searchPlaceholder="Buscar área..."
+                            multiple={false}
+                        />
+                        {errors.area && (
+                            <p className="text-sm text-red-500">{errors.area.message}</p>
+                        )}
+                    </div>
+
+                    {/* Nivel de competencia */}
+                    <div className="space-y-2">
+                        <Label>Nivel de competencia <span className="text-red-500">*</span></Label>
+                        <Combobox
+                            items={niveles}
+                            value={nivelesField.value}
+                            onChange={nivelesField.onChange}
+                            placeholder="Seleccionar área..."
+                            searchPlaceholder="Buscar área..."
+                            multiple={false}
+                        />
+                        {errors.area && (
+                            <p className="text-sm text-red-500">{errors.area.message}</p>
+                        )}
+                    </div>
 
                     {/* Campo Tipo de Fase */}
                     <div className="space-y-2">
@@ -114,23 +176,19 @@ export default function FormFase() {
                         )}
                     </div>
 
-                    {/* cantidad de ganadores */}
+                    {/* Evaluadores */}
                     <div className="space-y-2">
-                        <Label htmlFor="cantidad_ganadores">
-                            Cantidad de ganadores <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="cantidad_ganadores"
-                            type="number"
-                            placeholder="10"
-                            {...register("cantidad_ganadores", {
-                                ...newValidationRules.cantidad_ganadores,
-                                valueAsNumber: true
-                            })}
-                            className={errors.cantidad_ganadores ? "border-red-500" : ""}
+                        <Label>Evaluadores</Label>
+                        <Combobox
+                            items={evaluadores}
+                            value={evaluadoresField.value}
+                            onChange={evaluadoresField.onChange}
+                            placeholder="Seleccionar evaluadores..."
+                            searchPlaceholder="Buscar evaluadores..."
+                            multiple={true}
                         />
-                        {errors.cantidad_ganadores && (
-                            <p className="text-sm text-red-500">{errors.cantidad_ganadores.message}</p>
+                        {errors.usuarios && (
+                            <p className="text-sm text-red-500">{errors.usuarios.message}</p>
                         )}
                     </div>
                 </div>
@@ -152,7 +210,7 @@ export default function FormFase() {
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Cantidad Mínima */}
                     <div className="space-y-2">
                         <Label htmlFor="cantidad_min_participantes">
@@ -192,66 +250,82 @@ export default function FormFase() {
                             <p className="text-sm text-red-500">{errors.cantidad_max_participantes.message}</p>
                         )}
                     </div>
+
+                    {/* cantidad de ganadores */}
+                    <div className="space-y-2">
+                        <Label htmlFor="cantidad_ganadores">
+                            Cantidad de ganadores <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="cantidad_ganadores"
+                            type="number"
+                            placeholder="10"
+                            {...register("cantidad_ganadores", {
+                                ...newValidationRules.cantidad_ganadores,
+                                valueAsNumber: true
+                            })}
+                            className={errors.cantidad_ganadores ? "border-red-500" : ""}
+                        />
+                        {errors.cantidad_ganadores && (
+                            <p className="text-sm text-red-500">{errors.cantidad_ganadores.message}</p>
+                        )}
+                    </div>
                 </div>
 
-                {/* Fechas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Fechas Sincronizadas */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                        <Label>Fecha y Hora de Inicio <span className="text-red-500">*</span></Label>
+                        <Label>Fecha y hora inicio del concurso <span className="text-red-500">*</span></Label>
                         <DateTimePicker 
-                            titleDate="Fecha inicio" 
-                            titleTime="Hora inicio"
+                            titleDate="" 
+                            titleTime=""
                             value={getValues('fecha_inicio')}
-                            onChange={(date) => setValue("fecha_inicio", date as Date)}
+                            disabledDate={[
+                                {before: new Date},
+                                { dayOfWeek: [0]},
+                            ]}
+                            onChange={(date) => {
+                                if (date) {
+                                    handleDateChange(date, 'fecha_inicio');
+                                }
+                            }}
                         />
                         {errors.fecha_inicio && (
                             <p className="text-sm text-red-500">{errors.fecha_inicio.message}</p>
                         )}
                     </div>
                     <div className="space-y-2">
-                        <Label>Fecha y Hora de Fin <span className="text-red-500">*</span></Label>
+                        <Label>Hora de Calificacion <span className="text-red-500">*</span></Label>
                         <DateTimePicker 
-                            titleDate="Fecha fin" 
-                            titleTime="Hora Fin"
+                            titleDate="" 
+                            titleTime=""
+                            disabledCalendar
+                            value={getValues('fecha_calificacion')}
+                            onChange={(date) => {
+                                if (date) {
+                                    handleDateChange(date, 'fecha_calificacion');
+                                }
+                            }}
+                        />
+                        {errors.fecha_calificacion && (
+                            <p className="text-sm text-red-500">{errors.fecha_calificacion.message}</p>
+                        )}
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Hora Fin <span className="text-red-500">*</span></Label>
+                        <DateTimePicker
+                            titleDate=""
+                            titleTime=""
+                            disabledCalendar
                             value={getValues('fecha_fin')}
-                            onChange={(date) => setValue("fecha_fin", date as Date)}
+                            onChange={(date) => {
+                                if (date) {
+                                    handleDateChange(date, 'fecha_fin');
+                                }
+                            }}
                         />
                         {errors.fecha_fin && (
                             <p className="text-sm text-red-500">{errors.fecha_fin.message}</p>
-                        )}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Área */}
-                    <div className="space-y-2">
-                        <Label>Área de Competencia <span className="text-red-500">*</span></Label>
-                        <Combobox
-                            items={areas}
-                            value={areaField.value}
-                            onChange={areaField.onChange}
-                            placeholder="Seleccionar área..."
-                            searchPlaceholder="Buscar área..."
-                            multiple={false}
-                        />
-                        {errors.area && (
-                            <p className="text-sm text-red-500">{errors.area.message}</p>
-                        )}
-                    </div>
-
-                    {/* Evaluadores */}
-                    <div className="space-y-2">
-                        <Label>Evaluadores</Label>
-                        <Combobox
-                            items={evaluadores}
-                            value={evaluadoresField.value}
-                            onChange={evaluadoresField.onChange}
-                            placeholder="Seleccionar evaluadores..."
-                            searchPlaceholder="Buscar evaluadores..."
-                            multiple={true}
-                        />
-                        {errors.usuarios && (
-                            <p className="text-sm text-red-500">{errors.usuarios.message}</p>
                         )}
                     </div>
                 </div>
@@ -295,4 +369,4 @@ export default function FormFase() {
             </CardFooter>
         </Card>
     );
-};
+}

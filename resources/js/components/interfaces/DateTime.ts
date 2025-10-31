@@ -3,6 +3,8 @@ export interface DateTimePickerProps {
   titleTime: string;
   value?: Date;
   onChange?: (date: Date | undefined) => void;
-  disabled?: boolean;
+  disabledTime?: boolean;
+  disabledDate?: any[];
+  disabledCalendar?: boolean;
   placeholder?: string;
 }

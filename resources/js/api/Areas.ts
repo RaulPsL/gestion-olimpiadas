@@ -3,6 +3,7 @@ import { axiosPrivate } from "./api";
 
 export const getAreas = async (siglaAreas: string[]) => {
     try {
+        console.log('Token: ', localStorage.getItem('token'));
         const { data } = await axiosPrivate.post("/areas/ver/especifico", {
             areas: siglaAreas
         });
@@ -33,6 +34,7 @@ export const getStaticData = async ():Promise<StaticDataAreas> => {
         areas: data.data.areas,
         fases: data.data.fases,
         evaluadores: data.data.evaluadores,
+        niveles: data.data.niveles,
     };
 };
 

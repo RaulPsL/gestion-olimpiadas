@@ -9,10 +9,14 @@ import {
 } from "@/components/ui/card"
 import { Button } from "./ui/button";
 
-export function SectionAccountingOlimpistas( datos?: any ) {
+export function SectionAccountingOlimpistas({ datos }:{ datos?: any[] }) {
   return (
-    <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-      { datos?.staticData?.map((dato: any, index: any) => (
+    <div className={datos && datos?.length > 4 ? 
+      "grid auto-rows-min gap-4 md:grid-cols-3"
+      :
+      "grid auto-rows-min gap-4 md:grid-cols-4"
+    }>
+      { datos?.map((dato: any, index: any) => (
         <Card 
           key={index}
           className="@container/card group relative cursor-pointer overflow-hidden duration-300 active:scale-95"
@@ -55,10 +59,14 @@ export function SectionAccountingOlimpistas( datos?: any ) {
                 </>
               ) : (
                 <>
-                  <p className="text-xl font-bold text-white">
-                    Generar reporte
-                  </p>
-                  <p className="text-sm text-gray-200 mt-1">Click para abrir</p>
+                  { typeof dato.options === "object" && !Array.isArray(dato.options)
+                    ? dato.options
+                    : (
+                        <>
+                          <p className="text-sm text-gray-200 mt-1">Click para abrir</p>
+                        </>
+                      )
+                  }
                 </>
               )
             }

@@ -360,6 +360,39 @@ class RelationshipSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-        }        
+        }
+
+        $areaNiveles = [
+            // ASTRONOMÍA - ASTROFÍSICA
+            [1, 1], [1, 2], [1, 3], [1, 4], [1, 5],
+            [1, 6], [1, 7], [1, 8], [1, 9], [1, 10],
+
+            // BIOLOGIA
+            [2, 6], [2, 7], [2, 8], [2, 9], [2, 10],
+
+            // FÍSICA
+            [3, 8], [3, 9], [3, 10],
+
+            // INFORMÁTICA
+            [4, 17], [4, 18], [4, 19], [4, 20], [4, 21], [4, 22],
+
+            // MATEMÁTICAS
+            [5, 11], [5, 12], [5, 13], [5, 14], [5, 15], [5, 16],
+
+            // QUIMICA
+            [6, 6], [6, 7], [6, 8], [6, 9], [6, 10],
+
+            // ROBÓTICA
+            [7, 23], [7, 24], [7, 25], [7, 26],
+        ];
+
+        foreach ($gradoNivel as [$gradoId, $nivelId]) {
+            DB::table('niveles_grados')->insert([
+                'grado_id' => $gradoId,
+                'nivel_id' => $nivelId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

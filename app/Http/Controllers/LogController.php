@@ -129,13 +129,13 @@ class LogController extends Controller
     public function olimpistas() {
         try {
             $olimpistas = Fase::with([
-                'olimpistas.colegio.departamento.provincia',
-                'olimpistas.tutor',
+                'olimpistas.colegio.provincia.departamento',
+                'olimpistas.tutores',
                 'area.usuarios.roles'
             ])->get()->flatMap(function ($fase) {
                 $area = $fase->area;
                 return collect($fase->olimpistas)->map(function ($olimpista) use ($area, $fase) {
-                    $tutor_academico = $olimpista->tutor->first();
+                    $tutor_academico = $olimpista->tutores->first();
                     $encargado = $area->usuarios->first();
                     $nombreTutor = !empty($tutor_academico) ? "$tutor_academico->nombre $tutor_academico->apellidos" : "";
                     $nombreEncargado = "$encargado->nombre $encargado->apellido";

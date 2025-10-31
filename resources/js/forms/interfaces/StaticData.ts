@@ -16,4 +16,5 @@ interface StaticDataAreas {
     areas: any[];
     fases: any[];
     evaluadores: any[];
+    niveles: any[];
 }

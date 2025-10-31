@@ -43,14 +43,15 @@ class OlimpistasController extends Controller
             //         'fases' => $fases,
             //     ];
             // });
-            $fases = Fase::select(['id', 'sigla', 'area_id'])
+            $fases = Fase::select(['id', 'sigla', 'area_id', 'nivel_id'])
                 ->with([
                     'olimpistas.tutores',
-                    'olimpistas.colegio.departamento->provincia',
+                    'olimpistas.colegio.provincia.departamento',
+                    'nivel',
                     'area:id,nombre'])->get();
             $listaFiltrada = collect($fases)->map(function ($fase) {
                 return collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
-                    $tutor = $olimpista->tutores->map(function ($tutor) { return "$tutor->nombre $tutor->apellido";});
+                    $tutor = $olimpista->tutores->map(function ($tutor) { return "$tutor->nombre $tutor->apellidos";});
                     return [
                         'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
                         'ci' => $olimpista->ci,
@@ -70,7 +71,7 @@ class OlimpistasController extends Controller
             }
             return response()->json([
                 'message' => "Olimpistas obtenidos exitosamente.",
-                'data' => $nuevaLista,
+                'data' => collect($nuevaLista)->groupBy('area'),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -147,14 +148,15 @@ class OlimpistasController extends Controller
                 ];
             });
 
-            $grados = DB::table('grados')->map(function ($grado, $index) {
+            $grados = DB::table('grados')->get()->map(function ($grado, $index) {
                 return [
                     'id' => $index+1,
+                    'nivel_id' => $grado->nivel_id,
                     'value' => $grado->id,
                     'label' => $grado->nombre,
                 ];
             });
-            $niveles = DB::table('nivels')->map(function ($area, $index) {
+            $niveles = DB::table('nivels')->get()->map(function ($area, $index) {
                 return [
                     'id' => $index+1,
                     'value' => $area->id,

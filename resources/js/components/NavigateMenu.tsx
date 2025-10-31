@@ -23,15 +23,13 @@ export function NavigateMenu({ role }: { role: boolean }) {
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link to="/">Inicio</Link>
           </NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
           {!role && (
-            <NavigationMenuLink>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
               <Link to="/clasificaciones/areas">Todos los olimpistas</Link>
             </NavigationMenuLink>
           )}
           {!role && (
-            <NavigationMenuLink>
+            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
               <Link to="/clasificaciones/grupos">Todos los grupos</Link>
             </NavigationMenuLink>
           )}
@@ -40,6 +38,8 @@ export function NavigateMenu({ role }: { role: boolean }) {
               <Link to="/fases">Todas las fases</Link>
             </NavigationMenuLink>
           )} */}
+        </NavigationMenuItem>
+        <NavigationMenuItem>
           {!role && (<NavigationMenuTrigger>Menu olimpistas</NavigationMenuTrigger>)}
           <NavigationMenuContent className="bg-background border border-border shadow-lg">
             <ul className="grid w-[300px] gap-1 p-4">

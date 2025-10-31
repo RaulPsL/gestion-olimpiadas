@@ -82,6 +82,6 @@ class Fase extends Model
     }
 
     public function nivel() {
-        return $this->hasOne(Nivel::class);
+        return $this->belongsTo(Nivel::class);
     }
 }

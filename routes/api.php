@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('olimpistas')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('olimpistas')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
     Route::get('/grupos', [App\Http\Controllers\OlimpistasController::class, 'indexGrupos'])->name('olimpistas.indexGrupos');
     Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA,ADM'])->prefix('fases')->group(
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
 });
 
-Route::middleware(['auth:sanctum', 'role:ADM,EDA,EVA'])->prefix('areas')->group(function () {
+Route::prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
     Route::post('/ver/especifico', [App\Http\Controllers\AreasController::class, 'indexByAreas']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);

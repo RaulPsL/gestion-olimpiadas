@@ -16,6 +16,10 @@ class NivelesSeeder extends Seeder
     {
         $niveles = [
             // Astronomía - Astrofísica
+            // Física
+            // Biologia
+            // Quimica
+
             ['nombre' => '3P'],
             ['nombre' => '4P'],
             ['nombre' => '5P'],
