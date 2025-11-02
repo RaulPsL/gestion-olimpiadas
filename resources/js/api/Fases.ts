@@ -1,5 +1,5 @@
 import { FormCierreFase } from "@/forms/interfaces/CierreFaseForm";
-import { axiosPrivate } from "./api";
+import { axiosPrivate, axiosPublic } from "./api";
 import { UseFormReset } from "react-hook-form";
 
 export const getFases = async (areas: string[]) => {
@@ -39,6 +39,11 @@ export const getCierres = async (areas: string[]) => {
     return data.data;
 };
 
+export const getCalendario = async () => {
+    const { data } = await axiosPublic.get("/calendar");
+    return data.data;
+};
+
 export const updateCierreFases = async (
     data: FormCierreFase,
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -51,19 +56,19 @@ export const updateCierreFases = async (
     setSuccess(false);
     try {
         console.log('Enviando datos...');
-
-        const response = await axiosPrivate.put(`/fases/cierres`, {
-            fases: data
-        });
+        console.log(data);
+        const response = await axiosPrivate.put(`/fases/cierres`, data);
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        if (response.status === 200) {
+        if (response.status >= 200 && response.status <= 300) {
             setSuccess(true);
             setIsLoading(false);
             reset();
-            console.log('Cierres almacenados con exito');
+            console.log('Datos del cierre.', response.data);
+            console.log('Cierre creado con exito');
             return;
         }
+
     } catch (error: any) {
         console.error("Error al almacenar los cierres de fases:", error);
         await new Promise(resolve => setTimeout(resolve, 2000));

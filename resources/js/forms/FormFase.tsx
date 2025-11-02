@@ -21,7 +21,8 @@ export default function FormFase() {
     const [niveles, setNiveles] = React.useState<any[]>();
     const [fases, setFases] = React.useState<any[]>();
     const [evaluadores, setEvaluadores] = React.useState<any[]>();
-    
+    // const [nivelSelected, setNivelSelected] = React.useState<string>("");
+
     // Estado para la fecha compartida
     const [sharedDate, setSharedDate] = React.useState<Date>(new Date());
 
@@ -76,6 +77,17 @@ export default function FormFase() {
         register('fecha_fin', newValidationRules.fecha_fin);
     });
 
+    React.useEffect(() => {
+        if (areaField.value.length > 0) {
+            setNiveles(areas?.find((area) => area.value === areaField.value[0]).niveles);
+            setEvaluadores(areas?.find((area) => area.value === areaField.value[0]).evaluadores);
+        } else {
+            setNiveles([]);
+            setEvaluadores([]);
+        }
+    }, [areaField.value]);
+
+    // Add filters to selected area then filter levels and evaluadores
     const handleDateChange = (newDate: Date | undefined, field: 'fecha_inicio' | 'fecha_calificacion' | 'fecha_fin') => {
         if (!newDate) return;
 
@@ -141,23 +153,7 @@ export default function FormFase() {
                             <p className="text-sm text-red-500">{errors.area.message}</p>
                         )}
                     </div>
-
-                    {/* Nivel de competencia */}
-                    <div className="space-y-2">
-                        <Label>Nivel de competencia <span className="text-red-500">*</span></Label>
-                        <Combobox
-                            items={niveles}
-                            value={nivelesField.value}
-                            onChange={nivelesField.onChange}
-                            placeholder="Seleccionar área..."
-                            searchPlaceholder="Buscar área..."
-                            multiple={false}
-                        />
-                        {errors.area && (
-                            <p className="text-sm text-red-500">{errors.area.message}</p>
-                        )}
-                    </div>
-
+                    
                     {/* Campo Tipo de Fase */}
                     <div className="space-y-2">
                         <Label htmlFor="tipo_fase">
@@ -176,6 +172,23 @@ export default function FormFase() {
                         )}
                     </div>
 
+                    {/* Nivel de competencia */}
+                    <div className="space-y-2">
+                        <Label>Nivel de competencia <span className="text-red-500">*</span></Label>
+                        <Combobox
+                            items={niveles}
+                            value={nivelesField.value}
+                            onChange={nivelesField.onChange}
+                            placeholder="Seleccionar nivel..."
+                            searchPlaceholder="Buscar nivel..."
+                            disabled={areaField.value.length > 0}
+                            multiple={false}
+                        />
+                        {errors.area && (
+                            <p className="text-sm text-red-500">{errors.area.message}</p>
+                        )}
+                    </div>
+
                     {/* Evaluadores */}
                     <div className="space-y-2">
                         <Label>Evaluadores</Label>
@@ -185,6 +198,7 @@ export default function FormFase() {
                             onChange={evaluadoresField.onChange}
                             placeholder="Seleccionar evaluadores..."
                             searchPlaceholder="Buscar evaluadores..."
+                            disabled={areaField.value.length > 0}
                             multiple={true}
                         />
                         {errors.usuarios && (

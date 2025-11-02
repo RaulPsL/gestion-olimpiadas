@@ -1,3 +1,5 @@
+import { Dispatch } from "react";
+
 interface ComboboxItem {
   id: string | number;
   value: string | number;
@@ -16,4 +18,6 @@ export interface ComboboxProps {
   searchPlaceholder?: string;
   emptyMessage?: string;
   className?: string;
+
+  onSelected?: Dispatch<React.SetStateAction<string | number>>;
 }

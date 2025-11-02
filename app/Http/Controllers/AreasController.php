@@ -63,6 +63,7 @@ class AreasController extends Controller
             $areas = Area::whereHas('usuarios.roles', 
                 function ($query) { $query->where('sigla', 'EVA'); }
             )
+            ->with('niveles')
             ->select(['id', 'sigla', 'nombre'])
             ->get()
             ->map(function ($area, $index) {
@@ -73,9 +74,17 @@ class AreasController extends Controller
                         'label' => "$usuario->nombre $usuario->apellido",
                     ];
                 });
+                $niveles = $area->niveles->map(function ($nivel, $index) {
+                    return [
+                        'id' => $index + 1,
+                        'value' => $nivel->id,
+                        'label' => $nivel->nombre,
+                    ];
+                });
                 return [
                     'id' => $index + 1,
                     'evaluadores' => $usuarios,
+                    'niveles' => $niveles,
                     'value' => $area->sigla,
                     'label' => $area->nombre,
                 ];

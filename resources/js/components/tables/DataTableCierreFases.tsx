@@ -44,22 +44,22 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   setApiError: React.Dispatch<React.SetStateAction<string>>,
   success: boolean,
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
-  reset: UseFormReset<TFormValues>,
-  handleToggleEdicion: (edicion: boolean) => void,
+  dialogOpen: boolean,
+  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>,
 };
 
 export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldValues>({
   columns,
   data,
-  handleSubmit,
   isLoading,
+  handleSubmit,
   setIsLoading,
   apiError,
   setApiError,
   success,
   setSuccess,
-  reset,
-  handleToggleEdicion,
+  dialogOpen,
+  setDialogOpen,
 }: DataTableProps<TData, TValue, TFormValues>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -68,8 +68,6 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
     usuario_evaluador_id: false,
     fase_id: false,
   });
-  const [openToEdition, setOpenToEdition] = React.useState<boolean>(false);
-  const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
   const table = useReactTable({
     data,
@@ -81,7 +79,7 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: () => {},
+    onRowSelectionChange: () => { },
     state: {
       sorting,
       columnFilters,
@@ -99,19 +97,7 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
       }, 3000);
       return () => clearTimeout(timer);
     }
-    console.log('Datos de cierres: ', data);
-
   }, [isLoading, dialogOpen]);
-
-  const handleConfirmSave = () => {
-    setIsLoading(true);
-    handleSubmit();
-    if (success) {
-      setDialogOpen(true);
-      setOpenToEdition(false);
-      handleToggleEdicion(false);
-    }
-  };
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
@@ -124,128 +110,99 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
     <div className="w-full">
       <div className="flex items-center py-4">
         <DropdownMenu>
-          <DropdownMenuTrigger className="ml-auto"/>
-          
+          <DropdownMenuTrigger className="ml-auto" />
+
           <div className="flex flex-row content-between">
-            { openToEdition ? 
-              (<AlertDialog
-                open={dialogOpen}
-                onOpenChange={setDialogOpen}
-                defaultOpen={dialogOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline">
-                    Guardar <SaveAll />
-                  </Button>
-                </AlertDialogTrigger>
-                
-                <AlertDialogContent>
-                  
-                  {isLoading && (
-                    <>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center">
-                          Guardando calificaciones...
-                        </AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <div className="flex justify-center items-center py-8">
-                        <Spinner className="h-12 w-12" />
-                      </div>
-                      <AlertDialogDescription className="text-center text-muted-foreground">
-                        Por favor espera mientras se guardan los cambios
-                      </AlertDialogDescription>
-                    </>
-                  )}
+            <AlertDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              defaultOpen={dialogOpen}>
+              <AlertDialogTrigger asChild />
 
-                  { (apiError !== '') && (
-                    <>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-red-500 text-center">
-                          Ocurrió un error
-                        </AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <Alert variant="destructive">
-                        <CircleAlert className="h-4 w-4" />
-                        <AlertTitle>Error al guardar</AlertTitle>
-                        <AlertDescription>
-                          {apiError}
-                        </AlertDescription>
-                      </Alert>
-                      <AlertDialogFooter>
-                        <AlertDialogAction onClick={handleCloseDialog}>
-                          Entendido
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </>
-                  )}
+              <AlertDialogContent>
 
-                  { success && (
-                    <>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-green-600 text-center">
-                          ¡Éxito en la accion!
-                        </AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <Alert className="border-green-200 bg-green-50">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <AlertTitle className="text-green-800">Guardado exitoso</AlertTitle>
-                        <AlertDescription className="text-green-700">
-                          Las calificaciones se guardaron correctamente
-                        </AlertDescription>
-                      </Alert>
-                    </>
-                  )}
+                {isLoading && (
+                  <>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-center">
+                        Guardando cierre...
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <div className="flex justify-center items-center py-8">
+                      <Spinner className="h-12 w-12" />
+                    </div>
+                    <AlertDialogDescription className="text-center text-muted-foreground">
+                      Por favor espera mientras se guardan los cambios
+                    </AlertDialogDescription>
+                  </>
+                )}
 
-                  {!isLoading && !apiError && !success && (
-                    <>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center">
-                          ¿Estás seguro de guardar estas calificaciones?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription />
-                      </AlertDialogHeader>
-                      <Alert variant="destructive">
-                        <CircleAlert className="h-4 w-4" />
-                        <AlertTitle>Atención</AlertTitle>
-                        <AlertDescription>
-                          Esta acción solo se puede realizar antes de que la fecha de cierre de la fase haya terminado.
-                        </AlertDescription>
-                      </Alert>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>No</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleConfirmSave}
-                        >
-                          Sí, guardar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </>
-                  )}
-                </AlertDialogContent>
-              </AlertDialog>)
-              :
-              (<Button 
-                className="ml-auto"
-                onClick={() => {
-                  setOpenToEdition(true)
-                  handleToggleEdicion(true)
-                }}
-              >
-                Guardar <NotebookPen />
-              </Button>)
-            }
-            {
-              openToEdition && (
-              <Button
-                variant="destructive"
-                className="ml-auto" 
-                onClick={() => {
-                  reset()
-                  setOpenToEdition(false)
-                  handleToggleEdicion(false)
-                }}>
-                Cancelar <CircleX />
-              </Button>)
-            }
+                {(apiError !== '') && (
+                  <>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-red-500 text-center">
+                        Ocurrió un error
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <Alert variant="destructive">
+                      <CircleAlert className="h-4 w-4" />
+                      <AlertTitle>Error al guardar</AlertTitle>
+                      <AlertDescription>
+                        {apiError}
+                      </AlertDescription>
+                    </Alert>
+                    <AlertDialogFooter>
+                      <AlertDialogAction onClick={handleCloseDialog}>
+                        Entendido
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </>
+                )}
+
+                {success && (
+                  <>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-green-600 text-center">
+                        ¡Éxito en la accion!
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <Alert className="border-green-200 bg-green-50">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <AlertTitle className="text-green-800">Guardado exitoso</AlertTitle>
+                      <AlertDescription className="text-green-700">
+                        Las calificaciones se guardaron correctamente
+                      </AlertDescription>
+                    </Alert>
+                  </>
+                )}
+
+                {!isLoading && !apiError && !success && (
+                  <>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-center">
+                        ¿Está seguro de realizar el cierre?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription />
+                    </AlertDialogHeader>
+                    <Alert variant="destructive">
+                      <CircleAlert className="h-4 w-4" />
+                      <AlertTitle>Atención</AlertTitle>
+                      <AlertDescription>
+                        Esta acción solo se puede realizar antes de que la fecha de cierre de la fase haya terminado.
+                      </AlertDescription>
+                    </Alert>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>No</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleSubmit}
+                      >
+                        Sí, guardar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </>
+                )}
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           <DropdownMenuContent align="end">
             {table?.getAllColumns()
@@ -278,9 +235,9 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   )
                 })}

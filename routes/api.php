@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('olimpistas')->group(function () {
+Route::middleware(['auth:sanctum', 'role:ADM,EDA,EVA'])->prefix('olimpistas')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
     Route::get('/grupos', [App\Http\Controllers\OlimpistasController::class, 'indexGrupos'])->name('olimpistas.indexGrupos');
     Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
@@ -39,7 +39,7 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA,ADM'])->prefix('fases')->group(
     Route::post('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
     Route::post('/cierres', [App\Http\Controllers\FasesController::class, 'indexCierreFases'])->name('fases.cierres');
     Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
-    Route::put('/', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
+    Route::put('/cierres', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
 });
 
@@ -77,6 +77,7 @@ Route::prefix('clasificaciones')->group(function () {
 
 Route::middleware(['auth:sanctum', 'role:ADM'])->post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
 
+Route::get('/calendar', [App\Http\Controllers\FasesController::class, 'indexCalendar']);
 Route::get('/statistics', [App\Http\Controllers\LogController::class, 'statistics']);
 Route::post('/login', [App\Http\Controllers\UsuariosController::class, 'login']);
 

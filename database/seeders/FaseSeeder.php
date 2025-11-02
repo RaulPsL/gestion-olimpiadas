@@ -24,9 +24,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 10,
                 'cantidad_ganadores' => 50,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(15),
-                'fecha_calificacion' => $now->copy()->subDays(12),
-                'fecha_fin' => $now->copy()->subDays(11)
+                'fecha_inicio' => $now->copy()->subDays(15)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(15)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(15)->setTime(12, 0)
             ],
             [
                 'area_id' => 7,
@@ -38,9 +38,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 8,
                 'cantidad_ganadores' => 25,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(10),
-                'fecha_calificacion' => $now->copy()->subDays(7),
-                'fecha_fin' => $now->copy()->subDays(6)
+                'fecha_inicio' => $now->copy()->subDays(10)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(10)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(10)->setTime(12, 0)
             ],
             [
                 'area_id' => 7,
@@ -52,9 +52,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 5,
                 'cantidad_ganadores' => 15,
                 'estado' => 'en curso',
-                'fecha_inicio' => $now->copy()->subDays(2),
-                'fecha_calificacion' => $now->copy()->addDay(1),
-                'fecha_fin' => $now->copy()->addDays(2)
+                'fecha_inicio' => $now->copy()->subDays(2)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(2)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(2)->setTime(12, 0)
             ],
             [
                 'area_id' => 7,
@@ -66,9 +66,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 3,
                 'cantidad_ganadores' => 8,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(3),
-                'fecha_calificacion' => $now->copy()->addDays(5),
-                'fecha_fin' => $now->copy()->addDays(7)
+                'fecha_inicio' => $now->copy()->addDays(3)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(3)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(3)->setTime(12, 0)
             ],
             [
                 'area_id' => 7,
@@ -80,9 +80,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 3,
                 'cantidad_ganadores' => 3,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(8),
-                'fecha_calificacion' => $now->copy()->addDays(11),
-                'fecha_fin' => $now->copy()->addDays(12)
+                'fecha_inicio' => $now->copy()->addDays(8)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(8)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(8)->setTime(12, 0)
             ],
 
             // Matemáticas (area_id: 5) - Niveles: Primer Nivel (11) a Sexto Nivel (16)
@@ -96,9 +96,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 20,
                 'cantidad_ganadores' => 100,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(20),
-                'fecha_calificacion' => $now->copy()->subDays(17),
-                'fecha_fin' => $now->copy()->subDays(16)
+                'fecha_inicio' => $now->copy()->subDays(20)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(20)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(20)->setTime(12, 0)
             ],
             [
                 'area_id' => 5,
@@ -110,9 +110,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 15,
                 'cantidad_ganadores' => 50,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(15),
-                'fecha_calificacion' => $now->copy()->subDays(12),
-                'fecha_fin' => $now->copy()->subDays(11)
+                'fecha_inicio' => $now->copy()->subDays(15)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(15)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(15)->setTime(12, 0)
             ],
             [
                 'area_id' => 5,
@@ -124,9 +124,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 8,
                 'cantidad_ganadores' => 20,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(10),
-                'fecha_calificacion' => $now->copy()->subDays(7),
-                'fecha_fin' => $now->copy()->subDays(6)
+                'fecha_inicio' => $now->copy()->subDays(10)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(10)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(10)->setTime(12, 0)
             ],
             [
                 'area_id' => 5,
@@ -138,9 +138,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 5,
                 'cantidad_ganadores' => 10,
                 'estado' => 'en curso',
-                'fecha_inicio' => $now->copy()->subDay(1),
-                'fecha_calificacion' => $now->copy()->addDay(2),
-                'fecha_fin' => $now->copy()->addDays(3)
+                'fecha_inicio' => $now->copy()->subDay(1)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDay(1)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDay(1)->setTime(12, 0)
             ],
             [
                 'area_id' => 5,
@@ -152,9 +152,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 5,
                 'cantidad_ganadores' => 5,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(4),
-                'fecha_calificacion' => $now->copy()->addDays(7),
-                'fecha_fin' => $now->copy()->addDays(8)
+                'fecha_inicio' => $now->copy()->addDays(4)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(4)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(4)->setTime(12, 0)
             ],
 
             // Física (area_id: 3) - Niveles de secundaria (5-10: 1S a 6S)
@@ -168,9 +168,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 15,
                 'cantidad_ganadores' => 80,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(18),
-                'fecha_calificacion' => $now->copy()->subDays(15),
-                'fecha_fin' => $now->copy()->subDays(14)
+                'fecha_inicio' => $now->copy()->subDays(18)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(18)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(18)->setTime(12, 0)
             ],
             [
                 'area_id' => 3,
@@ -182,9 +182,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 10,
                 'cantidad_ganadores' => 40,
                 'estado' => 'en curso',
-                'fecha_inicio' => $now->copy()->subDays(3),
-                'fecha_calificacion' => $now->copy(),
-                'fecha_fin' => $now->copy()->addDay(1)
+                'fecha_inicio' => $now->copy()->subDays(3)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(3)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(3)->setTime(12, 0)
             ],
             [
                 'area_id' => 3,
@@ -196,9 +196,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 6,
                 'cantidad_ganadores' => 20,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(2),
-                'fecha_calificacion' => $now->copy()->addDays(4),
-                'fecha_fin' => $now->copy()->addDays(6)
+                'fecha_inicio' => $now->copy()->addDays(2)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(2)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(2)->setTime(12, 0)
             ],
             [
                 'area_id' => 3,
@@ -210,9 +210,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 4,
                 'cantidad_ganadores' => 8,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(7),
-                'fecha_calificacion' => $now->copy()->addDays(10),
-                'fecha_fin' => $now->copy()->addDays(11)
+                'fecha_inicio' => $now->copy()->addDays(7)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(7)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(7)->setTime(12, 0)
             ],
             [
                 'area_id' => 3,
@@ -224,9 +224,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 4,
                 'cantidad_ganadores' => 4,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(12),
-                'fecha_calificacion' => $now->copy()->addDays(14),
-                'fecha_fin' => $now->copy()->addDays(16)
+                'fecha_inicio' => $now->copy()->addDays(12)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(12)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(12)->setTime(12, 0)
             ],
 
             // Química (area_id: 6) - Niveles de secundaria
@@ -240,9 +240,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 12,
                 'cantidad_ganadores' => 60,
                 'estado' => 'en curso',
-                'fecha_inicio' => $now->copy()->subDays(2),
-                'fecha_calificacion' => $now->copy()->addDay(1),
-                'fecha_fin' => $now->copy()->addDays(2)
+                'fecha_inicio' => $now->copy()->subDays(2)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(2)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(2)->setTime(12, 0)
             ],
             [
                 'area_id' => 6,
@@ -254,9 +254,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 8,
                 'cantidad_ganadores' => 30,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(3),
-                'fecha_calificacion' => $now->copy()->addDays(6),
-                'fecha_fin' => $now->copy()->addDays(7)
+                'fecha_inicio' => $now->copy()->addDays(3)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(3)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(3)->setTime(12, 0)
             ],
             [
                 'area_id' => 6,
@@ -268,9 +268,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 5,
                 'cantidad_ganadores' => 12,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(8),
-                'fecha_calificacion' => $now->copy()->addDays(10),
-                'fecha_fin' => $now->copy()->addDays(12)
+                'fecha_inicio' => $now->copy()->addDays(8)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(8)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(8)->setTime(12, 0)
             ],
             [
                 'area_id' => 6,
@@ -282,9 +282,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 5,
                 'cantidad_ganadores' => 5,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(13),
-                'fecha_calificacion' => $now->copy()->addDays(15),
-                'fecha_fin' => $now->copy()->addDays(17)
+                'fecha_inicio' => $now->copy()->addDays(13)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(13)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(13)->setTime(12, 0)
             ],
 
             // Biología (area_id: 2) - Niveles de secundaria
@@ -298,9 +298,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 13,
                 'cantidad_ganadores' => 70,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(22),
-                'fecha_calificacion' => $now->copy()->subDays(19),
-                'fecha_fin' => $now->copy()->subDays(18)
+                'fecha_inicio' => $now->copy()->subDays(22)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(22)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(22)->setTime(12, 0)
             ],
             [
                 'area_id' => 2,
@@ -312,9 +312,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 10,
                 'cantidad_ganadores' => 35,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(17),
-                'fecha_calificacion' => $now->copy()->subDays(14),
-                'fecha_fin' => $now->copy()->subDays(13)
+                'fecha_inicio' => $now->copy()->subDays(17)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(17)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(17)->setTime(12, 0)
             ],
             [
                 'area_id' => 2,
@@ -326,9 +326,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 6,
                 'cantidad_ganadores' => 18,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(12),
-                'fecha_calificacion' => $now->copy()->subDays(9),
-                'fecha_fin' => $now->copy()->subDays(8)
+                'fecha_inicio' => $now->copy()->subDays(12)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(12)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(12)->setTime(12, 0)
             ],
             [
                 'area_id' => 2,
@@ -340,9 +340,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 4,
                 'cantidad_ganadores' => 8,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(7),
-                'fecha_calificacion' => $now->copy()->subDays(4),
-                'fecha_fin' => $now->copy()->subDays(3)
+                'fecha_inicio' => $now->copy()->subDays(7)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(7)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(7)->setTime(12, 0)
             ],
             [
                 'area_id' => 2,
@@ -354,9 +354,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 4,
                 'cantidad_ganadores' => 4,
                 'estado' => 'en curso',
-                'fecha_inicio' => $now->copy()->subDay(1),
-                'fecha_calificacion' => $now->copy()->addDay(2),
-                'fecha_fin' => $now->copy()->addDays(3)
+                'fecha_inicio' => $now->copy()->subDay(1)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDay(1)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDay(1)->setTime(12, 0)
             ],
 
             // Informática (area_id: 4) - Niveles: Guscanayo (17) a Puma (22)
@@ -370,9 +370,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 15,
                 'cantidad_ganadores' => 90,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(1),
-                'fecha_calificacion' => $now->copy()->addDays(3),
-                'fecha_fin' => $now->copy()->addDays(5)
+                'fecha_inicio' => $now->copy()->addDays(1)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(1)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(1)->setTime(12, 0)
             ],
             [
                 'area_id' => 4,
@@ -384,9 +384,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 12,
                 'cantidad_ganadores' => 45,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(6),
-                'fecha_calificacion' => $now->copy()->addDays(8),
-                'fecha_fin' => $now->copy()->addDays(10)
+                'fecha_inicio' => $now->copy()->addDays(6)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(6)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(6)->setTime(12, 0)
             ],
             [
                 'area_id' => 4,
@@ -398,9 +398,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 7,
                 'cantidad_ganadores' => 20,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(11),
-                'fecha_calificacion' => $now->copy()->addDays(14),
-                'fecha_fin' => $now->copy()->addDays(15)
+                'fecha_inicio' => $now->copy()->addDays(11)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(11)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(11)->setTime(12, 0)
             ],
             [
                 'area_id' => 4,
@@ -412,9 +412,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 7,
                 'cantidad_ganadores' => 7,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(16),
-                'fecha_calificacion' => $now->copy()->addDays(19),
-                'fecha_fin' => $now->copy()->addDays(20)
+                'fecha_inicio' => $now->copy()->addDays(16)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(16)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(16)->setTime(12, 0)
             ],
 
             // Astronomía (area_id: 1) - Niveles: 3P (1) a 6S (10)
@@ -428,9 +428,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 8,
                 'cantidad_ganadores' => 50,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(12),
-                'fecha_calificacion' => $now->copy()->subDays(9),
-                'fecha_fin' => $now->copy()->subDays(8)
+                'fecha_inicio' => $now->copy()->subDays(12)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(12)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(12)->setTime(12, 0)
             ],
             [
                 'area_id' => 1,
@@ -442,9 +442,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 6,
                 'cantidad_ganadores' => 25,
                 'estado' => 'finalizada',
-                'fecha_inicio' => $now->copy()->subDays(7),
-                'fecha_calificacion' => $now->copy()->subDays(4),
-                'fecha_fin' => $now->copy()->subDays(3)
+                'fecha_inicio' => $now->copy()->subDays(7)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDays(7)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDays(7)->setTime(12, 0)
             ],
             [
                 'area_id' => 1,
@@ -456,9 +456,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 4,
                 'cantidad_ganadores' => 10,
                 'estado' => 'en curso',
-                'fecha_inicio' => $now->copy()->subDay(1),
-                'fecha_calificacion' => $now->copy()->addDay(1),
-                'fecha_fin' => $now->copy()->addDays(3)
+                'fecha_inicio' => $now->copy()->subDay(1)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->subDay(1)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->subDay(1)->setTime(12, 0)
             ],
             [
                 'area_id' => 1,
@@ -470,9 +470,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 4,
                 'cantidad_ganadores' => 4,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(4),
-                'fecha_calificacion' => $now->copy()->addDays(6),
-                'fecha_fin' => $now->copy()->addDays(8)
+                'fecha_inicio' => $now->copy()->addDays(4)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(4)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(4)->setTime(12, 0)
             ],
 
             // Electrónica (area_id: 8) - Niveles de secundaria
@@ -514,9 +514,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 5,
                 'cantidad_ganadores' => 12,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(9),
-                'fecha_calificacion' => $now->copy()->addDays(11),
-                'fecha_fin' => $now->copy()->addDays(13)
+                'fecha_inicio' => $now->copy()->addDays(9)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(9)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(9)->setTime(12, 0)
             ],
             [
                 'area_id' => 8,
@@ -528,9 +528,9 @@ class FaseSeeder extends Seeder
                 'cantidad_min_participantes' => 5,
                 'cantidad_ganadores' => 5,
                 'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(14),
-                'fecha_calificacion' => $now->copy()->addDays(16),
-                'fecha_fin' => $now->copy()->addDays(18)
+                'fecha_inicio' => $now->copy()->addDays(14)->setTime(9, 0),
+                'fecha_calificacion' => $now->copy()->addDays(14)->setTime(10, 0),
+                'fecha_fin' => $now->copy()->addDays(14)->setTime(12, 0)
             ],
         ];
 

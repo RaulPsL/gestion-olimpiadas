@@ -61,13 +61,16 @@ class LogController extends Controller
                 $evaluador = $fase->evaluador;
                 $nombre_evaluador = "$evaluador->nombre $evaluador->apelido - $evaluador->rol";
                 return [
-                    "sup_usuario_and_rol" => $nombre_encargado,
-                    "sub_usuario_and_rol" => $nombre_evaluador,
+                    "encargado" => $nombre_encargado,
+                    "evaluador" => $nombre_evaluador,
                     "fase" => $fase->sigla,
                     "estado_fase" => $fase->estado,
                     "area" => $fase->area->nombre,
                     "fecha_creacion" => $fase->create_at,
                     "fecha_modificacion" => $fase->update_at,
+                    "fecha_fin_fase" => $fase->fase->fecha_fin,
+                    "fecha_inicio_fase" => $fase->fase->feha_inicio,
+                    "fecha_calificacion_fase" => $fase->fase->fecha_calificacion,
                 ];
             });
             return response()->json([

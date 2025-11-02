@@ -20,7 +20,7 @@ export const validationRules = (
         },
         validate: (value: number) => {
             const min = watch("cantidad_max_participantes");
-            return value >= min || "Debe ser menor al maximo de participantes";
+            return value <= min || "Debe ser menor al maximo de participantes";
         }
     },
     cantidad_max_participantes: {
@@ -50,9 +50,19 @@ export const validationRules = (
     fecha_fin: {
         required: "La fecha de fin es obligatoria",
         validate: (value: Date) => {
-            const inicio = watch("fecha_inicio");
-            if (new Date(value) > new Date(inicio)) return "Debe ser posterior a la fecha de inicio";
+            const min = watch("fecha_inicio");
             if (new Date() > new Date(value)) return "No puede ser menor a la fecha actual.";
+            if (new Date(value) <= new Date(min)) return "No debe ser menor o igual a la fecha inicio.";
+        }
+    },
+    fecha_calificacion: {
+        required: "La fecha de calificacion es obligatoria",
+        validate: (value: Date) => {
+            const min = watch("fecha_inicio");
+            const max = watch("fecha_fin");
+            if (new Date() > new Date(value)) return "No puede ser menor a la fecha actual.";
+            if (new Date(value) <= new Date(min)) return "No debe ser menor o igual a la fecha inicio.";
+            if (new Date(value) >= new Date(max)) return "No debe ser mayor o igual a la fecha fin.";
         }
     },
     area: {

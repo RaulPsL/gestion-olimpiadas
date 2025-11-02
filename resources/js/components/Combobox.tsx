@@ -28,7 +28,8 @@ export function Combobox({
   disabled = false,
   searchPlaceholder = "Buscar...",
   emptyMessage = "No se encontraron resultados.",
-  className = ""
+  className = "",
+  onSelected,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const getLabelByValue = (searchValue: string | number): string => {
@@ -46,6 +47,7 @@ export function Combobox({
     } else {
       const newValue = value.includes(selectedValue) ? [] : [selectedValue];
       onChange?.(newValue);
+      onSelected?.(selectedValue);
       setOpen(false);
     }
   };

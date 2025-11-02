@@ -50,6 +50,7 @@
         "papaparse": "^5.5.3",
         "pdf-lib": "^1.17.1",
         "react": "^19.1.1",
+        "react-big-calendar": "^1.19.4",
         "react-day-picker": "^9.11.0",
         "react-dom": "^19.1.1",
         "react-hook-form": "^7.62.0",

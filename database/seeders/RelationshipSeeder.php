@@ -386,9 +386,9 @@ class RelationshipSeeder extends Seeder
             [7, 23], [7, 24], [7, 25], [7, 26],
         ];
 
-        foreach ($gradoNivel as [$gradoId, $nivelId]) {
-            DB::table('niveles_grados')->insert([
-                'grado_id' => $gradoId,
+        foreach ($areaNiveles as [$areaId, $nivelId]) {
+            DB::table('niveles_areas')->insert([
+                'area_id' => $areaId,
                 'nivel_id' => $nivelId,
                 'created_at' => now(),
                 'updated_at' => now(),

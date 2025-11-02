@@ -28,6 +28,7 @@ class FasesController extends Controller
                     'area' => $fase->area->nombre,
                     'cantidad_participantes' => collect($fase->olimpistas())->count(),
                     'fecha_inicio' => date('d/M/Y', strtotime($fase->fecha_inicio)),
+                    'fecha_calificacion' => date('d/M/Y', strtotime($fase->fecha_calificacion)),
                     'fecha_fin' => date('d/M/Y', strtotime($fase->fecha_fin)),
                     'estado' => $fase->estado,
                 ];
@@ -39,6 +40,38 @@ class FasesController extends Controller
             return response()->json([
                 'message' => "Fases obtenidas exitosamente.",
                 'data' => $fasesPorArea,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener las fases.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function indexCalendar() {
+        try {
+            $fases = Fase::with(['area', 'nivel'])->get()->map(function ($fase, $index) {
+                $nivel = $fase->nivel;
+                $area = $fase->area;
+                return[
+                    'id' => $index+1,
+                    'title' => "$area->nombre $nivel->nombre",
+                    'start' => $fase->fecha_inicio,
+                    'calificacion' => $fase->fecha_calificacion,
+                    'end' => $fase->fecha_fin,
+                    'resource' => [
+                        'area' => $area->nombre,
+                        'participants' => collect($fase->olimpistas())->count(),
+                        'type' => $fase->tipo_fase,
+                        'state' => $fase->estado,
+                    ]
+                ];
+            });
+
+            return response()->json([
+                'message' => "Fases obtenidas exitosamente.",
+                'data' => $fases,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -121,51 +154,39 @@ class FasesController extends Controller
     {
         try {
             $request->validate([
-                'fases' => 'required',
-                'fases.*.fase_id' => 'required|exists:fases,id',
-                'fases.*.estado' => 'required',
+                'fase_id' => 'required',
             ]);
-            $count_fases = [
-                'fases_finalizadas' => 0,
-                'fases_pendientes' => 0
-            ];
-            if ($request->has('fases')) {
-                $fases = $request->fases;
-                foreach ($fases as $fase) {
-                    $cierre = VerificacionCierre::where('fase_id', $fase->fase_id);
-                    $fase_actual = Fase::findOrFail($fase->fase_id);
-                    $usuarios = [];
-                    if (key_exists('usuario_encargado_id', $request->toArray())) {
-                        $usuarios['usuario_encargado_id'] = Usuario::where('ci', $request->usuario_encargado_id)->get();
-                    }
-                    if (key_exists('usuario_evaluador_id', $request->toArray())) {
-                        $usuarios['usuario_evaluador_id'] = Usuario::where('ci', $request->usuario_evaluador_id)->get();
-                    }
-                    if ($cierre) {
-                        $cierre = $cierre->update($usuarios);
-                        if (!empty($cierre['usuario_evaluador_id']) && !empty($cierre['usuario_evaluador_id'])) {
-                            $fase_actual->update(['estado' => 'finalizada']);
-                        }
-                        $count_fases['fases_finalizadas'] = $count_fases['fases_finalizadas'] + 1;
-                    } else {
-                        $usuarios['fase_id'] = $fase->fase_id;
-                        VerificacionCierre::create($usuarios);
-                        $fase_actual->update(['estado' => 'pendiente']);
-                        $count_fases['fases_pendientes'] = $count_fases['fases_pendientes'] + 1;
-                    }
+            
+            $cierre = VerificacionCierre::where('fase_id', $request->fase_id)->first();
+            $fase_actual = Fase::findOrFail($request->fase_id);
+            $usuarios = [];
+            if ($request->has('usuario_encargado_id') && $request->usuario_encargado_id > 0) {
+                $usuarios['usuario_encargado_id'] = Usuario::where('ci', $request->usuario_encargado_id)->first()->id;
+            }
+            if ($request->has('usuario_evaluador_id') && $request->usuario_evaluador_id > 0) {
+                $usuarios['usuario_evaluador_id'] = Usuario::where('ci', $request->usuario_evaluador_id)->first()->id;
+            }
+            if ($cierre) {
+                $cierre = $cierre->update($usuarios);
+                if (!empty($cierre['usuario_evaluador_id']) && !empty($cierre['usuario_evaluador_id'])) {
+                    $fase_actual->update(['estado' => 'finalizada']);
                 }
-                return response()->json([
-                    'message' => "Verificacion de cierre de fases ejecutada con exito.",
-                    'data' => $count_fases,
-                ], 202);
+            } else {
+                $usuarios['fase_id'] = $request->fase_id;
+                $cierre = VerificacionCierre::create($usuarios);
+                $fase_actual->update(['estado' => 'pendiente']);
             }
             return response()->json([
-                'message' => "No se encontraron fases para actualizar.",
-                'data' => [],
-            ], 200);
+                'message' => "Verificacion de cierre de fases ejecutada con exito.",
+                'data' => [
+                    'cierre' => VerificacionCierre::where('fase_id', $request->fase_id)->first(),
+                    'fase' => $fase_actual,
+                ],
+            ], 202);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al obtener las fases.',
+                'cierre' => VerificacionCierre::where('fase_id', $request->fase_id)->first(),
                 'error' => $th->getMessage(),
             ], 500);
         }

@@ -22,7 +22,6 @@ export default function Header() {
         if (data !== null && data !== undefined) {
             setRole(true);
         }
-        console.log(data);
     }, [data]);
     return (
         <header className="flex h-16 shrink-0 items-center justify-between border-b px-3">
