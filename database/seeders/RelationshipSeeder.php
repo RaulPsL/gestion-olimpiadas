@@ -41,17 +41,16 @@ class RelationshipSeeder extends Seeder
             [7, 2],          // Pablo: Matemáticas
             [8, 3], [8, 7],  // Lucía: Física y Astronomía
             [9, 4], [9, 5],  // Diego: Química y Biología
-            [10, 8],         // Valeria: Electrónica
             [16, 1], [16, 2], // Martín: Robótica y Matemáticas
             [17, 5], [17, 6], // Paola: Biología e Informática
             [18, 4], [18, 3], // Andrés: Química y Física
-            [19, 7], [19, 8], // Verónica: Astronomía y Electrónica
+            [19, 7], // Verónica: Astronomía y Electrónica
             [20, 1], [20, 2], [20, 3], // Hernán: Todas las áreas
-            [21, 1], [21, 2], [21, 3], [21, 4], [21, 5], [21, 6], [21, 7], [21, 8], 
+            [21, 1], [21, 2], [21, 3], [21, 4], [21, 5], [21, 6], [21, 7],
 
             // Evaluadores por área
             [1, 2], [2, 3], [3, 4], [4, 5], [5, 6],
-            [11, 1], [12, 7], [13, 8], [14, 2], [15, 6],
+            [11, 1], [12, 7], [14, 2], [15, 6],
         ];
 
         foreach ($usuarioAreas as [$usuarioId, $areaId]) {
@@ -128,9 +127,9 @@ class RelationshipSeeder extends Seeder
             [5, 3], [6, 3], [37, 3], [38, 3], [39, 3], [29, 3], [30, 3], [36, 3], [39, 3], [31, 3], [31, 7], // Física
             [7, 4], [8, 4], [40, 4], [41, 4], [42, 4], [40, 4], [42, 4], [47, 4], [48, 4], [49, 4], // Química
             [9, 5], [10, 5], [43, 5], [44, 5], [45, 5], [53, 5], [54, 5], [55, 5], [56, 5], [41, 5], [17, 5], // Biología
-            [11, 6], [12, 6], [46, 6], [47, 6], [48, 6], [33, 6], [33, 8], [57, 6], [58, 6], [59, 6], [60, 6], // Informática
+            [11, 6], [12, 6], [46, 6], [47, 6], [48, 6], [33, 6], [33, 6], [57, 6], [58, 6], [59, 6], [60, 6], // Informática
             [13, 7], [14, 7], [49, 7], [50, 7], [51, 7], [27, 7], [35, 7], [44, 7], [50, 7], // Astronomía
-            [15, 8], [16, 8], [52, 8], [53, 8], [54, 8], [25, 8], [38, 8], [45, 8], [52, 8], // Electrónica
+            [15, 1], [16, 2], [52, 3], [53, 4], [54, 5], [25, 6], [38, 7], [45, 1], [52, 2],
         ];
 
         foreach ($olimpistaAreas as [$olimpistaId, $areaId]) {
@@ -196,6 +195,7 @@ class RelationshipSeeder extends Seeder
             SELECT DISTINCT og.grupo_id, oa.area_id
             FROM olimpista_grupos og
             JOIN olimpista_areas oa ON oa.olimpista_id = og.olimpista_id
+            WHERE oa.area_id = 4 and oa.area_id = 7
         ");
 
         foreach ($grupoAreas as $ga) {

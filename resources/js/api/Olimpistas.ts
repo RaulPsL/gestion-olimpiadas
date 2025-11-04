@@ -8,6 +8,14 @@ export const getOlimpistas = async () => {
     return data.data;
 };
 
+export const getOlimpistasByAreas = async (areas: string[]) => {
+    const { data } = await axiosPrivate.post("/olimpistas/areas", {
+        areas: areas
+    });
+    console.log(`Datos obtenidos: `, data.data);
+    return data.data;
+};
+
 export const getStatistics = async () => {
     const { data } = await axiosPublic.get("/statistics");
     console.log(`Datos obtenidos: `, data.data);
@@ -51,7 +59,7 @@ export const createOlimpista = async (
             setIsLoading(false);
             return;
         }
-        if (activoFormAcademico) {
+        if (!activoFormAcademico) {
             delete data.tutor_academico;
         }
         const formData = {

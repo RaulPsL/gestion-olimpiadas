@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
-import { FormCierreFase } from "@/forms/interfaces/CierreFaseForm";
+import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 import { Dispatch } from "react";
 
 export type CierreFases = {
@@ -22,8 +22,8 @@ export type CierreFases = {
 };
 
 export const createColumnsCierres = (
-  register: UseFormRegister<FormCierreFase>,
-  setValue: UseFormSetValue<FormCierreFase>,
+  register: UseFormRegister<FormCierreFase | FormGetupFase>,
+  setValue: UseFormSetValue<FormCierreFase | FormGetupFase>,
   setDialogOpen: Dispatch<React.SetStateAction<boolean>>,
   data: any
 ): ColumnDef<CierreFases>[] => [
@@ -80,15 +80,15 @@ export const createColumnsCierres = (
           new Date(fila.fecha_calificacion_fase) > new Date(fila.fecha_inicio_fase) ||
           new Date(fila.fecha_calificacion_fase) < new Date(fila.fecha_fin_fase)) &&
           (fila.encargado !== "" || fila.evaluador !== "");
+        const currentDate = new Date();
+        const sePuedeRevertir = new Date(currentDate.setMinutes(currentDate.getMinutes() + 15)) < new Date(fila.fecha_fin_fase) &&
+          (fila.encargado !== "" && fila.evaluador !== "");
         return (
+          data.rol.sigla !== "ADM" ? 
           <Button
             variant={siPuedeCerrar ? "ghost" : "default"}
             disabled={siPuedeCerrar}
             onClick={() => {
-              console.log(fila.fecha_calificacion_fase);
-              console.log(fila.fecha_fin_fase);
-              console.log(fila.fecha_inicio_fase);
-              console.log(siPuedeCerrar);
               setValue("fase_id", fila.fase_id);
               setValue("usuario_encargado_id", data?.rol.sigla === 'EDA' ? data?.data.ci : 0);
               setValue("usuario_evaluador_id", data?.rol.sigla === 'EVA' ? data?.data.ci : 0);
@@ -96,6 +96,18 @@ export const createColumnsCierres = (
             }}
           >
             Confirmar cierre
+          </Button> 
+          :
+          <Button
+            variant={sePuedeRevertir ? "ghost" : "default"}
+            disabled={sePuedeRevertir}
+            onClick={() => {
+              setValue("fase_id", fila.fase_id);
+              setValue("aumento_fin", "");
+              setDialogOpen(prev => !prev);
+            }}
+          >
+            Revertir cierre
           </Button>
         );
       },

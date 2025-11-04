@@ -8,18 +8,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/tables/DataTable";
 import { columns } from "@/components/tables/ColumnsOlimpista";
 import React from "react";
-import { getOlimpistas } from "@/api/Olimpistas";
+import { getOlimpistas, getOlimpistasByAreas } from "@/api/Olimpistas";
+import { useAuth } from "@/hooks/use-context";
 
 export default function PageVerOlimpistas() {
     const [olimpistas, setOlimpistas] = React.useState<any[]>([]);
-
+    const { data } = useAuth();
     React.useEffect(() => {
-        const staticData = async () => {
-            const staticOlimpistas = await getOlimpistas();
-            setOlimpistas(staticOlimpistas);
-        };
+        const areas = data?.areas.map((area) => area?.sigla);
+        const staticData = data ? 
+            async () => {
+                const staticOlimpistas = await getOlimpistasByAreas(areas as string[]);
+                setOlimpistas(staticOlimpistas);
+            }
+            :
+            async () => {
+                const staticOlimpistas = await getOlimpistas();
+                setOlimpistas(staticOlimpistas);
+            };
         staticData();
-    }, []);
+    }, [data]);
 
     return (
         <SidebarProvider>
@@ -32,21 +40,37 @@ export default function PageVerOlimpistas() {
                         <Label className="text-2xl">Visualizar olimpistas</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue="olimpistas">
+                        <Tabs defaultValue={data?.areas[0].nombre}>
                             <TabsList>
-                                <TabsTrigger value="olimpistas">Olimpistas</TabsTrigger>
+                                { data?.areas.map((area) => (
+                                    <TabsTrigger
+                                        value={area.nombre}
+                                        key={area.nombre}
+                                        id={area.nombre}
+                                    >
+                                        {area.nombre}
+                                    </TabsTrigger>
+                                )) }
                             </TabsList>
-                            <TabsContent value="olimpistas">
-                                <Card>
-                                    <CardContent>
-                                        <DataTable
-                                            columns={columns}
-                                            data={olimpistas}
-                                            fieldSearch="nombre"
-                                        />
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
+                            {
+                                data?.areas.map((area) => (
+                                    <TabsContent 
+                                        value={area.nombre}
+                                        key={area.nombre}
+                                        id={area.nombre}
+                                    >
+                                        <Card>
+                                            <CardContent>
+                                                <DataTable
+                                                    columns={columns}
+                                                    data={olimpistas[area.nombre] !== undefined ? olimpistas[area.nombre] : []}
+                                                    fieldSearch="nombre"
+                                                />
+                                            </CardContent>
+                                        </Card>
+                                    </TabsContent>
+                                ))
+                            }
                         </Tabs>
                     </div>
                 </div>

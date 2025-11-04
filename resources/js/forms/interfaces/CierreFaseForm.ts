@@ -3,3 +3,8 @@ export type FormCierreFase = {
   usuario_evaluador_id: number | null,
   fase_id: number,
 };
+
+export type FormGetupFase = {
+  aumento_fin: string,
+  fase_id: number,
+};

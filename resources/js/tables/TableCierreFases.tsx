@@ -3,7 +3,7 @@ import { createColumnsCierres } from "@/components/tables/ColumnsCierre";
 
 import { DataTableCierrresFases } from "@/components/tables/DataTableCierreFases";
 import { Card, CardContent } from "@/components/ui/card";
-import { FormCierreFase } from "@/forms/interfaces/CierreFaseForm";
+import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 import { useAuth } from "@/hooks/use-context";
 
 import React from "react";
@@ -21,7 +21,7 @@ export default function TablecierreFases(
     handleSubmit,
     setValue,
     reset,
-  } = useForm<FormCierreFase>({
+  } = useForm<FormCierreFase | FormGetupFase>({
     defaultValues: {
       usuario_encargado_id: 0,
       usuario_evaluador_id: 0,
@@ -32,7 +32,6 @@ export default function TablecierreFases(
   const { data } = useAuth();
 
   const handleConfirmSave = () => {
-    console.log(data);
     setIsLoading(true);
     handleSubmit((data) => updateCierreFases(
         data,

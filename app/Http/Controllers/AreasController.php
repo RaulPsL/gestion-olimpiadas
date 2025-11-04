@@ -251,6 +251,7 @@ class AreasController extends Controller
                         'fecha_inicio' => $faseData['fecha_inicio'],
                         'fecha_calificacion' => $faseData['fecha_calificacion'],
                         'fecha_fin' => $faseData['fecha_fin'],
+                        'nivel_id' => $faseData['nivel'],
                     ]);
 
                     // Relacionar la fase con los usuarios

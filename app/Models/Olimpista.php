@@ -24,6 +24,8 @@ class Olimpista extends Model
         'apellido_paterno',
         'apellido_materno',
         'ci',
+        'email',
+        'fecha_nacimiento',
         'celular',
         'estado',
         'colegio_id',

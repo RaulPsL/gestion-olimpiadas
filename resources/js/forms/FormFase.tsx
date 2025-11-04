@@ -65,8 +65,8 @@ export default function FormFase() {
     const newValidationRules = validationRules(watch);
     const tipoFaseField = useComboboxField("tipo_fase", setValue, false, trigger);
     const areaField = useComboboxField("area", setValue, false, trigger);
+    const nivelesField = useComboboxField("nivel", setValue, false, trigger);
     const evaluadoresField = useComboboxField("usuarios", setValue, true, trigger);
-    const nivelesField = useComboboxField("nivel", setValue, true, trigger);
 
     React.useEffect(() => {
         register('area', newValidationRules.area);
@@ -181,7 +181,7 @@ export default function FormFase() {
                             onChange={nivelesField.onChange}
                             placeholder="Seleccionar nivel..."
                             searchPlaceholder="Buscar nivel..."
-                            disabled={areaField.value.length > 0}
+                            disabled={areaField.value.length === 0}
                             multiple={false}
                         />
                         {errors.area && (
@@ -198,7 +198,7 @@ export default function FormFase() {
                             onChange={evaluadoresField.onChange}
                             placeholder="Seleccionar evaluadores..."
                             searchPlaceholder="Buscar evaluadores..."
-                            disabled={areaField.value.length > 0}
+                            disabled={areaField.value.length === 0}
                             multiple={true}
                         />
                         {errors.usuarios && (

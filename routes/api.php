@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum', 'role:ADM,EDA,EVA'])->prefix('olimpistas')->group(function () {
+Route::prefix('olimpistas')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
+    Route::post('/areas', [App\Http\Controllers\OlimpistasController::class, 'indexByArea'])->name('olimpistas.indexByArea');
     Route::get('/grupos', [App\Http\Controllers\OlimpistasController::class, 'indexGrupos'])->name('olimpistas.indexGrupos');
     Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
     Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('olimpistas.store');
     Route::post('/file', [App\Http\Controllers\OlimpistasController::class, 'storeByFile'])->name('olimpistas.storeByFile');
-    Route::get('/area/{area}', [App\Http\Controllers\OlimpistasController::class, 'showByArea'])->name('olimpistas.area');
     Route::get('/fase/{area}/{fase}', [App\Http\Controllers\OlimpistasController::class, 'showByFase'])->name('olimpistas.fase');
     Route::get('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('olimpistas.show');
     Route::put('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'update'])->name('olimpistas.update');
@@ -39,7 +39,8 @@ Route::middleware(['auth:sanctum', 'role:EDA,EVA,ADM'])->prefix('fases')->group(
     Route::post('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
     Route::post('/cierres', [App\Http\Controllers\FasesController::class, 'indexCierreFases'])->name('fases.cierres');
     Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
-    Route::put('/cierres', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
+    Route::put('/create/cierres', [App\Http\Controllers\FasesController::class, 'createCierre'])->name('fases.update');
+    Route::put('/update/cierres', [App\Http\Controllers\FasesController::class, 'updateCierre'])->name('fases.create');
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');
 });
 

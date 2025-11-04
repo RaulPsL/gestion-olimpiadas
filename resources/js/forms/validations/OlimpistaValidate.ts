@@ -40,6 +40,13 @@ export const validationRules = {
             message: "Solo se permiten letras y espacios"
         }
     },
+    email: {
+        required: "El correo del olimpista es obligatorio",
+        pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+            message: "Ingrese un email válido"
+        },
+    },
     celular: {
         required: "El celular del estudiante es obligatorio",
         validate: (value: string) => {
@@ -80,27 +87,30 @@ export const validationRules = {
             if (!value) return "Debe seleccionar el nivel de competencia.";
         }
     },
-    nombre_tutor: {
-        required: "El nombre completo del tutor es obligatorio",
-        minLength: {
-            value: 15,
-            message: "El nombre del tutor debe tener al menos 15 caracteres"
-        },
-        maxLength: {
-            value: 45,
-            message: "El nombre del tutor no puede tener más de 45 caracteres"
-        },
-        pattern: {
-            value: /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/,
-            message: "Solo se permiten letras y espacios"
-        },
+    // Validaciones para los niveles por área
+    nivel_area_1: {
+        validate: (value: string, formValues: any) => {
+            // Solo validar si hay al menos 1 área seleccionada
+            if (formValues.areas && formValues.areas.length >= 1 && !value) {
+                return "Debe seleccionar el nivel para esta área.";
+            }
+            return true;
+        }
     },
-    // CORREGIDO: Para campos numéricos, usar validate en lugar de pattern
-    referencia_tutor: {
-        required: "El celular del tutor es obligatorio",
-        validate: (value: string) => {
-            if (!/^[67]\d{7}$/.test(value)) {
-                return "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)";
+    nivel_area_2: {
+        validate: (value: string, formValues: any) => {
+            // Solo validar si hay al menos 2 áreas seleccionadas
+            if (formValues.areas && formValues.areas.length >= 2 && !value) {
+                return "Debe seleccionar el nivel para esta área.";
+            }
+            return true;
+        }
+    },
+    nivel_area_3: {
+        validate: (value: string, formValues: any) => {
+            // Solo validar si hay 3 áreas seleccionadas
+            if (formValues.areas && formValues.areas.length >= 3 && !value) {
+                return "Debe seleccionar el nivel para esta área.";
             }
             return true;
         }
@@ -127,7 +137,6 @@ export const validationRules = {
             message: "Solo se permiten letras y espacios"
         }
     },
-    // CORREGIDO: Campo numérico con validate
     celular_tutor_academico: {
         required: "El celular del tutor academico es obligatorio",
         validate: (value: string) => {
@@ -173,7 +182,9 @@ export const validationRules = {
     departamento_colegio: {
         required: "El departamento del colegio es obligatorio",
     },
-    // CORREGIDO: Campo numérico con validate
+    provincia_colegio: {
+        required: "La provincia del colegio es obligatoria",
+    },
     telefono_colegio: {
         required: "El telefono del colegio es obligatorio",
         validate: (value: string) => {

@@ -18,12 +18,13 @@ export default function FormOlimpista() {
     const [success, setSuccess] = React.useState<boolean>(false);
     const [siguienteForm, setSiguienteForm] = React.useState<boolean>(false);
     const [activoFormAcademico, setActivoFormAcademico] = React.useState<boolean>(true);
-    const [selectedArea, setSelectedArea] = React.useState<string[]>([]);
     const [areas, setAreas] = React.useState<any[]>();
     const [grados, setGrados] = React.useState<any[]>();
     const [niveles, setNiveles] = React.useState<any[]>();
     const [departamentos, setDepartamentos] = React.useState<any[]>();
     const [provincias, setProvincias] = React.useState<any[]>();
+    const [nivelesMap, setNivelesMap] = React.useState<Record<string, any[]>>({});
+    
     
     React.useEffect(() => {
         const staticData = async () => {
@@ -51,15 +52,13 @@ export default function FormOlimpista() {
             apellido_paterno: "",
             apellido_materno: "",
             celular: "",
+            email: "",
             ci: "",
             grado_escolar: "primero",
             nivel_competencia: "primaria",
             estado: "activo",
             areas: [],
-            tutor: {
-                nombre_tutor: "",
-                referencia_tutor: "",
-            },
+            niveles_por_area: {},
             tutor_academico: {
                 nombres_tutor_academico: "",
                 apellidos_tutor_academico: "",
@@ -78,27 +77,81 @@ export default function FormOlimpista() {
 
     const areaField = useComboboxField("areas", setValue, true, trigger);
     const gradoField = useComboboxField("grado_escolar", setValue, false, trigger);
-    const nivelField = useComboboxField("nivel_competencia", setValue, false, trigger);
     const departamentoField = useComboboxField("colegio.departamento_colegio", setValue, false, trigger);
+    const provinciaField = useComboboxField("colegio.provincia_colegio", setValue, false, trigger);
+
+    // Crear hooks para niveles por cada área
+    const nivelField1 = useComboboxField("nivel_area_1", setValue, false, trigger);
+    const nivelField2 = useComboboxField("nivel_area_2", setValue, false, trigger);
+    const nivelField3 = useComboboxField("nivel_area_3", setValue, false, trigger);
 
     React.useEffect(() => {
         register('colegio.departamento_colegio', validationRules.departamento_colegio);
+        register('colegio.provincia_colegio', validationRules.provincia_colegio);
         register('areas', validationRules.area);
         register('grado_escolar', validationRules.grado_escolar);
-        register('nivel_competencia', validationRules.nivel_competencia);
     }, []);
 
+    // Actualizar niveles disponibles cuando cambien las áreas seleccionadas
+    React.useEffect(() => {
+        if (areaField.value.length > 0 && areas) {
+            const nuevosNivelesMap: Record<string, any[]> = {};
+            areaField.value.forEach((areaValue: string) => {
+                const area = areas.find((a) => a.value === areaValue);
+                if (area && area.niveles) {
+                    nuevosNivelesMap[areaValue] = area.niveles;
+                }
+            });
+            setNivelesMap(nuevosNivelesMap);
+        } else {
+            setNivelesMap({});
+            // Limpiar los valores de niveles cuando no hay áreas
+            nivelField1.reset();
+            nivelField2.reset();
+            nivelField3.reset();
+        }
+    }, [areaField.value, areas]);
+
+    React.useEffect(() => {
+        if (gradoField.value.length > 0 && areas) {
+            const areasActuales = areaField.value;
+            const nuevasAreas = areas.filter((area) => 
+                String(area.grados).split(',').includes(String(gradoField.value[0]))
+            );
+            setAreas(nuevasAreas);
+            
+            // Si las áreas seleccionadas ya no están disponibles, limpiarlas
+            const valoresValidos = areasActuales.filter((areaVal: string) =>
+                nuevasAreas.some(a => a.value === areaVal)
+            );
+            if (valoresValidos.length !== areasActuales.length) {
+                areaField.onChange(valoresValidos);
+            }
+        }
+    }, [gradoField.value]);
+
     const handleNext = async () => {
-        // Validar campos del primer paso
+        // Validar campos del primer paso incluyendo niveles por área
         const firstStepFields = [
             'nombres', 'apellido_paterno', 'apellido_materno', 'ci',
-            'grado_escolar', 'nivel_competencia', 'areas', 
-            'tutor.nombre_tutor', 'tutor.referencia_tutor'
+            'grado_escolar', 'areas'
         ];
         
         const isValid = await trigger(firstStepFields as any);
-        if (isValid) {
+        
+        // Validar que cada área tenga su nivel seleccionado
+        let nivelesValidos = true;
+        if (areaField.value.length > 0) {
+            if (areaField.value.length >= 1 && nivelField1.value.length === 0) nivelesValidos = false;
+            if (areaField.value.length >= 2 && nivelField2.value.length === 0) nivelesValidos = false;
+            if (areaField.value.length >= 3 && nivelField3.value.length === 0) nivelesValidos = false;
+        }
+        
+        if (isValid && nivelesValidos) {
             setSiguienteForm(true);
+        } else if (!nivelesValidos) {
+            setApiError("Por favor seleccione el nivel para cada área");
+            setTimeout(() => setApiError(""), 3000);
         }
     };
 
@@ -117,6 +170,7 @@ export default function FormOlimpista() {
             "colegio.direccion_colegio",
             "colegio.telefono_colegio",
             "colegio.departamento_colegio",
+            "colegio.provincia_colegio",
         ];
 
         const isValid = await trigger(secondStepFields as any);
@@ -124,19 +178,45 @@ export default function FormOlimpista() {
 
         const data = getValues();
 
+        // Construir el objeto niveles_por_area
+        const nivelesPorArea: Record<string, string> = {};
+        if (areaField.value.length >= 1 && nivelField1.value.length > 0) {
+            nivelesPorArea[areaField.value[0]] = nivelField1.value[0];
+        }
+        if (areaField.value.length >= 2 && nivelField2.value.length > 0) {
+            nivelesPorArea[areaField.value[1]] = nivelField2.value[0];
+        }
+        if (areaField.value.length >= 3 && nivelField3.value.length > 0) {
+            nivelesPorArea[areaField.value[2]] = nivelField3.value[0];
+        }
+        
+        data.niveles_por_area = nivelesPorArea;
+
         if (!activoFormAcademico) {
             delete data.tutor_academico;
         }
+        
         createOlimpista(
             data,
             setIsLoading,
             setSuccess,
             setApiError,
-            () => areaField.reset(),
+            () => {
+                areaField.reset();
+                nivelField1.reset();
+                nivelField2.reset();
+                nivelField3.reset();
+            },
             reset,
             areaField.value as string[],
             activoFormAcademico,
         );
+    };
+
+    // Obtener el nombre del área por su valor
+    const getNombreArea = (areaValue: string) => {
+        const area = areas?.find(a => a.value === areaValue);
+        return area?.label || areaValue;
     };
 
     return (
@@ -245,7 +325,24 @@ export default function FormOlimpista() {
                                     <p className="text-sm text-red-500">{errors.ci.message}</p>
                                 )}
                             </div>
-                            
+
+                            {/* Email. */}
+                            <div className="space-y-2">
+                                <Label htmlFor="email">
+                                    email <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="example@mail.com"
+                                    {...register("email", validationRules.email)}
+                                    className={errors.email ? "border-red-500" : ""}
+                                />
+                                {errors.celular && (
+                                    <p className="text-sm text-red-500">{errors.celular.message}</p>
+                                )}
+                            </div>
+
                             {/* Celular. */}
                             <div className="space-y-2">
                                 <Label htmlFor="celular">
@@ -260,25 +357,6 @@ export default function FormOlimpista() {
                                 />
                                 {errors.celular && (
                                     <p className="text-sm text-red-500">{errors.celular.message}</p>
-                                )}
-                            </div>
-                            
-                            {/* Área de Competencia - span completo */}
-                            <div className="space-y-2">
-                                <Label htmlFor="area">
-                                    Área de Competencia <span className="text-red-500">*</span>
-                                </Label>
-                                <Combobox
-                                    items={areas}
-                                    value={areaField.value}
-                                    onChange={areaField.onChange}
-                                    placeholder="Seleccionar área..."
-                                    searchPlaceholder="Buscar área..."
-                                    multiple={true}
-                                    className={errors.areas ? "border-red-500" : ""}
-                                />
-                                {errors.areas && (
-                                    <p className="text-sm text-red-500">{errors.areas.message}</p>
                                 )}
                             </div>
 
@@ -299,60 +377,77 @@ export default function FormOlimpista() {
                                 {errors.grado_escolar && (
                                     <p className="text-sm text-red-500">{errors.grado_escolar.message}</p>
                                 )}
-                            </div>
+                            </div>  
 
-                            {/* Nivel de Competencia */}
+                            {/* Área de Competencia - span completo */}
                             <div className="space-y-2">
-                                <Label htmlFor="nivel_competencia">
-                                    Nivel de competencia <span className="text-red-500">*</span>
+                                <Label htmlFor="area">
+                                    Área de Competencia <span className="text-red-500">*</span>
                                 </Label>
                                 <Combobox
-                                    items={niveles}
-                                    value={nivelField.value}
-                                    onChange={nivelField.onChange}
-                                    placeholder="Seleccionar nivel..."
-                                    searchPlaceholder=""
-                                    multiple={false}
-                                    className={errors.nivel_competencia ? "border-red-500" : ""}
+                                    items={areas}
+                                    value={areaField.value}
+                                    onChange={areaField.onChange}
+                                    placeholder="Seleccionar área..."
+                                    searchPlaceholder="Buscar área..."
+                                    multiple={true}
+                                    className={errors.areas ? "border-red-500" : ""}
                                 />
-                                {errors.nivel_competencia && (
-                                    <p className="text-sm text-red-500">{errors.nivel_competencia.message}</p>
+                                {errors.areas && (
+                                    <p className="text-sm text-red-500">{errors.areas.message}</p>
                                 )}
                             </div>
 
-                            {/* Nombre del Tutor */}
-                            <div className="space-y-2">
-                                <Label htmlFor="tutor">
-                                    Nombre del tutor/apoderado <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="tutor"
-                                    type="text"
-                                    placeholder="Ej: Juan Gonzales"
-                                    {...register("tutor.nombre_tutor", validationRules.nombre_tutor)}
-                                    className={errors.tutor?.nombre_tutor ? "border-red-500" : ""}
-                                />
-                                {errors.tutor?.nombre_tutor && (
-                                    <p className="text-sm text-red-500">{errors.tutor?.nombre_tutor.message}</p>
-                                )}
-                            </div>
+                            {/* Combobox de Nivel para Área 1 */}
+                            {areaField.value.length >= 1 && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="nivel_area_1">
+                                        Nivel - {getNombreArea(String(areaField.value[0]))} <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Combobox
+                                        items={nivelesMap[areaField.value[0]] || []}
+                                        value={nivelField1.value}
+                                        onChange={nivelField1.onChange}
+                                        placeholder="Seleccionar nivel..."
+                                        searchPlaceholder=""
+                                        multiple={false}
+                                    />
+                                </div>
+                            )}
 
-                            {/* Referencia Tutor */}
-                            <div className="space-y-2">
-                                <Label htmlFor="referencia_tutor">
-                                    Referencia tutor <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="referencia_tutor"
-                                    type="text"
-                                    placeholder="72345678"
-                                    {...register("tutor.referencia_tutor", validationRules.referencia_tutor)}
-                                    className={errors.tutor?.referencia_tutor ? "border-red-500" : ""}
-                                />
-                                {errors.tutor?.referencia_tutor && (
-                                    <p className="text-sm text-red-500">{errors.tutor?.referencia_tutor.message}</p>
-                                )}
-                            </div>
+                            {/* Combobox de Nivel para Área 2 */}
+                            {areaField.value.length >= 2 && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="nivel_area_2">
+                                        Nivel - {getNombreArea(String(areaField.value[1]))} <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Combobox
+                                        items={nivelesMap[areaField.value[1]] || []}
+                                        value={nivelField2.value}
+                                        onChange={nivelField2.onChange}
+                                        placeholder="Seleccionar nivel..."
+                                        searchPlaceholder=""
+                                        multiple={false}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Combobox de Nivel para Área 3 */}
+                            {areaField.value.length >= 3 && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="nivel_area_3">
+                                        Nivel - {getNombreArea(String(areaField.value[2]))} <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Combobox
+                                        items={nivelesMap[areaField.value[2]] || []}
+                                        value={nivelField3.value}
+                                        onChange={nivelField3.onChange}
+                                        placeholder="Seleccionar nivel..."
+                                        searchPlaceholder=""
+                                        multiple={false}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </CardContent>
 
@@ -413,11 +508,11 @@ export default function FormOlimpista() {
                                     {/* Celular Tutor Académico */}
                                     <div className="space-y-2">
                                         <Label htmlFor="celular_tutor">
-                                            Celular tutor académico <span className="text-red-500">*</span>
+                                            Celular tutor <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="celular_tutor"
-                                            type="number"
+                                            type="text"
                                             placeholder="73456789"
                                             {...register("tutor_academico.celular_tutor_academico", validationRules.celular_tutor_academico)}
                                             className={errors.tutor_academico?.celular_tutor_academico ? "border-red-500" : ""}
@@ -505,6 +600,24 @@ export default function FormOlimpista() {
                                         )}
                                     </div>
 
+                                    <div className="space-y-2">
+                                        <Label htmlFor="provincia">
+                                            Provincia <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Combobox
+                                            items={provincias}
+                                            value={provinciaField.value}
+                                            onChange={provinciaField.onChange}
+                                            placeholder="Seleccionar provincia..."
+                                            searchPlaceholder="Buscar provincia..."
+                                            multiple={false}
+                                            className={errors.colegio?.provincia_colegio ? "border-red-500" : ""}
+                                        />
+                                        {errors.colegio?.provincia_colegio && (
+                                            <p className="text-sm text-red-500">{errors.colegio.provincia_colegio.message}</p>
+                                        )}
+                                    </div>
+
                                     {/* Teléfono del Colegio */}
                                     <div className="space-y-2">
                                         <Label htmlFor="telefono_colegio">
@@ -576,9 +689,12 @@ export default function FormOlimpista() {
                         className="w-full"
                         onClick={() => {
                             reset();
-                            setSelectedArea([]);
                             setApiError("");
                             setSiguienteForm(false);
+                            areaField.reset();
+                            nivelField1.reset();
+                            nivelField2.reset();
+                            nivelField3.reset();
                         }}
                     >
                         Limpiar Formulario
@@ -587,4 +703,4 @@ export default function FormOlimpista() {
             </CardFooter>
         </Card>
     );
-};
+}

@@ -474,64 +474,6 @@ class FaseSeeder extends Seeder
                 'fecha_calificacion' => $now->copy()->addDays(4)->setTime(10, 0),
                 'fecha_fin' => $now->copy()->addDays(4)->setTime(12, 0)
             ],
-
-            // Electrónica (area_id: 8) - Niveles de secundaria
-            [
-                'area_id' => 8,
-                'nivel_id' => 7, // 3S
-                'tipo_fase' => 'preliminares',
-                'sigla' => 'ELEPRE1',
-                'descripcion' => 'Preliminar de Electrónica',
-                'cantidad_max_participantes' => 100,
-                'cantidad_min_participantes' => 10,
-                'cantidad_ganadores' => 60,
-                'estado' => 'en curso',
-                'fecha_inicio' => $now->copy()->subDays(1),
-                'fecha_calificacion' => $now->copy()->addDay(2),
-                'fecha_fin' => $now->copy()->addDays(3)
-            ],
-            [
-                'area_id' => 8,
-                'nivel_id' => 8, // 4S
-                'tipo_fase' => 'clasificatorias',
-                'sigla' => 'ELECLA1',
-                'descripcion' => 'Clasificatoria 1 de Electrónica',
-                'cantidad_max_participantes' => 60,
-                'cantidad_min_participantes' => 8,
-                'cantidad_ganadores' => 30,
-                'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(4),
-                'fecha_calificacion' => $now->copy()->addDays(6),
-                'fecha_fin' => $now->copy()->addDays(8)
-            ],
-            [
-                'area_id' => 8,
-                'nivel_id' => 9, // 5S
-                'tipo_fase' => 'clasificatorias',
-                'sigla' => 'ELECLA2',
-                'descripcion' => 'Clasificatoria 2 de Electrónica',
-                'cantidad_max_participantes' => 30,
-                'cantidad_min_participantes' => 5,
-                'cantidad_ganadores' => 12,
-                'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(9)->setTime(9, 0),
-                'fecha_calificacion' => $now->copy()->addDays(9)->setTime(10, 0),
-                'fecha_fin' => $now->copy()->addDays(9)->setTime(12, 0)
-            ],
-            [
-                'area_id' => 8,
-                'nivel_id' => 10, // 6S
-                'tipo_fase' => 'finales',
-                'sigla' => 'ELEFIN1',
-                'descripcion' => 'Final de Electrónica',
-                'cantidad_max_participantes' => 12,
-                'cantidad_min_participantes' => 5,
-                'cantidad_ganadores' => 5,
-                'estado' => 'pendiente',
-                'fecha_inicio' => $now->copy()->addDays(14)->setTime(9, 0),
-                'fecha_calificacion' => $now->copy()->addDays(14)->setTime(10, 0),
-                'fecha_fin' => $now->copy()->addDays(14)->setTime(12, 0)
-            ],
         ];
 
         foreach ($fases as $fase) {

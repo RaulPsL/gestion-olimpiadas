@@ -50,7 +50,6 @@ class AreaSeeder extends Seeder
                 'sigla' => 'ROB',
                 'descripcion' => 'Área de robótica dedicada al diseño, construcción y programación de robots y sistemas automatizados.',
             ],
-            ['nombre' => 'Electrónica', 'sigla' => 'ELE', 'descripcion' => 'Circuitos y sistemas electrónicos'],
         ];
 
         DB::table('areas')->insert($areas);

@@ -1,4 +1,4 @@
-import { FormCierreFase } from "@/forms/interfaces/CierreFaseForm";
+import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 import { axiosPrivate, axiosPublic } from "./api";
 import { UseFormReset } from "react-hook-form";
 
@@ -45,11 +45,11 @@ export const getCalendario = async () => {
 };
 
 export const updateCierreFases = async (
-    data: FormCierreFase,
+    data: FormCierreFase | FormGetupFase,
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
     setApiError: React.Dispatch<React.SetStateAction<string>>,
-    reset: UseFormReset<FormCierreFase>,
+    reset: UseFormReset<FormCierreFase | FormGetupFase>,
 ) => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     setApiError("");
@@ -57,9 +57,9 @@ export const updateCierreFases = async (
     try {
         console.log('Enviando datos...');
         console.log(data);
-        const response = await axiosPrivate.put(`/fases/cierres`, data);
+        const role = localStorage.getItem('rol');
+        const response = await (role?.sigla ? axiosPrivate.put(`/create/cierres`, data) : axiosPrivate.put(`/update/cierres`, data));
         await new Promise(resolve => setTimeout(resolve, 2000));
-
         if (response.status >= 200 && response.status <= 300) {
             setSuccess(true);
             setIsLoading(false);

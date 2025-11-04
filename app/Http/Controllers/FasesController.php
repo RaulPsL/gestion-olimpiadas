@@ -7,6 +7,7 @@ use App\Models\Fase;
 use App\Models\Traits\Casts\EstadoFase;
 use App\Models\Usuario;
 use App\Models\VerificacionCierre;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class FasesController extends Controller
@@ -52,11 +53,12 @@ class FasesController extends Controller
     public function indexCalendar() {
         try {
             $fases = Fase::with(['area', 'nivel'])->get()->map(function ($fase, $index) {
-                $nivel = $fase->nivel;
                 $area = $fase->area;
+                $nivel = $fase->nivel;
+                $nombre_nivel = $nivel ? "$nivel->nombre" : "";
                 return[
                     'id' => $index+1,
-                    'title' => "$area->nombre $nivel->nombre",
+                    'title' => "$area->nombre $nombre_nivel",
                     'start' => $fase->fecha_inicio,
                     'calificacion' => $fase->fecha_calificacion,
                     'end' => $fase->fecha_fin,
@@ -150,7 +152,7 @@ class FasesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function createCierre(Request $request)
     {
         try {
             $request->validate([
@@ -175,6 +177,71 @@ class FasesController extends Controller
                 $usuarios['fase_id'] = $request->fase_id;
                 $cierre = VerificacionCierre::create($usuarios);
                 $fase_actual->update(['estado' => 'pendiente']);
+            }
+            return response()->json([
+                'message' => "Verificacion de cierre de fases ejecutada con exito.",
+                'data' => [
+                    'cierre' => VerificacionCierre::where('fase_id', $request->fase_id)->first(),
+                    'fase' => $fase_actual,
+                ],
+            ], 202);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener las fases.',
+                'cierre' => VerificacionCierre::where('fase_id', $request->fase_id)->first(),
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateCierre(Request $request)
+    {
+        try {
+            $request->validate([
+                'fase_id' => 'required',
+                'aumento_fin' => 'required',
+            ]);
+            
+            $cierre = VerificacionCierre::where('fase_id', $request->fase_id)->first();
+            $fase_actual = Fase::findOrFail($request->fase_id);
+            $fases = Fase::where('area_id', $fase_actual->area_id)->get();
+            $index_fase = array_search($fase_actual->id, $fases->pluck('id')->toArray());
+            
+            if ($cierre && $cierre) {
+                $cierre->update(['update_at' => Carbon::now()]);
+
+                $anterior_fin = Carbon::parse($fase_actual->fecha_fin);
+                $anterior_calificacion = Carbon::parse($fase_actual->fecha_calificacion);
+                $nuevo_fin = Carbon::parse($request->aumento_fin);
+
+                $diff_minutos = $anterior_fin->diffInMinutes($nuevo_fin);
+                $nuevo_tiempo_fin = $anterior_fin->addMinutes($diff_minutos);
+                $nuevo_tiempo_calificacion = $anterior_calificacion->addMinutes($diff_minutos);
+
+                $fase_actual->update([
+                    'fecha_fin' => $nuevo_tiempo_fin,
+                    'fecha_calificacion' => $nuevo_tiempo_calificacion,
+                    'estado' => 'pendiente',
+                ]);
+
+                $fases->each(function ($fase, $index) use ($index_fase, $diff_minutos) {
+                    $anterior_inicio = Carbon::parse($fase->fecha_inicio);
+                    $anterior_fin = Carbon::parse($fase->fecha_fin);
+                    $anterior_calificacion = Carbon::parse($fase->fecha_calificacion);
+
+                    $nuevo_tiempo_inicio = $anterior_inicio->addMinutes($diff_minutos);
+                    $nuevo_tiempo_fin = $anterior_fin->addMinutes($diff_minutos);
+                    $nuevo_tiempo_calificacion = $anterior_calificacion->addMinutes($diff_minutos);
+
+                    if ($index > $index_fase) {
+                        $fase->update([
+                            'fecha_inicio' => $nuevo_tiempo_inicio,
+                            'fecha_fin' => $nuevo_tiempo_fin,
+                            'fecha_calificacion' => $nuevo_tiempo_calificacion,
+                            'estado' => 'pendiente'
+                        ]);
+                    }
+                });
             }
             return response()->json([
                 'message' => "Verificacion de cierre de fases ejecutada con exito.",
