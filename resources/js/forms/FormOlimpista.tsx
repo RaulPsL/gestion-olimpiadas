@@ -6,37 +6,34 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Combobox, useComboboxField } from "@/components/Combobox";
 import { AlertCircle, CheckCircle, ChevronLeft } from "lucide-react";
-import { createOlimpista, getStaticData } from "@/api/Olimpistas";
+import { createOlimpista } from "@/api/Olimpistas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { validationRules } from "./validations/OlimpistaValidate";
 import { OlimpistaForm } from "./interfaces/Olimpista";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth, UserData } from "@/hooks/use-context";
+import { useGetStaticDataOlimpistas } from "@/hooks/use-static-call-api-olimpistas";
+import { useFilterAreasUser } from "@/hooks/use-areas-user";
+import { useFilterGrades } from "@/hooks/use-filter-grades";
+import { useFreeAreas } from "@/hooks/use-free-areas";
+import { useLevelByArea } from "@/hooks/use-level-area";
+import { useVerifiedTimeByFase } from "@/hooks/use-validate-time";
+import { useFilterProvincias } from "@/hooks/use-filter-provincias";
 
 export default function FormOlimpista() {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
     const [siguienteForm, setSiguienteForm] = React.useState<boolean>(false);
-    const [activoFormAcademico, setActivoFormAcademico] = React.useState<boolean>(true);
-    const [areas, setAreas] = React.useState<any[]>();
-    const [grados, setGrados] = React.useState<any[]>();
-    const [niveles, setNiveles] = React.useState<any[]>();
-    const [departamentos, setDepartamentos] = React.useState<any[]>();
-    const [provincias, setProvincias] = React.useState<any[]>();
+    const [activoFormAcademico, setActivoFormAcademico] = React.useState<boolean>(false);
+    const [areas, setAreas] = React.useState<any[]>([]);
+    const [grados, setGrados] = React.useState<any[]>([]);
+    const [departamentos, setDepartamentos] = React.useState<any[]>([]);
+    const [anterioresProvincias, setAnterioresProvincias] = React.useState<any[]>([]);
+    const [provincias, setProvincias] = React.useState<any[]>([]);
     const [nivelesMap, setNivelesMap] = React.useState<Record<string, any[]>>({});
-    
-    
-    React.useEffect(() => {
-        const staticData = async () => {
-            const staticData = await getStaticData();
-            setAreas(staticData.areas);
-            setGrados(staticData.grados);
-            setNiveles(staticData.niveles);
-            setDepartamentos(staticData.departamentos);
-            setProvincias(staticData.provincias);
-        };
-        staticData();
-    }, []);
+    const [areasFiltradas, setAreasFiltradas] = React.useState<any[]>([]);
+    const { data } = useAuth();
 
     const {
         register,
@@ -80,7 +77,6 @@ export default function FormOlimpista() {
     const departamentoField = useComboboxField("colegio.departamento_colegio", setValue, false, trigger);
     const provinciaField = useComboboxField("colegio.provincia_colegio", setValue, false, trigger);
 
-    // Crear hooks para niveles por cada área
     const nivelField1 = useComboboxField("nivel_area_1", setValue, false, trigger);
     const nivelField2 = useComboboxField("nivel_area_2", setValue, false, trigger);
     const nivelField3 = useComboboxField("nivel_area_3", setValue, false, trigger);
@@ -92,61 +88,58 @@ export default function FormOlimpista() {
         register('grado_escolar', validationRules.grado_escolar);
     }, []);
 
-    // Actualizar niveles disponibles cuando cambien las áreas seleccionadas
-    React.useEffect(() => {
-        if (areaField.value.length > 0 && areas) {
-            const nuevosNivelesMap: Record<string, any[]> = {};
-            areaField.value.forEach((areaValue: string) => {
-                const area = areas.find((a) => a.value === areaValue);
-                if (area && area.niveles) {
-                    nuevosNivelesMap[areaValue] = area.niveles;
-                }
-            });
-            setNivelesMap(nuevosNivelesMap);
-        } else {
-            setNivelesMap({});
-            // Limpiar los valores de niveles cuando no hay áreas
-            nivelField1.reset();
-            nivelField2.reset();
-            nivelField3.reset();
-        }
-    }, [areaField.value, areas]);
+    // Obtener los datos staticos para el formulario
+    useGetStaticDataOlimpistas(setAreas, setDepartamentos, setAnterioresProvincias, setProvincias);
 
-    React.useEffect(() => {
-        if (gradoField.value.length > 0 && areas) {
-            const areasActuales = areaField.value;
-            const nuevasAreas = areas.filter((area) => 
-                String(area.grados).split(',').includes(String(gradoField.value[0]))
-            );
-            setAreas(nuevasAreas);
-            
-            // Si las áreas seleccionadas ya no están disponibles, limpiarlas
-            const valoresValidos = areasActuales.filter((areaVal: string) =>
-                nuevasAreas.some(a => a.value === areaVal)
-            );
-            if (valoresValidos.length !== areasActuales.length) {
-                areaField.onChange(valoresValidos);
-            }
-        }
-    }, [gradoField.value]);
+    // Filtrar las areas segun las areas del usuario (SOLO UNA VEZ)
+    useFilterAreasUser(areas, data as UserData, areasFiltradas, setAreasFiltradas);
 
+    // Obtener todos los grados que tengan solo las areas de usuario
+    useFilterGrades(areasFiltradas, setGrados);
+
+    // Filtrar y obtener las áreas disponibles según el grado seleccionado
+    useFreeAreas(areasFiltradas, gradoField, setAreas, areaField);
+
+    // Actualizar niveles disponibles cuando cambien las áreas seleccionadas o el grado
+    useLevelByArea(areaField, gradoField, areas, grados, setNivelesMap, [nivelField1, nivelField2, nivelField3]);
+
+    // Verificacion de los horarios por area
+    useVerifiedTimeByFase(areaField, areas);
+
+    // Filtro de provincias por departamento
+    useFilterProvincias(departamentoField, anterioresProvincias, setProvincias);
+
+    // React.useEffect(() => {
+    //     console.log('Departamento seleccionado: ', departamentoField);
+    //     if (departamentoField.value.length > 0) {
+    //         const provinciasFiltradas = anterioresProvincias?.filter((prov) => prov.departamento_id === departamentoField.value[0]);
+    //         setProvincias(provinciasFiltradas);
+    //     }
+    // }, [departamentoField.value]);
+
+    // Obtener el nombre del área por su valor
+    const getNombreArea = (areaValue: string) => {
+        const area = areas?.find(a => a.value === areaValue);
+        return area?.label || areaValue;
+    };
+
+    // Solo deben quedar estas funciones las demas deben ser por hooks
     const handleNext = async () => {
-        // Validar campos del primer paso incluyendo niveles por área
+        setActivoFormAcademico(true);
         const firstStepFields = [
             'nombres', 'apellido_paterno', 'apellido_materno', 'ci',
             'grado_escolar', 'areas'
         ];
-        
+
         const isValid = await trigger(firstStepFields as any);
-        
-        // Validar que cada área tenga su nivel seleccionado
+
         let nivelesValidos = true;
         if (areaField.value.length > 0) {
             if (areaField.value.length >= 1 && nivelField1.value.length === 0) nivelesValidos = false;
             if (areaField.value.length >= 2 && nivelField2.value.length === 0) nivelesValidos = false;
             if (areaField.value.length >= 3 && nivelField3.value.length === 0) nivelesValidos = false;
         }
-        
+
         if (isValid && nivelesValidos) {
             setSiguienteForm(true);
         } else if (!nivelesValidos) {
@@ -157,6 +150,7 @@ export default function FormOlimpista() {
 
     const handleBack = () => {
         setSiguienteForm(false);
+        setActivoFormAcademico(false);
     };
 
     const handleFinalSubmit = async () => {
@@ -189,13 +183,13 @@ export default function FormOlimpista() {
         if (areaField.value.length >= 3 && nivelField3.value.length > 0) {
             nivelesPorArea[areaField.value[2]] = nivelField3.value[0];
         }
-        
+
         data.niveles_por_area = nivelesPorArea;
 
         if (!activoFormAcademico) {
             delete data.tutor_academico;
         }
-        
+
         createOlimpista(
             data,
             setIsLoading,
@@ -211,12 +205,6 @@ export default function FormOlimpista() {
             areaField.value as string[],
             activoFormAcademico,
         );
-    };
-
-    // Obtener el nombre del área por su valor
-    const getNombreArea = (areaValue: string) => {
-        const area = areas?.find(a => a.value === areaValue);
-        return area?.label || areaValue;
     };
 
     return (
@@ -249,10 +237,9 @@ export default function FormOlimpista() {
 
             {/* Contenedor con animación de deslizamiento */}
             <div className="relative overflow-hidden">
-                <div 
-                    className={`flex transition-transform duration-500 ease-in-out ${
-                        siguienteForm ? '-translate-x-1/2' : 'translate-x-0'
-                    }`}
+                <div
+                    className={`flex transition-transform duration-500 ease-in-out ${siguienteForm ? '-translate-x-1/2' : 'translate-x-0'
+                        }`}
                     style={{ width: '200%' }}
                 >
                     {/* Primer paso: Datos personales */}
@@ -377,7 +364,7 @@ export default function FormOlimpista() {
                                 {errors.grado_escolar && (
                                     <p className="text-sm text-red-500">{errors.grado_escolar.message}</p>
                                 )}
-                            </div>  
+                            </div>
 
                             {/* Área de Competencia - span completo */}
                             <div className="space-y-2">
@@ -408,10 +395,23 @@ export default function FormOlimpista() {
                                         items={nivelesMap[areaField.value[0]] || []}
                                         value={nivelField1.value}
                                         onChange={nivelField1.onChange}
-                                        placeholder="Seleccionar nivel..."
+                                        placeholder={
+                                            (nivelesMap[areaField.value[0]]?.length === 0)
+                                                ? "No hay niveles disponibles para este grado"
+                                                : "Seleccionar nivel..."
+                                        }
                                         searchPlaceholder=""
                                         multiple={false}
+                                        disabled={
+                                            (nivelesMap[areaField.value[0]]?.length === 1) ||
+                                            (nivelesMap[areaField.value[0]]?.length === 0)
+                                        }
                                     />
+                                    {nivelesMap[areaField.value[0]]?.length === 1 && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Nivel asignado automáticamente
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
@@ -425,10 +425,23 @@ export default function FormOlimpista() {
                                         items={nivelesMap[areaField.value[1]] || []}
                                         value={nivelField2.value}
                                         onChange={nivelField2.onChange}
-                                        placeholder="Seleccionar nivel..."
+                                        placeholder={
+                                            (nivelesMap[areaField.value[1]]?.length === 0)
+                                                ? "No hay niveles disponibles para este grado"
+                                                : "Seleccionar nivel..."
+                                        }
                                         searchPlaceholder=""
                                         multiple={false}
+                                        disabled={
+                                            (nivelesMap[areaField.value[1]]?.length === 1) ||
+                                            (nivelesMap[areaField.value[1]]?.length === 0)
+                                        }
                                     />
+                                    {nivelesMap[areaField.value[1]]?.length === 1 && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Nivel asignado automáticamente
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
@@ -442,10 +455,23 @@ export default function FormOlimpista() {
                                         items={nivelesMap[areaField.value[2]] || []}
                                         value={nivelField3.value}
                                         onChange={nivelField3.onChange}
-                                        placeholder="Seleccionar nivel..."
+                                        placeholder={
+                                            (nivelesMap[areaField.value[2]]?.length === 0)
+                                                ? "No hay niveles disponibles para este grado"
+                                                : "Seleccionar nivel..."
+                                        }
                                         searchPlaceholder=""
                                         multiple={false}
+                                        disabled={
+                                            (nivelesMap[areaField.value[2]]?.length === 1) ||
+                                            (nivelesMap[areaField.value[2]]?.length === 0)
+                                        }
                                     />
+                                    {nivelesMap[areaField.value[2]]?.length === 1 && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Nivel asignado automáticamente
+                                        </p>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -458,7 +484,7 @@ export default function FormOlimpista() {
                             <div className={`space-y-4 `}>
                                 <div className="flex flex-row content-between">
                                     <h4 className="text-base font-semibold text-foreground border-b pb-2">
-                                        Datos del Tutor Académico
+                                        Datos del Tutor/Apoderado
                                     </h4>
                                     <Checkbox
                                         checked={activoFormAcademico}
@@ -470,11 +496,11 @@ export default function FormOlimpista() {
                                         }}
                                     />
                                 </div>
-                                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${ activoFormAcademico ? '' : 'hidden'}`}>
-                                    {/* Nombre Tutor Académico */}
+                                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${activoFormAcademico ? '' : 'hidden'}`}>
+                                    {/* Nombre Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="nombres_tutor">
-                                            Nombre tutor académico <span className="text-red-500">*</span>
+                                            Nombre del tutor <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="nombres_tutor"
@@ -488,10 +514,10 @@ export default function FormOlimpista() {
                                         )}
                                     </div>
 
-                                    {/* Apellidos Tutor Académico */}
+                                    {/* Apellidos Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="apellidos_tutor_academico">
-                                            Apellidos tutor académico <span className="text-red-500">*</span>
+                                            Apellidos del tutor <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="apellidos_tutor_academico"
@@ -505,10 +531,10 @@ export default function FormOlimpista() {
                                         )}
                                     </div>
 
-                                    {/* Celular Tutor Académico */}
+                                    {/* Celular Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="celular_tutor">
-                                            Celular tutor <span className="text-red-500">*</span>
+                                            Celular del tutor <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="celular_tutor"
@@ -522,10 +548,10 @@ export default function FormOlimpista() {
                                         )}
                                     </div>
 
-                                    {/* CI Tutor Académico */}
+                                    {/* CI Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="ci_tutor_academico">
-                                            C.I. tutor académico <span className="text-red-500">*</span>
+                                            C.I. del tutor <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="ci_tutor_academico"
@@ -539,10 +565,10 @@ export default function FormOlimpista() {
                                         )}
                                     </div>
 
-                                    {/* Email Tutor Académico */}
+                                    {/* Email Tutor */}
                                     <div className="space-y-2 md:col-span-2">
                                         <Label htmlFor="email_tutor_academico">
-                                            Email del tutor académico <span className="text-red-500">*</span>
+                                            Email del tutor <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="email_tutor_academico"
@@ -661,7 +687,7 @@ export default function FormOlimpista() {
             <CardFooter className="flex flex-col gap-3">
                 <div className="flex w-full gap-3">
                     {siguienteForm && (
-                        <Button 
+                        <Button
                             type="button"
                             variant="outline"
                             onClick={handleBack}
@@ -671,8 +697,8 @@ export default function FormOlimpista() {
                             Anterior
                         </Button>
                     )}
-                    
-                    <Button 
+
+                    <Button
                         type="button"
                         onClick={siguienteForm ? handleFinalSubmit : handleNext}
                         className="flex-1"
@@ -681,11 +707,11 @@ export default function FormOlimpista() {
                         {isLoading ? "Registrando..." : (siguienteForm ? "Registrar Olimpista" : "Siguiente")}
                     </Button>
                 </div>
-                
+
                 {!success && (
-                    <Button 
-                        type="button" 
-                        variant="outline" 
+                    <Button
+                        type="button"
+                        variant="outline"
                         className="w-full"
                         onClick={() => {
                             reset();

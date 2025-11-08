@@ -25,9 +25,7 @@ export default function Header() {
     }, [data]);
     return (
         <header className="flex h-16 shrink-0 items-center justify-between border-b px-3">
-            <div className="flex items-center gap-2 h-full">
-                {role && (<SidebarTrigger className="flex items-center" />)}
-                
+            <div className="flex items-center gap-2 h-full">    
                 {(role && breadcrumbs.length > 0) && (
                     <Breadcrumb className="flex items-center">
                         <BreadcrumbList>

@@ -30,7 +30,8 @@ export function Combobox({
   emptyMessage = "No se encontraron resultados.",
   className = "",
   onSelected,
-}: ComboboxProps) {
+  closeOnSelect = true, // Nueva prop para controlar el cierre
+}: ComboboxProps & { closeOnSelect?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const getLabelByValue = (searchValue: string | number): string => {
     const item = items.find(item => item.value === searchValue);
@@ -44,11 +45,15 @@ export function Combobox({
         ? value.filter(v => v !== selectedValue)
         : [...value, selectedValue];
       onChange?.(newValue);
+      // En modo múltiple, solo cerramos si closeOnSelect es true
+      if (closeOnSelect) {
+        setOpen(false);
+      }
     } else {
       const newValue = value.includes(selectedValue) ? [] : [selectedValue];
       onChange?.(newValue);
       onSelected?.(selectedValue);
-      setOpen(false);
+      setOpen(false); // En modo simple siempre cerramos
     }
   };
 
@@ -103,6 +108,7 @@ export function Combobox({
       </div>
     );
   };
+  
   return (
     <div className={cn("w-full", className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -135,7 +141,7 @@ export function Combobox({
                   const isSelected = value.includes(item.value);
                   return (
                     <CommandItem
-                      key={item.id}
+                      key={item.value}
                       value={String(item.value)}
                       onSelect={() => handleSelect(item.value)}
                     >
@@ -192,4 +198,3 @@ export function useComboboxField<T extends FieldValues>(
     reset
   };
 }
-

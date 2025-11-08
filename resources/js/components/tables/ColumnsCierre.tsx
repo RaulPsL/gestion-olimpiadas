@@ -74,20 +74,33 @@ export const createColumnsCierres = (
       header: "Confirmación",
       cell: ({ row }) => {
         const fila = row.original;
+        const currentDate = new Date();
+
+        const usuarioActual = data?.data?.nombre || "";
+        const ciUsuario = data?.data?.ci || "";
+
+        // Fechas
+        const fechaFin = new Date(fila.fecha_fin_fase);
+        const fechaCalificacion = new Date(fila.fecha_calificacion_fase);
 
         const siPuedeCerrar =
-          (new Date() < new Date(fila.fecha_fin_fase) ||
-          new Date(fila.fecha_calificacion_fase) > new Date(fila.fecha_inicio_fase) ||
-          new Date(fila.fecha_calificacion_fase) < new Date(fila.fecha_fin_fase)) &&
-          (fila.encargado !== "" || fila.evaluador !== "");
-        const currentDate = new Date();
-        const sePuedeRevertir = new Date(currentDate.setMinutes(currentDate.getMinutes() + 15)) < new Date(fila.fecha_fin_fase) &&
+          fila.estado === "en curso" && // debe estar en curso
+          currentDate >= fechaCalificacion && // ya puede calificarse
+          currentDate <= fechaFin && // aún no ha terminado la fase
+          fila.usuario_encargado_id !== ciUsuario && // el usuario no debe ser el encargado actual
+          fila.usuario_evaluador_id !== ciUsuario && // ni el evaluador actual
+          fila.encargado !== usuarioActual && // ni su nombre coincida
+          fila.evaluador !== usuarioActual; // ni su nombre coincida
+
+        const sePuedeRevertir = 
+          new Date(currentDate.setMinutes(currentDate.getMinutes() + 15)) < new Date(fila.fecha_fin_fase) &&
           (fila.encargado !== "" && fila.evaluador !== "");
+
         return (
           data.rol.sigla !== "ADM" ? 
           <Button
-            variant={siPuedeCerrar ? "ghost" : "default"}
-            disabled={siPuedeCerrar}
+            variant={!siPuedeCerrar ? "ghost" : "default"}
+            disabled={!siPuedeCerrar}
             onClick={() => {
               setValue("fase_id", fila.fase_id);
               setValue("usuario_encargado_id", data?.rol.sigla === 'EDA' ? data?.data.ci : 0);

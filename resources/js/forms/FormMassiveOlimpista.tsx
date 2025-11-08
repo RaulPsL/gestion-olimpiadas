@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import { MassiveForm } from "./interfaces/AcademicForm";
 import { validationRules } from "./validations/MassiveValidate";
 import { Combobox, useComboboxField } from "@/components/Combobox";
+import { useGetStaticDataOlimpistas } from "@/hooks/use-static-call-api-olimpistas";
+import { useFilterProvincias } from "@/hooks/use-filter-provincias";
 
 export default function FormMassiveOlimista() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -18,21 +20,9 @@ export default function FormMassiveOlimista() {
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
     const [fileError, setFileError] = React.useState<string>("");
     const [importResult, setImportResult] = React.useState<any>(null);
-    const [areas, setAreas] = React.useState<any[]>();
-    const [grados, setGrados] = React.useState<any[]>();
-    const [niveles, setNiveles] = React.useState<any[]>();
-    const [departamentos, setDepartamentos] = React.useState<any[]>();
-    
-    React.useEffect(() => {
-        const staticData = async () => {
-            const staticData = await getStaticData();
-            setAreas(staticData.areas);
-            setGrados(staticData.grados);
-            setNiveles(staticData.niveles);
-            setDepartamentos(staticData.departamentos);
-        };
-        staticData();
-    }, []);
+    const [departamentos, setDepartamentos] = React.useState<any[]>([]);
+    const [provincias, setProvincias] = React.useState<any[]>([]);
+    const [anterioresProvincias, setAnterioresProvincias] = React.useState<any[]>([])
 
     const  {
         register,
@@ -47,21 +37,31 @@ export default function FormMassiveOlimista() {
                 tutor_academico: {
                     nombres_tutor_academico: "",
                     apellidos_tutor_academico: "",
-                    celular_tutor_academico: 0,
+                    celular_tutor_academico: "",
                     email_tutor_academico: "",
                     ci_tutor_academico: "",
                 },
                 colegio: {
                     nombre_colegio: "",
                     direccion_colegio: "",
-                    telefono_colegio: 0,
-                    departamento_colegio: "",
+                    telefono_colegio: "",
+                    provincia_id: 0,
+                    departamento_id: 0,
                 },
             },
         }
     );
 
     const archivoSeleccionado = watch("archivo");
+
+    const departamentoField = useComboboxField("colegio.departamento_id", setValue, false);
+    const provinciaField = useComboboxField("colegio.provincia_id", setValue, false);
+
+    // Obtener los datos staticos para el formulario
+    useGetStaticDataOlimpistas(null, setDepartamentos, setAnterioresProvincias, setProvincias);
+
+    // Filtro de provincias por departamento
+    useFilterProvincias(departamentoField, anterioresProvincias, setProvincias);
 
     React.useEffect(() => {
         if (archivoSeleccionado?.length) {
@@ -71,7 +71,13 @@ export default function FormMassiveOlimista() {
         }
     }, [archivoSeleccionado]);
 
-    const departamentoField = useComboboxField("colegio.departamento_colegio", setValue, false);
+    React.useEffect(() => {
+        console.log('Departamento seleccionado: ', departamentoField);
+        setProvincias(prev => prev?.filter((prov) => prov.departamento_id === departamentoField.value[0]));
+        if (departamentoField.value.length > 0) {
+            setProvincias(prev => prev?.filter((prov) => prov.departamento_id === departamentoField.value[0]));
+        }
+    }, [departamentoField.value]);
 
     const validateFile = (file: File): string | true => {
         // Verificar tamaño
@@ -260,12 +266,9 @@ export default function FormMassiveOlimista() {
                             </Label>
                             <Input
                                 id="celular_tutor"
-                                type="number"
+                                type="text"
                                 placeholder="73456789"
-                                {...register("tutor_academico.celular_tutor_academico", {
-                                    ...validationRules.celular_tutor_academico,
-                                    valueAsNumber: true
-                                })}
+                                {...register("tutor_academico.celular_tutor_academico", validationRules.celular_tutor_academico)}
                                 className={errors.tutor_academico?.celular_tutor_academico ? "border-red-500" : ""}
                             />
                             {errors.tutor_academico?.celular_tutor_academico && (
@@ -332,24 +335,6 @@ export default function FormMassiveOlimista() {
                             )}
                         </div>
 
-                        {/* Departamento */}
-                        <div className="space-y-2">
-                            <Label htmlFor="departamento">
-                                Departamento <span className="text-red-500">*</span>
-                            </Label>
-                            <Combobox
-                                items={departamentos}
-                                value={departamentoField.value}
-                                onChange={departamentoField.onChange}
-                                placeholder="Seleccionar departamento..."
-                                searchPlaceholder="Buscar departamento..."
-                                multiple={false}
-                            />
-                            {departamentoField.value === undefined && apiError.includes("departamento") && (
-                                <p className="text-sm text-red-500">Debe seleccionar un departamento</p>
-                            )}
-                        </div>
-
                         {/* Teléfono del Colegio */}
                         <div className="space-y-2">
                             <Label htmlFor="telefono_colegio">
@@ -386,6 +371,42 @@ export default function FormMassiveOlimista() {
                                 <p className="text-sm text-red-500">{errors.colegio?.direccion_colegio.message}</p>
                             )}
                         </div>
+
+                        {/* Departamento */}
+                        <div className="space-y-2">
+                            <Label htmlFor="departamento">
+                                Departamento <span className="text-red-500">*</span>
+                            </Label>
+                            <Combobox
+                                items={departamentos}
+                                value={departamentoField.value}
+                                onChange={departamentoField.onChange}
+                                placeholder="Seleccionar provincia..."
+                                searchPlaceholder="Buscar provincia..."
+                                multiple={false}
+                            />
+                            {departamentoField.value === undefined && apiError.includes("departamento") && (
+                                <p className="text-sm text-red-500">Debe seleccionar un departamento</p>
+                            )}
+                        </div>
+
+                        {/* Departamento */}
+                        <div className="space-y-2">
+                            <Label htmlFor="departamento">
+                                Provincia <span className="text-red-500">*</span>
+                            </Label>
+                            <Combobox
+                                items={provincias}
+                                value={provinciaField.value}
+                                onChange={provinciaField.onChange}
+                                placeholder="Seleccionar departamento..."
+                                searchPlaceholder="Buscar departamento..."
+                                multiple={false}
+                            />
+                            {provinciaField.value === undefined && apiError.includes("provincia") && (
+                                <p className="text-sm text-red-500">Debe seleccionar una provincia</p>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -394,9 +415,9 @@ export default function FormMassiveOlimista() {
                     <h4 className="font-medium text-blue-900 mb-2">Instrucciones:</h4>
                     <ul className="text-sm text-blue-800 space-y-1">
                         <li>• <strong>Columnas obligatorias:</strong> nombres, apellido_paterno, apellido_materno, ci, celular, grado_escolar, nivel_competencia, areas, nombre_tutor, referencia_tutor</li>
-                        <li>• <strong>Areas de competencia:</strong> {areas?.map((area) => area.label).join(", ")} (separadas por comas y en una sola columna, ej: "MAT,FIS")</li>
+                        {/* <li>• <strong>Areas de competencia:</strong> {areas?.map((area) => area.label).join(", ")} (separadas por comas y en una sola columna, ej: "MAT,FIS")</li>
                         <li>• <strong>Grado escolar:</strong> {grados?.map((grado) => grado.label).join(", ")} </li>
-                        <li>• <strong>Nivel competencia:</strong> {niveles?.map((nivel) => nivel.label).join(", ")}</li>
+                        <li>• <strong>Nivel competencia:</strong> {niveles?.map((nivel) => nivel.label).join(", ")}</li> */}
                         <li>• <strong>Formatos permitidos:</strong> .xlsx, .xls, .csv</li>
                         <li>• <strong>Tamaño máximo:</strong> 10MB</li>
                     </ul>

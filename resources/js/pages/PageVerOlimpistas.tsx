@@ -8,25 +8,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/tables/DataTable";
 import { columns } from "@/components/tables/ColumnsOlimpista";
 import React from "react";
-import { getOlimpistas, getOlimpistasByAreas } from "@/api/Olimpistas";
+import { getOlimpistasByAreas } from "@/api/Olimpistas";
 import { useAuth } from "@/hooks/use-context";
 
 export default function PageVerOlimpistas() {
-    const [olimpistas, setOlimpistas] = React.useState<any[]>([]);
+    const [olimpistas, setOlimpistas] = React.useState<any>();
     const { data } = useAuth();
+    const areas = data?.areas.map((area) => area?.nombre);
+    const areasSigla = data?.areas.map((area) => area?.sigla);
+
     React.useEffect(() => {
-        const areas = data?.areas.map((area) => area?.sigla);
-        const staticData = data ? 
-            async () => {
-                const staticOlimpistas = await getOlimpistasByAreas(areas as string[]);
-                setOlimpistas(staticOlimpistas);
-            }
-            :
-            async () => {
-                const staticOlimpistas = await getOlimpistas();
-                setOlimpistas(staticOlimpistas);
-            };
+        const staticData = async () => {
+            const staticOlimpistas = await getOlimpistasByAreas(areasSigla as string[]);
+            setOlimpistas(staticOlimpistas);
+        }
         staticData();
+        console.log(data)
     }, [data]);
 
     return (
@@ -40,30 +37,30 @@ export default function PageVerOlimpistas() {
                         <Label className="text-2xl">Visualizar olimpistas</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue={data?.areas[0].nombre}>
+                        <Tabs defaultValue={ areas?.[0].toLocaleLowerCase() }>
                             <TabsList>
-                                { data?.areas.map((area) => (
+                                { areas?.map((area) => (
                                     <TabsTrigger
-                                        value={area.nombre}
-                                        key={area.nombre}
-                                        id={area.nombre}
+                                        value={ area.toLocaleLowerCase() }
+                                        key={ area.toLocaleLowerCase() }
+                                        id={ area.toLocaleLowerCase() }
                                     >
-                                        {area.nombre}
+                                        {area}
                                     </TabsTrigger>
                                 )) }
                             </TabsList>
                             {
-                                data?.areas.map((area) => (
+                                areas?.map((area) => (
                                     <TabsContent 
-                                        value={area.nombre}
-                                        key={area.nombre}
-                                        id={area.nombre}
+                                        value={ area.toLocaleLowerCase() }
+                                        key={ area.toLocaleLowerCase() }
+                                        id={ area.toLocaleLowerCase() }
                                     >
                                         <Card>
                                             <CardContent>
                                                 <DataTable
                                                     columns={columns}
-                                                    data={olimpistas[area.nombre] !== undefined ? olimpistas[area.nombre] : []}
+                                                    data={olimpistas?.[area] !== undefined ? olimpistas[area] : []}
                                                     fieldSearch="nombre"
                                                 />
                                             </CardContent>

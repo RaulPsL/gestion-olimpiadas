@@ -30,11 +30,12 @@ export default function TablecierreFases(
   });
 
   const { data } = useAuth();
-
+  const rol = data?.rol.sigla;
   const handleConfirmSave = () => {
     setIsLoading(true);
     handleSubmit((data) => updateCierreFases(
         data,
+        rol as string,
         setIsLoading,
         setSuccess,
         setApiError,

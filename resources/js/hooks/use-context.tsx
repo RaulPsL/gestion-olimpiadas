@@ -1,10 +1,20 @@
 import React, { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface UserData {
+interface Area {
+    nombre: string,
+    sigla:  string,
+}
+
+export interface Rol {
+    nombre: string,
+    sigla: string,
+}
+
+export interface UserData {
     data: any,
-    rol: any,
-    areas: string[],
+    rol: Rol,
+    areas: Area[],
     menu: any,
 };
 

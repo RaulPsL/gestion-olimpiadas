@@ -137,7 +137,8 @@ export const createMassiveOlimpistas = async (
             formData.append('colegio[nombre_colegio]', data.colegio.nombre_colegio);
             formData.append('colegio[direccion_colegio]', data.colegio.direccion_colegio);
             formData.append('colegio[telefono_colegio]', data.colegio.telefono_colegio.toString());
-            formData.append('colegio[departamento_colegio]', data.colegio.departamento_colegio);
+            formData.append('colegio[provincia_colegio]', data.colegio.provincia_id.toString());
+            formData.append('colegio[departamento_colegio]', data.colegio.departamento_id.toString());
         }
 
         console.log("Enviando FormData...");

@@ -23,12 +23,9 @@ export const validationRules = {
     },
     celular_tutor_academico: {
         required: "El celular del tutor academico es obligatorio",
-        validate: (value: number) => {
-            const strValue = value.toString();
-            if (!/^[67]\d{7}$/.test(strValue)) {
-                return "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)";
-            }
-            return true;
+        patern: {
+            value: "!/^[67]\d{7}$/",
+            message: "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)",
         }
     },
     email_tutor_academico: {
@@ -64,17 +61,17 @@ export const validationRules = {
             message: "Solo se permiten letras, espacios y puntos"
         }
     },
-    departamento_colegio: {
+    provincia_id: {
+        required: "La provincia del colegio es obligatoria",
+    },
+    departamento_id: {
         required: "El departamento del colegio es obligatorio",
     },
     telefono_colegio: {
         required: "El telefono del colegio es obligatorio",
-        validate: (value: number) => {
-            const strValue = value.toString();
-            if (!/^[234]\d{6}$/.test(strValue)) {
-                return "Debe ser un número válido (2XXXXXX o 3XXXXXX o 4XXXXXX)";
-            }
-            return true;
+        patern: {
+            value: "!/^[234]\d{6}$/",
+            message: "Debe ser un número válido (2XXXXXX o 3XXXXXX o 4XXXXXX)",
         }
     },
     direccion_colegio: {

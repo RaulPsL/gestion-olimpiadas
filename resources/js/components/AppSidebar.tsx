@@ -18,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { useAuth } from "@/hooks/use-context";
@@ -67,9 +68,10 @@ export function AppSidebar() {
                         className='flex flex-row justify-start'
                     >
                         <UserCog />
-                        <strong className='text-base'>{ data?.rol?.nombre }</strong>
+                        <h4 className='text-base'>{ data?.rol?.nombre }</h4>
                     </SidebarMenuItem>
                 </SidebarMenu>
+                <SidebarTrigger className="flex items-center" />
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>

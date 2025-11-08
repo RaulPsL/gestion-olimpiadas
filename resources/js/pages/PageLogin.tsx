@@ -74,6 +74,13 @@ export default function PageLogin() {
         }
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSendSubmit();
+        }
+    }
+
     return (
         <SidebarProvider>
             <SidebarInset>
@@ -82,13 +89,13 @@ export default function PageLogin() {
                     <div className="flex w-full flex-col gap-6 p-4 items-center">
                         <div className="flex w-full flex-row gap-6 p-4 items-center justify-center">
                             <LogIn />
-                            <Label className="text-2xl">Inicio de sesión</Label>
+                            <Label className="text-2xl">Inicio de sesión</Label>
                         </div>
                         <Card className="w-full max-w-sm">
                             <CardHeader>
                                 <CardTitle>Ingresa a tu cuenta</CardTitle>
                                 <CardDescription>
-                                    Ingresa tu cedula de identidad y contraseña
+                                    Ingresa tu cedula de identidad y contraseña
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -138,21 +145,22 @@ export default function PageLogin() {
                                 </AlertDialog>
                                 <div className="flex flex-col gap-6">
                                     <div className="grid gap-2">
-                                    <Label htmlFor="ci">
-                                        C.I. <span className="text-red-500">*</span>
-                                    </Label>
-                                    <Input
-                                        id="ci"
-                                        type="text"
-                                        placeholder="7839209"
-                                        { ...register('ci', rules.ci)}
-                                        required
-                                    />
-                                    {
-                                        errors.ci && (
-                                            <p className="text-sm text-red-500">{errors.ci.message}</p>
-                                        )
-                                    }
+                                        <Label htmlFor="ci">
+                                            C.I. <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="ci"
+                                            type="text"
+                                            placeholder="7839209"
+                                            { ...register('ci', rules.ci)}
+                                            onKeyDown={handleKeyDown}
+                                            required
+                                        />
+                                        {
+                                            errors.ci && (
+                                                <p className="text-sm text-red-500">{errors.ci.message}</p>
+                                            )
+                                        }
                                     </div>
                                     <div className="grid gap-2">
                                         <div className="flex items-center">
@@ -171,6 +179,7 @@ export default function PageLogin() {
                                             type="password"
                                             placeholder="***********"
                                             { ...register('password', rules.password)}
+                                            onKeyDown={handleKeyDown}
                                             required
                                         />
                                         {

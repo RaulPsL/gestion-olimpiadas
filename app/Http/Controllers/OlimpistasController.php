@@ -6,7 +6,6 @@ use App\Models\Area;
 use App\Models\Colegio;
 use App\Models\Fase;
 use App\Models\Grupo;
-use App\Models\Nivel;
 use App\Models\Olimpista;
 use App\Models\Tutor;
 use Carbon\Carbon;
@@ -92,7 +91,8 @@ class OlimpistasController extends Controller
                 ->with([
                     'olimpistas.tutores',
                     'olimpistas.colegio.provincia.departamento',
-                    'nivel',])
+                    'nivel',
+                ])
                 ->whereHas('area', function ($query) use ($request) {
                     $query->whereIn('sigla', $request->areas);
                 })
@@ -173,24 +173,38 @@ class OlimpistasController extends Controller
     public function indexStaticData()
     {
         try {
-            $areas = Area::with('niveles')
+            $areas = Area::with(['niveles', 'fases'])
             ->select(['id', 'sigla', 'nombre'])
             ->get()
             ->map(function ($area, $index) {
-                $grados = '';
+                $grados = collect([]);
                 $niveles = $area->niveles->map(function ($nivel, $index) use (&$grados) {
-                    $grados .= $nivel->grados->pluck('id')->join(',').',';
+                    $grados = $grados->merge($nivel->grados->map(function ($grado, $index) {
+                        return [
+                            'id' => $index+1,
+                            'value' => $grado->id,
+                            'label' => $grado->nombre,
+                        ];
+                    }));
                     return [
                         'id' => $index + 1,
+                        'grado' => implode(',', $nivel->grados->map(function ($grado) { return $grado['nombre'];})->toArray()),
                         'value' => $nivel->id,
                         'label' => $nivel->nombre,
                     ];
                 });
-                $grados = implode(',', array_unique(explode(',', $grados)));
+                $fases = $area->fases->map(function ($fase) {
+                    return [
+                        'inicio' => $fase->fecha_inicio,
+                        'fin' => $fase->fecha_fin,
+                    ];
+                });
+                $grados_unicos = $grados->unique('value')->values();
                 return [
                     'id' => $index + 1,
                     'niveles' => $niveles,
-                    'grados' => $grados,
+                    'horario_fases' => $fases,
+                    'grados' => $grados_unicos,
                     'value' => $area->sigla,
                     'label' => $area->nombre,
                 ];
@@ -210,20 +224,11 @@ class OlimpistasController extends Controller
                     'label' => $provincia->nombre,
                 ];
             });
-
-            $grados = DB::table('grados')->get()->map(function ($grado, $index) {
-                return [
-                    'id' => $index+1,
-                    'value' => $grado->id,
-                    'label' => $grado->nombre,
-                ];
-            });
             return response()->json([
                 'data' => [
                     'areas' => $areas,
                     'departamentos' => $departamentos,
                     'provincias' => $provincias,
-                    'grados' => $grados,
                 ],
                 'status' => 200
             ]);

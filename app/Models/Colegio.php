@@ -21,6 +21,10 @@ class Colegio extends Model
         'provincia_id',
     ];
 
+    protected $casts = [
+        'celular' => 'integer',
+    ];
+
     public function olimpistas() { return $this->hasMany(Olimpista::class); }
 
     public function provincia() { return $this->belongsTo(Provincia::class); }

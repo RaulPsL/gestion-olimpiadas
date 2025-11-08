@@ -21,7 +21,6 @@ export default function PageCierreFases() {
                 setCierres(response);
             };
         staticData();
-        console.log("Cierres de fases: ", cierres);
     }, []);
     
     React.useEffect(() => {
