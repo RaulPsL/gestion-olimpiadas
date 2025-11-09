@@ -28,15 +28,17 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { CheckCircle, CircleAlert, CircleX, NotebookPen, SaveAll } from "lucide-react";
+import { CheckCircle, CircleAlert, CircleX, Clock, NotebookPen, SaveAll } from "lucide-react";
 import { FieldValues, UseFormReset } from "react-hook-form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Spinner } from "../ui/spinner";
+import { UserData } from "@/hooks/use-context";
 
-interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
+interface DataTableProps<TData, TValue> {
+  user: UserData,
   columns: ColumnDef<TData, TValue>[],
-  data: TData[],
+  otherData: TData[],
   handleSubmit: () => void,
   isLoading: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -48,9 +50,10 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>,
 };
 
-export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldValues>({
+export function DataTableCierrresFases<TData, TValue>({
+  user,
   columns,
-  data,
+  otherData,
   isLoading,
   handleSubmit,
   setIsLoading,
@@ -60,7 +63,7 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
   setSuccess,
   dialogOpen,
   setDialogOpen,
-}: DataTableProps<TData, TValue, TFormValues>) {
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
@@ -70,7 +73,7 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
   });
 
   const table = useReactTable({
-    data,
+    data: otherData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -86,6 +89,31 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
       columnVisibility,
     },
   })
+
+  const [minutes, setMinutes] = React.useState(15);
+
+  // Calcular la hora resultante
+  const calculateResultTime = () => {
+    const now = new Date();
+    const resultTime = new Date(now.getTime() + minutes * 60000);
+
+    const hours = resultTime.getHours().toString().padStart(2, '0');
+    const mins = resultTime.getMinutes().toString().padStart(2, '0');
+
+    return `${hours}:${mins}`;
+  };
+
+  const getCurrentTime = () => {
+    const now = new Date();
+    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  };
+
+  const formatDuration = (mins: number) => {
+    if (mins < 60) {
+      return `${mins} minutos`;
+    }
+    return '1 hora';
+  };
 
   React.useEffect(() => {
     if (isLoading || apiError !== '') {
@@ -119,89 +147,167 @@ export function DataTableCierrresFases<TData, TValue, TFormValues extends FieldV
               defaultOpen={dialogOpen}>
               <AlertDialogTrigger asChild />
 
-              <AlertDialogContent>
+              {
+                <AlertDialogContent>
 
-                {isLoading && (
-                  <>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-center">
-                        Guardando cierre...
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <div className="flex justify-center items-center py-8">
-                      <Spinner className="h-12 w-12" />
-                    </div>
-                    <AlertDialogDescription className="text-center text-muted-foreground">
-                      Por favor espera mientras se guardan los cambios
-                    </AlertDialogDescription>
-                  </>
-                )}
+                  {isLoading && (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-center">
+                          Guardando cierre...
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <div className="flex justify-center items-center py-8">
+                        <Spinner className="h-12 w-12" />
+                      </div>
+                      <AlertDialogDescription className="text-center text-muted-foreground">
+                        Por favor espera mientras se guardan los cambios
+                      </AlertDialogDescription>
+                    </>
+                  )}
 
-                {(apiError !== '') && (
-                  <>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-red-500 text-center">
-                        Ocurrió un error
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <Alert variant="destructive">
-                      <CircleAlert className="h-4 w-4" />
-                      <AlertTitle>Error al guardar</AlertTitle>
-                      <AlertDescription>
-                        {apiError}
-                      </AlertDescription>
-                    </Alert>
-                    <AlertDialogFooter>
-                      <AlertDialogAction onClick={handleCloseDialog}>
-                        Entendido
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </>
-                )}
+                  {(apiError !== '') && (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-500 text-center">
+                          Ocurrió un error
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <Alert variant="destructive">
+                        <CircleAlert className="h-4 w-4" />
+                        <AlertTitle>Error al guardar</AlertTitle>
+                        <AlertDescription>
+                          {apiError}
+                        </AlertDescription>
+                      </Alert>
+                      <AlertDialogFooter>
+                        <AlertDialogAction onClick={handleCloseDialog}>
+                          Entendido
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </>
+                  )}
 
-                {success && (
-                  <>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-green-600 text-center">
-                        ¡Éxito en la accion!
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <Alert className="border-green-200 bg-green-50">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <AlertTitle className="text-green-800">Guardado exitoso</AlertTitle>
-                      <AlertDescription className="text-green-700">
-                        Las calificaciones se guardaron correctamente
-                      </AlertDescription>
-                    </Alert>
-                  </>
-                )}
+                  {success && (
+                    <>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-green-600 text-center">
+                          ¡Éxito en la accion!
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <Alert className="border-green-200 bg-green-50">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <AlertTitle className="text-green-800">Guardado exitoso</AlertTitle>
+                        <AlertDescription className="text-green-700">
+                          {
+                            user.rol.sigla === 'EVA' || user.rol.sigla === 'EDA' ?
+                              "Las calificaciones se guardaron correctamente" :
+                              "La fecha de modificación calificaciones se actualizo correctamente."
+                          }
+                        </AlertDescription>
+                      </Alert>
+                    </>
+                  )}
 
-                {!isLoading && !apiError && !success && (
-                  <>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-center">
-                        ¿Está seguro de realizar el cierre?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription />
-                    </AlertDialogHeader>
-                    <Alert variant="destructive">
-                      <CircleAlert className="h-4 w-4" />
-                      <AlertTitle>Atención</AlertTitle>
-                      <AlertDescription>
-                        Esta acción solo se puede realizar antes de que la fecha de cierre de la fase haya terminado.
-                      </AlertDescription>
-                    </Alert>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>No</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleSubmit}
-                      >
-                        Sí, guardar
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </>
-                )}
-              </AlertDialogContent>
+                  {!isLoading && !apiError && !success && (
+                    user.rol.sigla === 'EVA' || user.rol.sigla === 'EDA' ? (
+                      <>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-center">
+                            ¿Está seguro de realizar el cierre?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription />
+                        </AlertDialogHeader>
+                        <Alert variant="destructive">
+                          <CircleAlert className="h-4 w-4" />
+                          <AlertTitle>Atención</AlertTitle>
+                          <AlertDescription>
+                            Esta acción solo se puede realizar antes de que la fecha de cierre de la fase haya terminado.
+                          </AlertDescription>
+                        </Alert>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>No</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleSubmit}
+                          >
+                            Sí, guardar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </>
+                    ) : (
+                      <>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-center">
+                            ¿Está seguro de cambiar la fecha?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription />
+                        </AlertDialogHeader>
+
+                        <Alert variant="destructive">
+                          <CircleAlert className="h-4 w-4" />
+                          <AlertTitle>Atención</AlertTitle>
+                          <AlertDescription>
+                            Solo se puede agregar hasta una hora.
+                          </AlertDescription>
+                        </Alert>
+
+                        {/* Time Picker Section */}
+                        <div className="px-2">
+                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                              Agregar tiempo (minutos):
+                            </label>
+                            {/* Atajos rápidos */}
+                            <div className="grid grid-cols-4 gap-2 mt-3">
+                              {[15, 30, 45, 60].map((val) => (
+                                <button
+                                  key={val}
+                                  type="button"
+                                  onClick={() => setMinutes(val)}
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${minutes === val
+                                    ? 'bg-primary text-primary-foreground shadow-sm'
+                                    : 'bg-background text-foreground border border-input hover:bg-accent hover:text-accent-foreground'
+                                    }`}
+                                >
+                                  {val} min
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Preview de la hora resultante */}
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-blue-600" />
+                                <span className="font-medium text-blue-900">Hora actual:</span>
+                                <span className="font-semibold text-blue-900">{getCurrentTime()}</span>
+                              </div>
+                              <div className="text-blue-600 text-lg font-bold">→</div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-blue-900">Nueva hora:</span>
+                                <span className="text-lg font-bold text-blue-600">{calculateResultTime()}</span>
+                              </div>
+                            </div>
+                            <div className="mt-2 text-xs text-blue-700 text-center">
+                              Se agregará {formatDuration(minutes)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>No</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleSubmit}
+                          >
+                            Sí, guardar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </>
+                    )
+                  )}
+                </AlertDialogContent>
+              }
             </AlertDialog>
           </div>
           <DropdownMenuContent align="end">

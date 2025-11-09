@@ -109,14 +109,6 @@ export default function FormOlimpista() {
     // Filtro de provincias por departamento
     useFilterProvincias(departamentoField, anterioresProvincias, setProvincias);
 
-    // React.useEffect(() => {
-    //     console.log('Departamento seleccionado: ', departamentoField);
-    //     if (departamentoField.value.length > 0) {
-    //         const provinciasFiltradas = anterioresProvincias?.filter((prov) => prov.departamento_id === departamentoField.value[0]);
-    //         setProvincias(provinciasFiltradas);
-    //     }
-    // }, [departamentoField.value]);
-
     // Obtener el nombre del área por su valor
     const getNombreArea = (areaValue: string) => {
         const area = areas?.find(a => a.value === areaValue);

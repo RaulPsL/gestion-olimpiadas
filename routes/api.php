@@ -14,17 +14,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('olimpistas')->group(function () {
+Route::middleware(['auth:sanctum', 'role:EVA,ADM,EDA'])->prefix('olimpistas')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
     Route::post('/areas', [App\Http\Controllers\OlimpistasController::class, 'indexByArea'])->name('olimpistas.indexByArea');
-    Route::get('/grupos', [App\Http\Controllers\OlimpistasController::class, 'indexGrupos'])->name('olimpistas.indexGrupos');
     Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
     Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('olimpistas.store');
     Route::post('/file', [App\Http\Controllers\OlimpistasController::class, 'storeByFile'])->name('olimpistas.storeByFile');
-    Route::get('/fase/{area}/{fase}', [App\Http\Controllers\OlimpistasController::class, 'showByFase'])->name('olimpistas.fase');
     Route::get('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('olimpistas.show');
     Route::put('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'update'])->name('olimpistas.update');
     Route::delete('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('olimpistas.destroy');
+});
+
+Route::middleware(['auth:sanctum', 'role:EVA,ADM,EDA'])->prefix('grupos')->group(function () {
+    Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('grupos.index');
+    Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('grupos.store');
+    Route::get('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('grupos.show');
+    Route::put('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'update'])->name('grupos.update');
+    Route::delete('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('grupos.destroy');
 });
 
 Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('usuarios')->group(function () {

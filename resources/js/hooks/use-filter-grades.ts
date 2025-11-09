@@ -5,6 +5,7 @@ export const useFilterGrades = (
     setGrados: React.Dispatch<React.SetStateAction<any[]>>
 ) => {
     React.useEffect(() => {
+        console.log('Areas filtradas: ', areasFiltradas);
         if (areasFiltradas.length > 0) {
             const gradosActuales = areasFiltradas.flatMap((area) => area.grados);
             const gradosFiltrados = gradosActuales.filter((grado, index, self) =>

@@ -36,6 +36,16 @@ function App() {
                         }
                     />
                     <Route
+                        path="/olimpistas/registrar grupo(s)"
+                        element={
+                            <PrivatRoute
+                            rol={['EDA']}
+                            >
+                                <PageOlimpista grupo={true}/>
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
                         path="/olimpistas/ver olimpistas"
                         element={
                             <PrivatRoute

@@ -101,6 +101,7 @@ export const createOlimpista = async (
 
 export const createMassiveOlimpistas = async (
     data: MassiveForm,
+    grupo: boolean,
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
     setApiError: React.Dispatch<React.SetStateAction<string>>,
@@ -141,9 +142,9 @@ export const createMassiveOlimpistas = async (
             formData.append('colegio[departamento_colegio]', data.colegio.departamento_id.toString());
         }
 
-        console.log("Enviando FormData...");
+        console.log("Enviando FormData...", data);
 
-        const result = await axiosPrivate.post("/olimpistas/file", formData, {
+        const result = await axiosPrivate.post(`${grupo ? "/grupos" : "/olimpistas/file" }`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }

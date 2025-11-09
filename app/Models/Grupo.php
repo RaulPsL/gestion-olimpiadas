@@ -16,7 +16,7 @@ class Grupo extends Model
      */
     protected $fillable = [
         'nombre',
-        'tutor_academico_id',
+        'tutor_id',
     ];
 
     /**
@@ -28,8 +28,6 @@ class Grupo extends Model
         'id',
         'created_at',
         'updated_at',
-        'tutor_academico_id',
-        'colegio_id',
     ];
 
     public function areas()

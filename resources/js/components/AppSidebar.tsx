@@ -7,18 +7,18 @@ import {
     UserCog
 } from "lucide-react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarTrigger,
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { useAuth } from "@/hooks/use-context";
@@ -29,13 +29,36 @@ export function AppSidebar() {
     const { data } = useAuth();
     const datosUsuario = data?.data;
     const [menu, setMenu] = React.useState<any[]>([]);
-    
+    const areas = data?.areas.flatMap((area) => area.sigla);
+
     React.useEffect(() => {
         if (data) {
             setMenu(data?.menu);
         }
-    }, [data]);
-    
+    }, [datosUsuario]);
+
+    React.useEffect(() => {
+        if (data?.rol.sigla === "EDA" && areas && areas?.length > 0) {
+            const areaInf = areas.find((area) => area === "INF");
+            const areaRob = areas.find((area) => area === "ROB");
+            if (!areaInf && !areaRob) {
+                setMenu(prev => (
+                    prev.map(menu => {
+                        if (menu.submenu) {
+                            return {
+                                ...menu,
+                                submenu: menu.submenu.filter(
+                                    (submenu: any) => submenu.title !== 'Inscribir grupos'
+                                )
+                            };
+                        }
+                        return menu;
+                    })
+                ));
+            }
+        }
+    }, [datosUsuario]);
+
     const handleMenuButton = (item: any, isActive: boolean = false) => {
         return (
             <SidebarMenuButton asChild data-active={isActive}>
@@ -45,10 +68,10 @@ export function AppSidebar() {
                             className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
                             <i className={`${item?.icon ?? ""} w-5 h-5`}></i>
                             <span>{item.title}</span>
-                            { item?.submenu && (<ChevronDown className="ml-auto" />) }
+                            {item?.submenu && (<ChevronDown className="ml-auto" />)}
                         </span>
                     ) : (
-                        <Link 
+                        <Link
                             to={item.url}
                             className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
                             <i className={`${item?.icon ?? ""} w-5 h-5`}></i>
@@ -68,7 +91,7 @@ export function AppSidebar() {
                         className='flex flex-row justify-start'
                     >
                         <UserCog />
-                        <h4 className='text-base'>{ data?.rol?.nombre }</h4>
+                        <h4 className='text-base'>{data?.rol?.nombre}</h4>
                     </SidebarMenuItem>
                 </SidebarMenu>
                 <SidebarTrigger className="flex items-center" />
@@ -86,13 +109,13 @@ export function AppSidebar() {
                                             <Collapsible defaultOpen={false} className="group/collapsible">
                                                 <SidebarMenuItem key={item.title}>
                                                     <CollapsibleTrigger asChild>
-                                                        { handleMenuButton(item) }
+                                                        {handleMenuButton(item)}
                                                     </CollapsibleTrigger>
-                                                    {item.submenu.map((subitem : any) => {
+                                                    {item.submenu.map((subitem: any) => {
                                                         const isSubitemActive = window.location.pathname === subitem.url;
                                                         return <CollapsibleContent key={subitem.title}>
                                                             <SidebarMenuSub>
-                                                                { handleMenuButton(subitem, isSubitemActive) }
+                                                                {handleMenuButton(subitem, isSubitemActive)}
                                                             </SidebarMenuSub>
                                                         </CollapsibleContent>
                                                     })}
@@ -103,9 +126,10 @@ export function AppSidebar() {
                                 }
                                 return (
                                     <SidebarMenuItem key={item.title}>
-                                        { handleMenuButton(item, isActive) }
+                                        {handleMenuButton(item, isActive)}
                                     </SidebarMenuItem>)
-                            })}
+                            }
+                            )}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
@@ -114,8 +138,8 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <div className="flex flex-row gap-4 items-center">
-                            <User2/> 
-                            <strong>{ `${datosUsuario?.nombre} ${datosUsuario?.apellido}`}</strong>
+                            <User2 />
+                            <strong>{`${datosUsuario?.nombre} ${datosUsuario?.apellido}`}</strong>
                         </div>
                     </SidebarMenuItem>
                 </SidebarMenu>

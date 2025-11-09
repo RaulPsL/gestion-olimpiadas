@@ -1,4 +1,5 @@
 export interface MassiveForm {
+    nombre_grupo?: string,
     tutor_academico: {
         nombres_tutor_academico: string;
         apellidos_tutor_academico: string;
@@ -12,8 +13,8 @@ export interface MassiveForm {
         telefono_colegio: string;
         provincia_id: number;
         departamento_id: number;
-        grado_id: number;
-        nivel_id: number;
+        area: string,
+        grado_escolar: number,
     };
     archivo: FileList;
 }

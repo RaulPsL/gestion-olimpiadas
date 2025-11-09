@@ -1,4 +1,15 @@
 export const validationRules = {
+    nombre_grupo: {
+        required: "El nombre del grupo es obligatorio",
+        minLength: {
+            value: 4,
+            message: "El nombre del grupo debe tener al menos 4 caracteres"
+        },
+        pattern: {
+            value: /^[A-Za-zÁáÉéÍíÓóÚúÑñ\s]+$/,
+            message: "Solo se permiten letras y espacios"
+        }
+    },
     nombres_tutor_academico: {
         required: "El nombre del tutor academico es obligatorio",
         minLength: {

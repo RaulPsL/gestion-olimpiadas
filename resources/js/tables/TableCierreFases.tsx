@@ -4,7 +4,7 @@ import { createColumnsCierres } from "@/components/tables/ColumnsCierre";
 import { DataTableCierrresFases } from "@/components/tables/DataTableCierreFases";
 import { Card, CardContent } from "@/components/ui/card";
 import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
-import { useAuth } from "@/hooks/use-context";
+import { useAuth, UserData } from "@/hooks/use-context";
 
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -56,7 +56,8 @@ export default function TablecierreFases(
       <CardContent>
         <DataTableCierrresFases
           columns={columns}
-          data={cierres}
+          user={data as UserData}
+          otherData={cierres}
           handleSubmit={handleConfirmSave}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
