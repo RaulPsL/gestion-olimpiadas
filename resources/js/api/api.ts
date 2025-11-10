@@ -1,32 +1,11 @@
-import axios from "axios";
-
-export const axiosInstance = axios.create({
-    baseURL: "http://localhost:8000/api",
-});
-
-export const axiosPrivate = axios.create({
-    baseURL: "http://localhost:8000/api",
-    headers: { 
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-    },
-    withCredentials: true,
-});
-
-export const axiosPublic = axios.create({
-    baseURL: "http://localhost:8000/api",
-    headers: { "Content-Type": "application/json" },
-});
-
-// import { useAuth } from "@/hooks/use-context";
 // import axios from "axios";
 
 // export const axiosInstance = axios.create({
-//     baseURL: "http://codecrafters.tis.cs.umss.edu.bo/api",
+//     baseURL: "http://localhost:8000/api",
 // });
 
 // export const axiosPrivate = axios.create({
-//     baseURL: "http://codecrafters.tis.cs.umss.edu.bo/api",
+//     baseURL: "http://localhost:8000/api",
 //     headers: { 
 //         "Content-Type": "application/json",
 //         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -35,6 +14,26 @@ export const axiosPublic = axios.create({
 // });
 
 // export const axiosPublic = axios.create({
-//     baseURL: "http://codecrafters.tis.cs.umss.edu.bo/api",
+//     baseURL: "http://localhost:8000/api",
 //     headers: { "Content-Type": "application/json" },
 // });
+
+import axios from "axios";
+
+export const axiosInstance = axios.create({
+    baseURL: "http://codecrafters.tis.cs.umss.edu.bo/api",
+});
+
+export const axiosPrivate = axios.create({
+    baseURL: "http://codecrafters.tis.cs.umss.edu.bo/api",
+    headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+    withCredentials: true,
+});
+
+export const axiosPublic = axios.create({
+    baseURL: "http://codecrafters.tis.cs.umss.edu.bo/api",
+    headers: { "Content-Type": "application/json" },
+});

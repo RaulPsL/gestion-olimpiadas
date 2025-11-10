@@ -29,16 +29,18 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { CheckCircle, CircleAlert, CircleX, Clock, NotebookPen, SaveAll } from "lucide-react";
-import { FieldValues, UseFormReset } from "react-hook-form";
+import { FieldValues, UseFormReset, UseFormSetValue } from "react-hook-form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Spinner } from "../ui/spinner";
 import { UserData } from "@/hooks/use-context";
+import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 
 interface DataTableProps<TData, TValue> {
   user: UserData,
   columns: ColumnDef<TData, TValue>[],
   otherData: TData[],
+  fechaFin: Date,
   handleSubmit: () => void,
   isLoading: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -48,12 +50,14 @@ interface DataTableProps<TData, TValue> {
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
   dialogOpen: boolean,
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setValue: UseFormSetValue<FormCierreFase | FormGetupFase>,
 };
 
 export function DataTableCierrresFases<TData, TValue>({
   user,
   columns,
   otherData,
+  fechaFin,
   isLoading,
   handleSubmit,
   setIsLoading,
@@ -63,6 +67,7 @@ export function DataTableCierrresFases<TData, TValue>({
   setSuccess,
   dialogOpen,
   setDialogOpen,
+  setValue,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -94,8 +99,7 @@ export function DataTableCierrresFases<TData, TValue>({
 
   // Calcular la hora resultante
   const calculateResultTime = () => {
-    const now = new Date();
-    const resultTime = new Date(now.getTime() + minutes * 60000);
+    const resultTime = new Date(fechaFin.getTime() + minutes * 60000);
 
     const hours = resultTime.getHours().toString().padStart(2, '0');
     const mins = resultTime.getMinutes().toString().padStart(2, '0');
@@ -104,8 +108,7 @@ export function DataTableCierrresFases<TData, TValue>({
   };
 
   const getCurrentTime = () => {
-    const now = new Date();
-    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    return `${fechaFin.getHours().toString().padStart(2, '0')}:${fechaFin.getMinutes().toString().padStart(2, '0')}`;
   };
 
   const formatDuration = (mins: number) => {
@@ -247,7 +250,8 @@ export function DataTableCierrresFases<TData, TValue>({
                           <CircleAlert className="h-4 w-4" />
                           <AlertTitle>Atención</AlertTitle>
                           <AlertDescription>
-                            Solo se puede agregar hasta una hora.
+                            <li>Solo se puede agregar hasta una hora.</li>
+                            <li>Esta acción no cambiará los proximos eventos de otras áreas.</li>
                           </AlertDescription>
                         </Alert>
 
@@ -263,7 +267,10 @@ export function DataTableCierrresFases<TData, TValue>({
                                 <button
                                   key={val}
                                   type="button"
-                                  onClick={() => setMinutes(val)}
+                                  onClick={() => {
+                                    setMinutes(val);
+                                    setValue('aumento_fin', String(val))
+                                  }}
                                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${minutes === val
                                     ? 'bg-primary text-primary-foreground shadow-sm'
                                     : 'bg-background text-foreground border border-input hover:bg-accent hover:text-accent-foreground'

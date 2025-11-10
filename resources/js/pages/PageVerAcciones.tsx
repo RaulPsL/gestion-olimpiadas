@@ -24,7 +24,7 @@ export default function PageVerAcciones() {
             }
             if (data?.rol.sigla === 'ADM') {
                 const cierres = await getLogsCierreFases();
-                setCalificacionesOAcciones(cierres);
+                setCalificacionesOAcciones([]);
             }
         };
         staticData();
@@ -38,7 +38,7 @@ export default function PageVerAcciones() {
                 <div className="container mx-auto px-4">
                     <div className="flex w-full flex-row gap-6 p-4 items-center">
                         <BookUser />
-                        <Label className="text-2xl">Visualizar usuarios</Label>
+                        <Label className="text-2xl">Acciones de los usuarios</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
                         <Tabs defaultValue={data?.rol.sigla === 'EDA' ? otherKeys?.[0] : 'acciones'}>
@@ -77,7 +77,7 @@ export default function PageVerAcciones() {
                                             <CardContent>
                                                 <DataTable
                                                     columns={columnsLogCierreFases}
-                                                    data={calificacionesOAcciones}
+                                                    data={[]}
                                                     fieldSearch={"usuario"}
                                                 />
                                             </CardContent>

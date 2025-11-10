@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Usuario } from './interfaces/UsuarioPDF';
 import { Participante } from './interfaces/ParticipantePDF';
+import React from 'react';
 
 // Función para generar el PDF
 export function generarListaPDF({
@@ -24,7 +25,7 @@ export function generarListaPDF({
 
   // Agregar título principal
   doc.setFontSize(18);
-  doc.text(`Lista de ${tipoPdf}`, 14, 20);
+  // doc.text(`Lista de ${tipoPdf}`, 14, 20);
 
   // Agregar fecha
   doc.setFontSize(11);
@@ -33,25 +34,30 @@ export function generarListaPDF({
   // Variable para controlar la posición Y actual
   let currentY = 40;
 
-  // Obtener las claves del objeto usuarios
-  const keys = Object.keys(usuarios);
+  // Obtener las claves del objeto o manejar si es un arreglo
+  let usuariosNormalizado: Record<string, any[]>;
+
+  if (Array.isArray(usuarios)) {
+    usuariosNormalizado = { [`Lista de ${tipoPdf}`]: usuarios };
+  } else {
+    usuariosNormalizado = usuarios;
+  }
+
+  const keys = Object.keys(usuariosNormalizado);
 
   // Iterar sobre cada clave
   keys.forEach((key, index) => {
-    const listaUsuarios = usuarios[key];
+    const listaUsuarios = usuariosNormalizado[key];
 
-    // Verificar si hay usuarios en esta clave
     if (!listaUsuarios || listaUsuarios.length === 0) {
-      return; // Continuar con la siguiente iteración
+      return;
     }
 
-    // Agregar subtítulo para esta categoría
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.text(`${key}`, 14, currentY);
     currentY += 7;
 
-    // Preparar datos según el tipo
     let data = [];
     let columnsStyles = {};
 
@@ -65,10 +71,10 @@ export function generarListaPDF({
       ]);
 
       columnsStyles = {
-        0: { cellWidth: 15 },
-        1: { cellWidth: 45 },
-        2: { cellWidth: 15 },
-        3: { cellWidth: 15 },
+        0: { cellWidth: 25 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 45 },
+        3: { cellWidth: 30 },
         4: { cellWidth: 45 }
       };
     } else {
@@ -89,7 +95,6 @@ export function generarListaPDF({
       };
     }
 
-    // Generar tabla con autoTable
     autoTable(doc, {
       head: olimpistas ? headersParticipante : headersUsuario,
       body: data,
@@ -106,22 +111,19 @@ export function generarListaPDF({
       },
       columnStyles: columnsStyles,
       didDrawPage: (data) => {
-        // Actualizar currentY después de dibujar la tabla
         currentY = data.cursor?.y as number;
       }
     });
 
-    // Agregar espacio entre tablas (si no es la última)
     if (index < keys.length - 1) {
       currentY += 15;
-      
-      // Si no hay suficiente espacio en la página, agregar una nueva
       if (currentY > doc.internal.pageSize.getHeight() - 40) {
         doc.addPage();
         currentY = 20;
       }
     }
   });
+
 
   // Agregar pie de página en todas las páginas
   const pageCount = doc.getNumberOfPages();
@@ -136,5 +138,5 @@ export function generarListaPDF({
     );
   }
 
-  doc.save('reporte-empleados.pdf');
+  doc.save(`reporte-${tipoPdf}.pdf`);
 }

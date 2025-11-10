@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum', 'role:EVA,ADM,EDA'])->prefix('olimpistas')->group(function () {
+Route::prefix('olimpistas')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('olimpistas.index');
     Route::post('/areas', [App\Http\Controllers\OlimpistasController::class, 'indexByArea'])->name('olimpistas.indexByArea');
     Route::get('/static', [App\Http\Controllers\OlimpistasController::class, 'indexStaticData'])->name('olimpistas.index.static');
@@ -25,7 +25,7 @@ Route::middleware(['auth:sanctum', 'role:EVA,ADM,EDA'])->prefix('olimpistas')->g
     Route::delete('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('olimpistas.destroy');
 });
 
-Route::middleware(['auth:sanctum', 'role:EVA,ADM,EDA'])->prefix('grupos')->group(function () {
+Route::prefix('grupos')->group(function () {
     Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('grupos.index');
     Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('grupos.store');
     Route::get('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('grupos.show');
@@ -33,7 +33,7 @@ Route::middleware(['auth:sanctum', 'role:EVA,ADM,EDA'])->prefix('grupos')->group
     Route::delete('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('grupos.destroy');
 });
 
-Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('usuarios')->group(function () {
+Route::prefix('usuarios')->group(function () {
     Route::get('/', [App\Http\Controllers\UsuariosController::class, 'index']);
     Route::get('/static', [App\Http\Controllers\UsuariosController::class, 'indexStaticData']);
     Route::get('/{ci}', [App\Http\Controllers\UsuariosController::class, 'show']);
@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum', 'role:ADM,EDA'])->prefix('usuarios')->group(f
     Route::delete('/{ci}', [App\Http\Controllers\UsuariosController::class, 'destroy']);
 });
 
-Route::middleware(['auth:sanctum', 'role:EDA,EVA,ADM'])->prefix('fases')->group(function () {
+Route::prefix('fases')->group(function () {
     Route::post('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
     Route::post('/cierres', [App\Http\Controllers\FasesController::class, 'indexCierreFases'])->name('fases.cierres');
     Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
@@ -61,24 +61,24 @@ Route::prefix('areas')->group(function () {
     Route::delete('/{sigla}', [App\Http\Controllers\AreasController::class, 'destroy']);
 });
 
-Route::middleware(['auth:sanctum', 'role:EDA,EVA'])->prefix('calificaciones')->group(function () {
+Route::prefix('calificaciones')->group(function () {
     Route::post('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'olimpistas']);
     Route::post('/grupos', [App\Http\Controllers\CalificacionesController::class, 'grupos']);
     Route::put('/olimpistas', [App\Http\Controllers\CalificacionesController::class, 'updateOlimpistas']);
     Route::put('/grupos', [App\Http\Controllers\CalificacionesController::class, 'updateGrupos']);
 });
 
-Route::middleware(['auth:sanctum', 'role:EDA,ADM'])->prefix('logs')->group(function () {
+Route::prefix('logs')->group(function () {
     Route::post('/calificaciones', [App\Http\Controllers\LogController::class, 'logsCalificaciones']);
-    Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
-    Route::get('/report/olimpistas', [App\Http\Controllers\LogController::class, 'olimpistas']);
+    Route::get('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
+    Route::get('/report/olimpistas', [App\Http\Controllers\LogController::class, 'allUsuarios']);
     Route::get('/report/usuarios', [App\Http\Controllers\LogController::class, 'usuarios']);
     // Route::post('/usuarios', [App\Http\Controllers\LogController::class, 'logCierreFases']);
 });
 
 Route::prefix('clasificaciones')->group(function () {
     Route::get('/area', [App\Http\Controllers\ClasificasionController::class, 'indexArea']);
-    Route::get('/nivel', [App\Http\Controllers\ClasificasionController::class, 'indexNivel']);
+    Route::get('/ganadores', [App\Http\Controllers\ClasificasionController::class, 'ganadores']);
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
 });
 

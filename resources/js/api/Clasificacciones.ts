@@ -5,8 +5,9 @@ export const getClasificacionesByArea = async () => {
     return data.data;
 };
 
-export const getClasificacionesByNivel = async (area: string) => {
-    const { data } = await axiosPublic.get(`/clasificaciones/nivel`);
+export const getGanadores = async () => {
+    const { data } = await axiosPublic.get(`/clasificaciones/ganadores`);
+    console.log('Datos: ', data.data)
     return data.data;
 };
 

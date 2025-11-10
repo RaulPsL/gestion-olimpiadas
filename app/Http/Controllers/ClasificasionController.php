@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\actions\FiltersAction;
 use App\Models\Fase;
 
 class ClasificasionController extends Controller
@@ -63,25 +64,35 @@ class ClasificasionController extends Controller
         }
     }
 
-    public function indexNivel()
+    public function ganadores()
     {
         try {
-            $finalistas = Fase::with([
-                'area',
-                'olimpistas',
-                ])
-                // ->where('tipo_fase', 'finales')
-                ->get();
+            $fases = Fase::with([
+                'olimpistas', 'nivel', 'area', 'usuarios'
+            ])
+            ->whereHas('area', function ($query) {
+                $query->whereNotIn('sigla', ['ROB', 'INF']);
+            })
+            ->where('tipo_fase', 'finales')
+            ->where('estado', 'finalizada')
+            ->get();
 
-            if (empty($finalistas)) {
-                return response()->json([
-                    'message' => "Aun no se tienen finalistas.",
-                    'data' => [],
-                ], 204);
-            }
+            $fases_grupos = Fase::with([
+                'grupos', 'nivel', 'area', 'usuarios.roles'
+            ])
+            ->whereHas('area', function ($query) {
+                $query->whereIn('sigla', ['ROB', 'INF']);
+            })
+            ->where('tipo_fase', 'finales')
+            ->where('estado', 'finalizada')
+            ->get();
+
             return response()->json([
-                'message' => "Finalistas obtenidos exitosamente.",
-                'data' => $finalistas,
+                'message' => "Ganadores obtenidos exitosamente.",
+                'data' => [
+                    'olimpistas' => FiltersAction::filterGanadores($fases)->groupBy('area'),
+                    'grupos' => FiltersAction::filterGruposGanadores($fases_grupos)->groupBy('area'),
+                ],
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

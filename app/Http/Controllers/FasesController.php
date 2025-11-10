@@ -23,7 +23,7 @@ class FasesController extends Controller
             ]);
             $fases = Fase::with('area')->get();
             $fasesFiltradas = collect($fases)->map(function ($fase) {
-                return[
+                return [
                     'name' => $fase->sigla,
                     'tipo_fase' => $fase->tipo_fase,
                     'area' => $fase->area->nombre,
@@ -50,14 +50,15 @@ class FasesController extends Controller
         }
     }
 
-    public function indexCalendar() {
+    public function indexCalendar()
+    {
         try {
             $fases = Fase::with(['area', 'nivel'])->get()->map(function ($fase, $index) {
                 $area = $fase->area;
                 $nivel = $fase->nivel;
                 $nombre_nivel = $nivel ? "$nivel->nombre" : "";
-                return[
-                    'id' => $index+1,
+                return [
+                    'id' => $index + 1,
                     'title' => "$area->nombre $nombre_nivel",
                     'start' => $fase->fecha_inicio,
                     'calificacion' => $fase->fecha_calificacion,
@@ -83,7 +84,8 @@ class FasesController extends Controller
         }
     }
 
-    public function indexCierreFases(Request $request) {
+    public function indexCierreFases(Request $request)
+    {
         try {
             $request->validate([
                 'areas' => 'required'
@@ -99,15 +101,15 @@ class FasesController extends Controller
                     'fase' => "$fase->sigla - $area->nombre",
                     'estado' => $fase->estado,
                     'area' => $fase->area->nombre,
-                    'fecha_creacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->created_at)) : "" ,
-                    'fecha_modificacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->updated_at)) : "" ,
+                    'fecha_creacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->created_at)) : "",
+                    'fecha_modificacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->updated_at)) : "",
                     'fecha_fin_fase' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
                     'fecha_calificacion_fase' => date('d/M/Y H:i', strtotime($fase->fecha_calificacion)),
-                    'usuario_encargado_id' => $fase->cierre ? $fase->cierre->usuario_encargado_id : null ,
-                    'usuario_evaluador_id' => $fase->cierre ? $fase->cierre->usuario_evaluador_id : null ,
+                    'usuario_encargado_id' => $fase->cierre ? "$encargado->ci" : null,
+                    'usuario_evaluador_id' => $fase->cierre ? "$evaluador->ci" : null,
                     'fase_id' => $fase->id,
                 ];
-                
+
                 return $nuevo_cierre;
             })->groupBy('area');
 
@@ -158,7 +160,7 @@ class FasesController extends Controller
             $request->validate([
                 'fase_id' => 'required',
             ]);
-            
+
             $cierre = VerificacionCierre::where('fase_id', $request->fase_id)->first();
             $fase_actual = Fase::findOrFail($request->fase_id);
             $usuarios = [];
@@ -199,24 +201,25 @@ class FasesController extends Controller
         try {
             $request->validate([
                 'fase_id' => 'required',
-                'aumento_fin' => 'required',
+                'aumento_fin' => 'required|string',
             ]);
-            
-            $cierre = VerificacionCierre::where('fase_id', $request->fase_id)->first();
+
+            $cierre = VerificacionCierre::where('fase_id', $request->fase_id)->get()->first();
             $fase_actual = Fase::findOrFail($request->fase_id);
             $fases = Fase::where('area_id', $fase_actual->area_id)->get();
             $index_fase = array_search($fase_actual->id, $fases->pluck('id')->toArray());
-            
-            if ($cierre && $cierre) {
-                $cierre->update(['update_at' => Carbon::now()]);
+
+            if ($cierre) {
+                $cierre->update(['updated_at' => Carbon::now()]);
 
                 $anterior_fin = Carbon::parse($fase_actual->fecha_fin);
                 $anterior_calificacion = Carbon::parse($fase_actual->fecha_calificacion);
                 $nuevo_fin = Carbon::parse($request->aumento_fin);
 
-                $diff_minutos = $anterior_fin->diffInMinutes($nuevo_fin);
-                $nuevo_tiempo_fin = $anterior_fin->addMinutes($diff_minutos);
-                $nuevo_tiempo_calificacion = $anterior_calificacion->addMinutes($diff_minutos);
+                $diff_minutos = $anterior_fin->diffInMinutes($nuevo_fin, false);
+
+                $nuevo_tiempo_fin = $anterior_fin->copy()->addMinutes($diff_minutos);
+                $nuevo_tiempo_calificacion = $anterior_calificacion->copy()->addMinutes($diff_minutos);
 
                 $fase_actual->update([
                     'fecha_fin' => $nuevo_tiempo_fin,
@@ -225,19 +228,11 @@ class FasesController extends Controller
                 ]);
 
                 $fases->each(function ($fase, $index) use ($index_fase, $diff_minutos) {
-                    $anterior_inicio = Carbon::parse($fase->fecha_inicio);
-                    $anterior_fin = Carbon::parse($fase->fecha_fin);
-                    $anterior_calificacion = Carbon::parse($fase->fecha_calificacion);
-
-                    $nuevo_tiempo_inicio = $anterior_inicio->addMinutes($diff_minutos);
-                    $nuevo_tiempo_fin = $anterior_fin->addMinutes($diff_minutos);
-                    $nuevo_tiempo_calificacion = $anterior_calificacion->addMinutes($diff_minutos);
-
                     if ($index > $index_fase) {
                         $fase->update([
-                            'fecha_inicio' => $nuevo_tiempo_inicio,
-                            'fecha_fin' => $nuevo_tiempo_fin,
-                            'fecha_calificacion' => $nuevo_tiempo_calificacion,
+                            'fecha_inicio' => Carbon::parse($fase->fecha_inicio)->addMinutes($diff_minutos),
+                            'fecha_fin' => Carbon::parse($fase->fecha_fin)->addMinutes($diff_minutos),
+                            'fecha_calificacion' => Carbon::parse($fase->fecha_calificacion)->addMinutes($diff_minutos),
                             'estado' => 'pendiente'
                         ]);
                     }
@@ -246,7 +241,7 @@ class FasesController extends Controller
             return response()->json([
                 'message' => "Verificacion de cierre de fases ejecutada con exito.",
                 'data' => [
-                    'cierre' => VerificacionCierre::where('fase_id', $request->fase_id)->first(),
+                    'cierre' => VerificacionCierre::where('fase_id', $request->fase_id)->get(),
                     'fase' => $fase_actual,
                 ],
             ], 202);
@@ -274,7 +269,8 @@ class FasesController extends Controller
                 $fases = Area::where('sigla', $request->area)->with('fases')->first()->fases;
                 $fases_a_eliminar = array_diff(
                     $fases->pluck('id')->toArray(),
-                    array_column($request->fases, 'id'));
+                    array_column($request->fases, 'id')
+                );
                 Fase::whereIn('id', $fases_a_eliminar)->delete();
                 return response()->json([
                     'message' => "Fases eliminadas exitosamente.",

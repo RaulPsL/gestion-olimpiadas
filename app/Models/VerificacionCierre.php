@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class VerificacionCierre extends Model
 {
     use HasFactory;
+
+    protected $table = "verificacion_cierres";
+
     protected $fillable = [
         'usuario_encargado_id',
         'usuario_evaluador_id',

@@ -66,7 +66,6 @@ class CalificacionesController extends Controller
         }
     }
 
-
     public function updateOlimpistas(Request $request)
     {
         try {

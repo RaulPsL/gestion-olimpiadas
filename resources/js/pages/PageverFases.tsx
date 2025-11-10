@@ -36,7 +36,7 @@ export default function PageVerFases() {
                 <div className="container mx-auto px-4">
                     <div className="flex w-full flex-row gap-6 p-4 items-center">
                         <BookUser />
-                        <Label className="text-2xl">Visualizar usuarios</Label>
+                        <Label className="text-2xl">Fases de las áreas del usuario</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
                         <Tabs defaultValue={areas?.[0]} key={areas?.[0]}>

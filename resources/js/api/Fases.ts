@@ -59,7 +59,10 @@ export const updateCierreFases = async (
     try {
         console.log('Enviando datos...');
         console.log(data);
-        const response = await (['EVA', 'EDA'].includes(rol) ? axiosPrivate.put(`/fases/create/cierres`, data) : axiosPrivate.put(`/fases/update/cierres`, data));
+        const response = await (['EVA', 'EDA'].includes(rol) ? 
+            axiosPrivate.put(`/fases/create/cierres`, data as FormCierreFase) 
+            :
+            axiosPrivate.put(`/fases/update/cierres`, data as FormGetupFase));
         await new Promise(resolve => setTimeout(resolve, 2000));
         if (response.status >= 200 && response.status <= 300) {
             setSuccess(true);

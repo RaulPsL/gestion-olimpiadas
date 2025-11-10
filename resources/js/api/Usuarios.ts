@@ -128,7 +128,7 @@ export const getLogsCalificaciones = async (areas: string[]) => {
 export const getLogsCierreFases = async () => {
     try {
         const { data } = await axiosPrivate.get("/logs/usuarios");
-        
+        console.log(data.data);
         return data.data;
     } catch (error: any) {
         console.error("Error al obtener los logs:", error);

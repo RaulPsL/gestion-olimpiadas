@@ -129,7 +129,7 @@ class LogController extends Controller
         }
     }
 
-    public function olimpistas() {
+    public function allUsuarios() {
         try {
             $olimpistas = Fase::with([
                 'olimpistas.colegio.provincia.departamento',
@@ -163,13 +163,18 @@ class LogController extends Controller
                 return $olimpista;
             })->groupBy('estado');
 
-            $usuarios = Usuario::with(['roles'])->get()->map(function ($usuario) {
+            $usuarios = Usuario::with(['areas', 'fases', 'roles'])->get()->map(function ($usuario) {
                 $rol = $usuario->roles->first();
+                $areas = implode(',', $usuario->areas->map(function ($area) {
+                    return $area->nombre;
+                })->toArray());
+                $fases = implode(',', $usuario->fases->map(function ($fase) {
+                    return $fase->sigla;
+                })->toArray());
                 return [
-                    'nombre' => $usuario->nombre,
-                    'apellido' => $usuario->apellido,
-                    'email' => $usuario->email,
-                    'celular' => $usuario->celular,
+                    'nombre' => "$usuario->nombre $usuario->apellido",
+                    'fases' => $fases,
+                    'area' => $areas,
                     'ci' => $usuario->ci,
                     'rol' => $rol?->nombre,
                 ];

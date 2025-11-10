@@ -15,6 +15,7 @@ export default function TablecierreFases(
   const [isLoading, setIsLoading] = React.useState(false);
   const [apiError, setApiError] = React.useState<string>("");
   const [success, setSuccess] = React.useState<boolean>(false);
+  const [fechaFin, setFechaFin] = React.useState<Date>(new Date());
 
   const {
     register,
@@ -49,7 +50,7 @@ export default function TablecierreFases(
 
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
-  const columns = createColumnsCierres(register, setValue, setDialogOpen, data);
+  const columns = createColumnsCierres(register, setValue, setDialogOpen, data, setFechaFin);
 
   return (
     <Card>
@@ -58,6 +59,7 @@ export default function TablecierreFases(
           columns={columns}
           user={data as UserData}
           otherData={cierres}
+          fechaFin={fechaFin}
           handleSubmit={handleConfirmSave}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
@@ -67,6 +69,7 @@ export default function TablecierreFases(
           setSuccess={setSuccess}
           dialogOpen={dialogOpen}
           setDialogOpen={setDialogOpen}
+          setValue={setValue}
         />
       </CardContent>
     </Card>
