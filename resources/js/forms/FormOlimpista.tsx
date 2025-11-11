@@ -19,6 +19,8 @@ import { useFreeAreas } from "@/hooks/use-free-areas";
 import { useLevelByArea } from "@/hooks/use-level-area";
 import { useVerifiedTimeByFase } from "@/hooks/use-validate-time";
 import { useFilterProvincias } from "@/hooks/use-filter-provincias";
+import { useOnlyNumbers } from "@/hooks/use-input-number";
+import { useOnlyLetters } from "@/hooks/use-input-text";
 
 export default function FormOlimpista() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -34,6 +36,8 @@ export default function FormOlimpista() {
     const [nivelesMap, setNivelesMap] = React.useState<Record<string, any[]>>({});
     const [areasFiltradas, setAreasFiltradas] = React.useState<any[]>([]);
     const { data } = useAuth();
+    const numberInput = useOnlyNumbers();
+    const textInput = useOnlyLetters();
 
     const {
         register,
@@ -44,6 +48,8 @@ export default function FormOlimpista() {
         trigger,
         getValues
     } = useForm<OlimpistaForm>({
+        mode: "onBlur",
+        reValidateMode: 'onChange',
         defaultValues: {
             nombres: "",
             apellido_paterno: "",
@@ -51,7 +57,7 @@ export default function FormOlimpista() {
             celular: "",
             email: "",
             ci: "",
-            grado_escolar: "primero",
+            grado_escolar: "",
             nivel_competencia: "primaria",
             estado: "activo",
             areas: [],
@@ -119,7 +125,7 @@ export default function FormOlimpista() {
     const handleNext = async () => {
         setActivoFormAcademico(true);
         const firstStepFields = [
-            'nombres', 'apellido_paterno', 'apellido_materno', 'ci',
+            'nombres', 'apellido_paterno', 'apellido_materno', 'ci', 'celular', 'email',
             'grado_escolar', 'areas'
         ];
 
@@ -247,6 +253,11 @@ export default function FormOlimpista() {
                                     type="text"
                                     placeholder="Juan Carlos"
                                     {...register("nombres", validationRules.nombres)}
+                                    onChange={(e) => {
+                                        textInput.handleChange(e);
+                                        register("nombres").onChange(e);
+                                    }}
+                                    onKeyDown={textInput.handleKeyDown}
                                     className={errors.nombres ? "border-red-500" : ""}
                                 />
                                 {errors.nombres && (
@@ -264,6 +275,11 @@ export default function FormOlimpista() {
                                     type="text"
                                     placeholder="García"
                                     {...register("apellido_paterno", validationRules.apellido_paterno)}
+                                    onChange={(e) => {
+                                        textInput.handleChange(e);
+                                        register("apellido_paterno").onChange(e);
+                                    }}
+                                    onKeyDown={textInput.handleKeyDown}
                                     className={errors.apellido_paterno ? "border-red-500" : ""}
                                 />
                                 {errors.apellido_paterno && (
@@ -281,6 +297,11 @@ export default function FormOlimpista() {
                                     type="text"
                                     placeholder="López"
                                     {...register("apellido_materno", validationRules.apellido_materno)}
+                                    onChange={(e) => {
+                                        textInput.handleChange(e);
+                                        register("apellido_materno").onChange(e);
+                                    }}
+                                    onKeyDown={textInput.handleKeyDown}
                                     className={errors.apellido_materno ? "border-red-500" : ""}
                                 />
                                 {errors.apellido_materno && (
@@ -312,13 +333,13 @@ export default function FormOlimpista() {
                                 </Label>
                                 <Input
                                     id="email"
-                                    type="email"
+                                    type="text"
                                     placeholder="example@mail.com"
                                     {...register("email", validationRules.email)}
                                     className={errors.email ? "border-red-500" : ""}
                                 />
-                                {errors.celular && (
-                                    <p className="text-sm text-red-500">{errors.celular.message}</p>
+                                {errors.email && (
+                                    <p className="text-sm text-red-500">{errors.email.message}</p>
                                 )}
                             </div>
 
@@ -332,6 +353,11 @@ export default function FormOlimpista() {
                                     type="text"
                                     placeholder="78947493"
                                     {...register("celular", validationRules.celular)}
+                                    onChange={(e) => {
+                                        numberInput.handleChange(e);
+                                        register('celular').onChange(e);
+                                    }}
+                                    onKeyDown={numberInput.handleKeyDown}
                                     className={errors.celular ? "border-red-500" : ""}
                                 />
                                 {errors.celular && (
@@ -349,7 +375,7 @@ export default function FormOlimpista() {
                                     value={gradoField.value}
                                     onChange={gradoField.onChange}
                                     placeholder="Seleccionar grado..."
-                                    searchPlaceholder=""
+                                    searchPlaceholder="Buscar por grado..."
                                     multiple={false}
                                     className={errors.grado_escolar ? "border-red-500" : ""}
                                 />
@@ -499,6 +525,11 @@ export default function FormOlimpista() {
                                             type="text"
                                             placeholder="Juan Carlos"
                                             {...register("tutor_academico.nombres_tutor_academico", validationRules.nombres_tutor_academico)}
+                                            onChange={(e) => {
+                                                textInput.handleChange(e);
+                                                register("tutor_academico.nombres_tutor_academico").onChange(e);
+                                            }}
+                                            onKeyDown={textInput.handleKeyDown}
                                             className={errors.tutor_academico?.nombres_tutor_academico ? "border-red-500" : ""}
                                         />
                                         {errors.tutor_academico?.nombres_tutor_academico && (
@@ -516,6 +547,11 @@ export default function FormOlimpista() {
                                             type="text"
                                             placeholder="García López"
                                             {...register("tutor_academico.apellidos_tutor_academico", validationRules.apellidos_tutor_academico)}
+                                            onChange={(e) => {
+                                                textInput.handleChange(e);
+                                                register("tutor_academico.apellidos_tutor_academico").onChange(e);
+                                            }}
+                                            onKeyDown={textInput.handleKeyDown}
                                             className={errors.tutor_academico?.apellidos_tutor_academico ? "border-red-500" : ""}
                                         />
                                         {errors.tutor_academico?.apellidos_tutor_academico && (
@@ -533,6 +569,11 @@ export default function FormOlimpista() {
                                             type="text"
                                             placeholder="73456789"
                                             {...register("tutor_academico.celular_tutor_academico", validationRules.celular_tutor_academico)}
+                                            onChange={(e) => {
+                                                numberInput.handleChange(e);
+                                                register('tutor_academico.celular_tutor_academico').onChange(e);
+                                            }}
+                                            onKeyDown={numberInput.handleKeyDown}
                                             className={errors.tutor_academico?.celular_tutor_academico ? "border-red-500" : ""}
                                         />
                                         {errors.tutor_academico?.celular_tutor_academico && (
@@ -592,6 +633,11 @@ export default function FormOlimpista() {
                                             type="text"
                                             placeholder="Ej. U.E. Villazón"
                                             {...register("colegio.nombre_colegio", validationRules.nombre_colegio)}
+                                            onChange={(e) => {
+                                                textInput.handleChange(e);
+                                                register("colegio.nombre_colegio").onChange(e);
+                                            }}
+                                            onKeyDown={textInput.handleKeyDown}
                                             className={errors.colegio?.nombre_colegio ? "border-red-500" : ""}
                                         />
                                         {errors.colegio?.nombre_colegio && (
@@ -645,7 +691,11 @@ export default function FormOlimpista() {
                                             id="telefono_colegio"
                                             type="text"
                                             placeholder="4456789"
-                                            {...register("colegio.telefono_colegio", validationRules.telefono_colegio)}
+                                            {...register("colegio.telefono_colegio", validationRules.telefono_colegio)} onChange={(e) => {
+                                                numberInput.handleChange(e);
+                                                register('colegio.telefono_colegio').onChange(e);
+                                            }}
+                                            onKeyDown={numberInput.handleKeyDown}
                                             className={errors.colegio?.telefono_colegio ? "border-red-500" : ""}
                                         />
                                         {errors.colegio?.telefono_colegio && (

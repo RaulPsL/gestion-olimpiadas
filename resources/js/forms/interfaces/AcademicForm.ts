@@ -14,7 +14,6 @@ export interface MassiveForm {
         provincia_id: number;
         departamento_id: number;
         area: string,
-        grado_escolar: number,
     };
     archivo: FileList;
 }

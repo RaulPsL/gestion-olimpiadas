@@ -15,6 +15,8 @@ import { useFilterProvincias } from "@/hooks/use-filter-provincias";
 import { useAuth, UserData } from "@/hooks/use-context";
 import { useFilterGrades } from "@/hooks/use-filter-grades";
 import { useFilterAreasUser } from "@/hooks/use-areas-user";
+import { useOnlyNumbers } from "@/hooks/use-input-number";
+import { useOnlyLetters } from "@/hooks/use-input-text";
 
 export default function FormMassiveOlimista() {
     const [currentStep, setCurrentStep] = React.useState(1);
@@ -32,6 +34,8 @@ export default function FormMassiveOlimista() {
     const { data } = useAuth();
     const areasUsuario = data?.areas.map((area, index) => ({ id: index + 1, value: area.sigla, label: area.nombre }));
     const [areasFiltradas, setAreasFiltradas] = React.useState<any[]>([]);
+    const numberInput = useOnlyNumbers();
+    const textInput = useOnlyLetters();
 
     const {
         register,
@@ -42,6 +46,8 @@ export default function FormMassiveOlimista() {
         handleSubmit,
         watch
     } = useForm<MassiveForm>({
+        mode: "onBlur",
+        reValidateMode: "onChange",
         defaultValues: {
             tutor_academico: {
                 nombres_tutor_academico: "",
@@ -55,7 +61,6 @@ export default function FormMassiveOlimista() {
                 direccion_colegio: "",
                 telefono_colegio: "",
                 area: "",
-                grado_escolar: 0,
                 provincia_id: 0,
                 departamento_id: 0,
             },
@@ -67,7 +72,6 @@ export default function FormMassiveOlimista() {
     const departamentoField = useComboboxField("colegio.departamento_id", setValue, false);
     const provinciaField = useComboboxField("colegio.provincia_id", setValue, false);
     const areaField = useComboboxField("colegio.area", setValue, false, trigger);
-    const gradoField = useComboboxField("colegio.grado_escolar", setValue, false, trigger);
 
     useGetStaticDataOlimpistas(setAreas, setDepartamentos, setAnterioresProvincias, setProvincias);
     useFilterProvincias(departamentoField, anterioresProvincias, setProvincias);
@@ -249,10 +253,10 @@ export default function FormMassiveOlimista() {
                         <React.Fragment key={step.number}>
                             <div className="flex flex-col items-center">
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep === step.number
-                                        ? 'bg-blue-600 text-white'
-                                        : currentStep > step.number
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-gray-200 text-gray-600'
+                                    ? 'bg-blue-600 text-white'
+                                    : currentStep > step.number
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-gray-200 text-gray-600'
                                     }`}>
                                     {currentStep > step.number ? (
                                         <CheckCircle className="h-5 w-5" />
@@ -308,6 +312,11 @@ export default function FormMassiveOlimista() {
                                     type="text"
                                     placeholder="Juan Carlos"
                                     {...register("tutor_academico.nombres_tutor_academico", validationRules.nombres_tutor_academico)}
+                                    onChange={(e) => {
+                                        textInput.handleChange(e);
+                                        register("tutor_academico.nombres_tutor_academico").onChange(e);
+                                    }}
+                                    onKeyDown={textInput.handleKeyDown}
                                     className={errors.tutor_academico?.nombres_tutor_academico ? "border-red-500" : ""}
                                 />
                                 {errors.tutor_academico?.nombres_tutor_academico && (
@@ -324,6 +333,10 @@ export default function FormMassiveOlimista() {
                                     type="text"
                                     placeholder="García López"
                                     {...register("tutor_academico.apellidos_tutor_academico", validationRules.apellidos_tutor_academico)}
+                                    onChange={(e) => {
+                                        textInput.handleChange(e);
+                                        register("tutor_academico.apellidos_tutor_academico").onChange(e);
+                                    }}
                                     className={errors.tutor_academico?.apellidos_tutor_academico ? "border-red-500" : ""}
                                 />
                                 {errors.tutor_academico?.apellidos_tutor_academico && (
@@ -340,6 +353,10 @@ export default function FormMassiveOlimista() {
                                     type="text"
                                     placeholder="73456789"
                                     {...register("tutor_academico.celular_tutor_academico", validationRules.celular_tutor_academico)}
+                                    onChange={(e) => {
+                                        numberInput.handleChange(e);
+                                        register("tutor_academico.celular_tutor_academico").onChange(e);
+                                    }}
                                     className={errors.tutor_academico?.celular_tutor_academico ? "border-red-500" : ""}
                                 />
                                 {errors.tutor_academico?.celular_tutor_academico && (
@@ -398,6 +415,10 @@ export default function FormMassiveOlimista() {
                                     type="text"
                                     placeholder="Ej. U. E. Villazón"
                                     {...register("colegio.nombre_colegio", validationRules.nombre_colegio)}
+                                    onChange={(e) => {
+                                        textInput.handleChange(e);
+                                        register("colegio.nombre_colegio").onChange(e);
+                                    }}
                                     className={errors.colegio?.nombre_colegio ? "border-red-500" : ""}
                                 />
                                 {errors.colegio?.nombre_colegio && (
@@ -417,6 +438,10 @@ export default function FormMassiveOlimista() {
                                         ...validationRules.telefono_colegio,
                                         valueAsNumber: true
                                     })}
+                                    onChange={(e) => {
+                                        numberInput.handleChange(e);
+                                        register("colegio.telefono_colegio").onChange(e);
+                                    }}
                                     className={errors.colegio?.telefono_colegio ? "border-red-500" : ""}
                                 />
                                 {errors.colegio?.telefono_colegio && (
@@ -478,20 +503,6 @@ export default function FormMassiveOlimista() {
                                     onChange={areaField.onChange}
                                     placeholder="Seleccionar el área..."
                                     searchPlaceholder="Buscar área..."
-                                    multiple={false}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="area">
-                                    Grado de competencia <span className="text-red-500">*</span>
-                                </Label>
-                                <Combobox
-                                    items={grados}
-                                    value={gradoField.value}
-                                    onChange={gradoField.onChange}
-                                    placeholder="Seleccionar el grado..."
-                                    searchPlaceholder="Buscar grado..."
                                     multiple={false}
                                 />
                             </div>

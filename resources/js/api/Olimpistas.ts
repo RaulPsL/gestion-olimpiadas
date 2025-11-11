@@ -127,19 +127,20 @@ export const createMassiveOlimpistas = async (
         formData.append('archivo', selectedFile);
 
         if (data.tutor_academico) {
-            formData.append('tutor_academico[nombre_tutor_academico]', data.tutor_academico.nombres_tutor_academico);
-            formData.append('tutor_academico[apellidos_tutor_academico]', data.tutor_academico.apellidos_tutor_academico);
-            formData.append('tutor_academico[celular_tutor_academico]', data.tutor_academico.celular_tutor_academico.toString());
-            formData.append('tutor_academico[email_tutor_academico]', data.tutor_academico.email_tutor_academico);
-            formData.append('tutor_academico[ci_tutor_academico]', data.tutor_academico.ci_tutor_academico);
+            formData.append('tutor[nombre_tutor]', data.tutor_academico.nombres_tutor_academico);
+            formData.append('tutor[apellidos_tutor]', data.tutor_academico.apellidos_tutor_academico);
+            formData.append('tutor[celular_tutor]', data.tutor_academico.celular_tutor_academico.toString());
+            formData.append('tutor[email_tutor]', data.tutor_academico.email_tutor_academico);
+            formData.append('tutor[ci_tutor]', data.tutor_academico.ci_tutor_academico);
         }
 
         if (data.colegio) {
             formData.append('colegio[nombre_colegio]', data.colegio.nombre_colegio);
             formData.append('colegio[direccion_colegio]', data.colegio.direccion_colegio);
             formData.append('colegio[telefono_colegio]', data.colegio.telefono_colegio.toString());
-            formData.append('colegio[provincia_colegio]', data.colegio.provincia_id.toString());
-            formData.append('colegio[departamento_colegio]', data.colegio.departamento_id.toString());
+            formData.append('colegio[provincia_id]', data.colegio.provincia_id.toString());
+            formData.append('colegio[departamento_id]', data.colegio.departamento_id.toString());
+            formData.append('colegio[area]', data.colegio.area.toString());
         }
 
         console.log("Enviando FormData...", data);

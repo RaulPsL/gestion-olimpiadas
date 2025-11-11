@@ -34,8 +34,16 @@ export const validationRules = {
     },
     celular_tutor_academico: {
         required: "El celular del tutor academico es obligatorio",
+        minLength: {
+            value: 8,
+            message: "El número de celular debe tener 8 dígitos"
+        },
+        maxLength: {
+            value: 8,
+            message: "El número de celular debe tener 8 dígitos"
+        },
         patern: {
-            value: "!/^[67]\d{7}$/",
+            value: /^[67]\d{7}$/,
             message: "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)",
         }
     },

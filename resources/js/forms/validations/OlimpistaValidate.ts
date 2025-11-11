@@ -45,13 +45,21 @@ export const validationRules = {
         pattern: {
             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
             message: "Ingrese un email válido"
-        },
+        }
     },
     celular: {
         required: "El celular del estudiante es obligatorio",
+        minLength: {
+            value: 8,
+            message: "El número de celular debe tener 8 dígitos"
+        },
+        maxLength: {
+            value: 8,
+            message: "El número de celular debe tener 8 dígitos"
+        },
         pattern: {
             value: /^[67]\d{7}$/,
-            message: "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)",
+            message: "Debe ser un número válido (6XXXXXXX o 7XXXXXXX)"
         }
     },
     ci: {
@@ -65,8 +73,8 @@ export const validationRules = {
             message: "La cedula de identidad no puede tener más de 10 caracteres"
         },
         pattern: {
-            value: /^[0-9]+$/,
-            message: "La cedula de identidad solo debe contener números"
+            value: /^[0-9]+[A-S]?$/,
+            message: "La cedula de identidad debe contener solo números y opcionalmente una letra al final"
         }
     },
     area: {
@@ -77,7 +85,7 @@ export const validationRules = {
     },
     grado_escolar: {
         validate: (value: string) => {
-            if (!value) return "Debe seleccionar el grado escolar.";
+            if (value.length === 0) return "Debe seleccionar el grado escolar.";
         }
     },
     nivel_competencia: {

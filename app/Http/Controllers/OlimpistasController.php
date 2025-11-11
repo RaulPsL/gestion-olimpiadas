@@ -292,14 +292,14 @@ class OlimpistasController extends Controller
             'colegio.nombre_colegio' => 'required|string',
             'colegio.direccion_colegio' => 'required|string',
             'colegio.telefono_colegio' => 'required|integer',
-            'colegio.provincia_id' => 'required|string',
-            'colegio.area' => 'required',
-            'tutor_academico' => 'required',
-            'tutor_academico.nombre_tutor_academico' => 'required|string',
-            'tutor_academico.apellidos_tutor_academico' => 'required|string',
-            'tutor_academico.celular_tutor_academico' => 'required|integer',
-            'tutor_academico.email_tutor_academico' => 'required|string',
-            'tutor_academico.ci_tutor_academico' => 'required|integer',
+            'colegio.provincia_id' => 'required',
+            'colegio.area' => 'required|string',
+            'tutor' => 'required',
+            'tutor.nombre_tutor' => 'required|string',
+            'tutor.apellidos_tutor' => 'required|string',
+            'tutor.celular_tutor' => 'required|integer',
+            'tutor.email_tutor' => 'required|string',
+            'tutor.ci_tutor' => 'required|integer',
         ]);
 
         $path = $request->file('archivo')->getRealPath();
@@ -346,7 +346,6 @@ class OlimpistasController extends Controller
             }
 
             $colegio = Colegio::where('nombre', $request->colegio['nombre_colegio'])->first();
-            $grado_id = Grado::where('nombre', $request->colegio['grado_escolar'])->get();
             if (!$colegio) {
                 $colegio = Colegio::create([
                     'nombre' => $request->colegio['nombre_colegio'],
@@ -355,14 +354,15 @@ class OlimpistasController extends Controller
                     'provincia_id' => $request->colegio['provincia_id'],
                 ]);
             }
-
+            
             foreach ($datos as $dato) {
                 
                 if (empty($dato['nombres'] ?? null) || empty($dato['ci'] ?? null)) {
                     continue;
                 }
-
+                
                 $olimpista = Olimpista::where('ci', $dato['ci'])->first();
+                $grado_id = Grado::where('nombre', $dato['grado_escolar'])->first()->id;
                 if (!$olimpista) {
                     $olimpista = Olimpista::create([
                         'nombres' => $dato['nombres'],
@@ -371,13 +371,14 @@ class OlimpistasController extends Controller
                         'ci' => $dato['ci'],
                         'email' => $dato['email'],
                         'celular' => $dato['celular'],
-                        'grado_id' => $grado_id[0]->id,
+                        'fecha_nacimiento' => date('Y-m-d', strtotime($dato['fecha_nacimiento'])),
+                        'grado_id' => $grado_id,
                         'colegio_id' => $colegio->id,
                     ]);
                     $insertData[] = $olimpista;
                 }
 
-                $olimpista->tutores_academicos()->attach($tutor->id);
+                $olimpista->tutores()->attach($tutor->id);
 
                 if (!empty($request->colegio['areas'] ?? null)) {
                     $areas = Area::whereIn('sigla', $dato['areas'])->with('fases')->get();

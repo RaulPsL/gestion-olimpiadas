@@ -47,6 +47,8 @@ export default function FormFase() {
         watch,
         trigger,
     } = useForm<FaseForm>({
+        mode: "onBlur",
+        reValidateMode: "onChange",
         defaultValues: {
             sigla: "",
             tipo_fase: "",
@@ -88,27 +90,92 @@ export default function FormFase() {
     }, [areaField.value]);
 
     // Add filters to selected area then filter levels and evaluadores
-    const handleDateChange = (newDate: Date | undefined, field: 'fecha_inicio' | 'fecha_calificacion' | 'fecha_fin') => {
+    // Reemplaza tu función handleDateChange con esta versión corregida:
+
+    const handleDateChange = (
+        newDate: Date | undefined,
+        field: 'fecha_inicio' | 'fecha_calificacion' | 'fecha_fin'
+    ) => {
         if (!newDate) return;
 
-        setSharedDate(newDate);
+        const oldDate = getValues(field);
 
-        const fechaInicio = getValues('fecha_inicio');
-        const fechaCalificacion = getValues('fecha_calificacion');
-        const fechaFin = getValues('fecha_fin');
+        // Detectar qué cambió exactamente
+        const fechaCambio = oldDate.toDateString() !== newDate.toDateString();
+        const horaCambio = oldDate.getHours() !== newDate.getHours() ||
+            oldDate.getMinutes() !== newDate.getMinutes() ||
+            oldDate.getSeconds() !== newDate.getSeconds();
 
-        const newFechaInicio = new Date(newDate);
-        newFechaInicio.setHours(fechaInicio.getHours(), fechaInicio.getMinutes(), fechaInicio.getSeconds());
+        // Actualizar el campo que cambió
+        setValue(field, newDate);
+        trigger(field);
 
-        const newFechaCalificacion = new Date(newDate);
-        newFechaCalificacion.setHours(fechaCalificacion.getHours(), fechaCalificacion.getMinutes(), fechaCalificacion.getSeconds());
+        // SINCRONIZACIÓN PARA FECHA_INICIO
+        if (field === 'fecha_inicio') {
+            if (fechaCambio) {
+                // Si cambió la fecha, actualizar sharedDate y sincronizar la fecha en todos los campos
+                setSharedDate(newDate);
 
-        const newFechaFin = new Date(newDate);
-        newFechaFin.setHours(fechaFin.getHours(), fechaFin.getMinutes(), fechaFin.getSeconds());
-        
-        setValue('fecha_inicio', newFechaInicio);
-        setValue('fecha_calificacion', newFechaCalificacion);
-        setValue('fecha_fin', newFechaFin);
+                const fechaCalificacion = getValues('fecha_calificacion');
+                const fechaFin = getValues('fecha_fin');
+
+                // Mantener las horas pero actualizar la fecha
+                const newCalif = new Date(newDate);
+                newCalif.setHours(
+                    fechaCalificacion.getHours(),
+                    fechaCalificacion.getMinutes(),
+                    fechaCalificacion.getSeconds()
+                );
+
+                const newFin = new Date(newDate);
+                newFin.setHours(
+                    fechaFin.getHours(),
+                    fechaFin.getMinutes(),
+                    fechaFin.getSeconds()
+                );
+
+                setValue('fecha_calificacion', newCalif);
+                setValue('fecha_fin', newFin);
+                trigger('fecha_calificacion');
+                trigger('fecha_fin');
+            }
+
+            if (horaCambio) {
+                // Si cambió la hora de inicio, sincronizar las horas manteniendo las diferencias
+                const fechaCalificacion = getValues('fecha_calificacion');
+                const fechaFin = getValues('fecha_fin');
+
+                // Calcular diferencias de tiempo originales
+                const diffCalif = fechaCalificacion.getTime() - oldDate.getTime();
+                const diffFin = fechaFin.getTime() - oldDate.getTime();
+
+                // Aplicar las mismas diferencias a la nueva hora
+                const newCalif = new Date(newDate.getTime() + diffCalif);
+                const newFin = new Date(newDate.getTime() + diffFin);
+
+                setValue('fecha_calificacion', newCalif);
+                setValue('fecha_fin', newFin);
+                trigger('fecha_calificacion');
+                trigger('fecha_fin');
+            }
+        }
+
+        // SINCRONIZACIÓN PARA FECHA_CALIFICACION Y FECHA_FIN
+        // Solo sincronizar la fecha si sharedDate cambió
+        if (field === 'fecha_calificacion' || field === 'fecha_fin') {
+            if (fechaCambio && newDate.toDateString() !== sharedDate.toDateString()) {
+                // Si alguien intenta cambiar la fecha de calificación o fin,
+                // sincronizarla con sharedDate pero mantener la hora elegida
+                const syncedDate = new Date(sharedDate);
+                syncedDate.setHours(
+                    newDate.getHours(),
+                    newDate.getMinutes(),
+                    newDate.getSeconds()
+                );
+                setValue(field, syncedDate);
+                trigger(field);
+            }
+        }
     };
 
     return (
@@ -119,7 +186,7 @@ export default function FormFase() {
                     Complete los datos para crear una nueva fase de competencia
                 </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
                 {/* Alertas */}
                 {success && (
@@ -153,7 +220,7 @@ export default function FormFase() {
                             <p className="text-sm text-red-500">{errors.area.message}</p>
                         )}
                     </div>
-                    
+
                     {/* Campo Tipo de Fase */}
                     <div className="space-y-2">
                         <Label htmlFor="tipo_fase">
@@ -290,13 +357,13 @@ export default function FormFase() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                         <Label>Fecha y hora inicio del concurso <span className="text-red-500">*</span></Label>
-                        <DateTimePicker 
-                            titleDate="" 
+                        <DateTimePicker
+                            titleDate=""
                             titleTime=""
                             value={getValues('fecha_inicio')}
                             disabledDate={[
-                                {before: new Date},
-                                { dayOfWeek: [0]},
+                                { before: new Date() },
+                                { dayOfWeek: [0] },
                             ]}
                             onChange={(date) => {
                                 if (date) {
@@ -310,10 +377,10 @@ export default function FormFase() {
                     </div>
                     <div className="space-y-2">
                         <Label>Hora de Calificacion <span className="text-red-500">*</span></Label>
-                        <DateTimePicker 
-                            titleDate="" 
+                        <DateTimePicker
+                            titleDate=""
                             titleTime=""
-                            disabledCalendar
+                            disabledCalendar  // ← Deshabilita el calendario
                             value={getValues('fecha_calificacion')}
                             onChange={(date) => {
                                 if (date) {
@@ -330,7 +397,7 @@ export default function FormFase() {
                         <DateTimePicker
                             titleDate=""
                             titleTime=""
-                            disabledCalendar
+                            disabledCalendar  // ← Deshabilita el calendario
                             value={getValues('fecha_fin')}
                             onChange={(date) => {
                                 if (date) {
@@ -346,7 +413,7 @@ export default function FormFase() {
             </CardContent>
 
             <CardFooter className="flex flex-col gap-3">
-                <Button 
+                <Button
                     type="button"
                     onClick={handleSubmit(
                         (data) => updateArea(
@@ -360,19 +427,20 @@ export default function FormFase() {
                             () => areaField.reset(),
                             () => evaluadoresField.reset()
                         )
-                    )} 
+                    )}
                     className="w-full"
                     disabled={isLoading}
                 >
                     {isLoading ? "Creando Fase..." : "Crear Fase"}
                 </Button>
-                
+
                 {!success && (
-                    <Button 
-                        type="button" 
-                        variant="outline" 
+                    <Button
+                        type="button"
+                        variant="outline"
                         className="w-full"
                         onClick={() => {
+                            tipoFaseField.reset();
                             reset();
                             setApiError("");
                         }}

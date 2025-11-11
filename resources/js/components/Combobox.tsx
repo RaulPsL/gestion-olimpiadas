@@ -180,7 +180,7 @@ export function useComboboxField<T extends FieldValues>(
     if (multiple) {
       setValue(name, values as any);
     } else {
-      setValue(name, (values[0] ?? "") as any);
+      setValue(name, (values[0] ?? "") as any, { shouldValidate: true });
     }
 
     trigger?.(name);
