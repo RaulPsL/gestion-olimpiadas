@@ -8,22 +8,16 @@ import { Badge } from "../ui/badge";
 // You can use a Zod schema here if you want.
 
 export type Clasificacion = {
-    fase: string,
-    area: string,
-    nombre: string,
-    ci: number,
-    estado: string,
-    grado_escolar: string,
-    colegio: string,
-    nivel: string,
-    nota: number
+  fase: string,
+  nombre: string,
+  ci: number,
+  estado: string,
+  grado_escolar: string,
+  nivel: string,
+  nota: number
 };
 
 export const columns: ColumnDef<Clasificacion>[] = [
-  {
-    accessorKey: "area",
-    header: "Área"
-  },
   {
     accessorKey: "fase",
     header: "Fase"
@@ -35,29 +29,23 @@ export const columns: ColumnDef<Clasificacion>[] = [
   {
     accessorKey: "estado",
     header: "Estado",
-    cell: ({ row }) => (
-        <div className="capitalize">{row.original.estado}</div>
-    )
-  },
-  {
-    accessorKey: "colegio",
-    header: ({ column }) => {
+    cell: ({ row }) => {
+      const estado = row.original.estado;
+      let className = "capitalize text-white bg-green-600";
+      if (estado === "no clasificado")
+        className = "capitalize text-white bg-gray-500";
+      if (estado === "desclasificado") 
+        className="capitalize text-white bg-red-700";
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          U.E
-          <ArrowUpDown />
-        </Button>
+        <Badge className={className}>{row.original.estado}</Badge>
       )
-    },
+    }
   },
   {
     accessorKey: "grado_escolar",
     header: "Grado",
     cell: ({ row }) => (
-        <div className="capitalize">{row.original.grado_escolar}</div>
+      <div className="capitalize">{row.original.grado_escolar}</div>
     )
   },
   {
@@ -65,33 +53,35 @@ export const columns: ColumnDef<Clasificacion>[] = [
     header: "Posición",
     cell: ({ row }) => {
       const posicion = Number(row.id) + 1;
-      if (posicion === 1) 
-        return (
-          <Badge
-            className="text-white bg-[#ffd30e] text-sm"
-          >
-            {posicion} <Trophy size={20}/> 
-          </Badge>)
-      if (posicion === 2) 
-        return (
-          <Badge
-            className="text-#000000 bg-[#b7bfd6] text-sm"
-          >
-            {posicion} <Medal size={20}/>
-          </Badge>)
-      if (posicion === 3) 
-        return (
-          <Badge
-            className="text-#000000 bg-[#da944f] text-sm"
-          >
-            {posicion} <Medal size={20}/> 
-          </Badge>)
+      if (row.original.nota > 0) {
+        if (posicion === 1)
+          return (
+            <Badge
+              className="text-white bg-[#ffd30e] text-sm"
+            >
+              {posicion} <Trophy size={20} />
+            </Badge>)
+        if (posicion === 2)
+          return (
+            <Badge
+              className="text-#000000 bg-[#b7bfd6] text-sm"
+            >
+              {posicion} <Medal size={20} />
+            </Badge>)
+        if (posicion === 3)
+          return (
+            <Badge
+              className="text-#000000 bg-[#da944f] text-sm"
+            >
+              {posicion} <Medal size={20} />
+            </Badge>)
+      }
       return (
         <Badge
           variant="secondary"
           className="text-sm"
         >
-          {posicion} <Award size={20}/> 
+          {row.original.nota > 0 ? posicion : ''} <Award size={20} />
         </Badge>
       )
     }
@@ -100,7 +90,7 @@ export const columns: ColumnDef<Clasificacion>[] = [
     accessorKey: "nota",
     header: "Nota",
     cell: ({ row }) => (
-        <div className="text-center">{Number(row.original.nota)}</div>
+      <div className="text-center">{Number(row.original.nota)}</div>
     )
   },
 ]

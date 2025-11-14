@@ -28,14 +28,29 @@ import React from "react";
 export function AppSidebar() {
     const { data } = useAuth();
     const datosUsuario = data?.data;
+    const rol = data?.rol.nombre;
     const [menu, setMenu] = React.useState<any[]>([]);
     const areas = data?.areas.flatMap((area) => area.sigla);
+    const [headerImage, setHeaderImage] = React.useState<string>('');
 
     React.useEffect(() => {
         if (data) {
+            fetch(new URL('../../js/images/portadaPrincipalLimitadaFCYT.jpg', import.meta.url))
+                .then(res => {
+                    if (!res.ok) throw new Error('No se pudo cargar la imagen del header');
+                    return res.blob();
+                })
+                .then(blob => {
+                    const imageUrl = URL.createObjectURL(blob);
+                    setHeaderImage(imageUrl);
+                })
+                .catch(error => {
+                    console.error('Error cargando imagen:', error);
+                });
+
             setMenu(data?.menu);
         }
-    }, [datosUsuario]);
+    }, [data]);
 
     React.useEffect(() => {
         if (data?.rol.sigla === "EDA" && areas && areas?.length > 0) {
@@ -85,16 +100,16 @@ export function AppSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem
-                        className='flex flex-row justify-start'
-                    >
-                        <UserCog />
-                        <h4 className='text-base'>{data?.rol?.nombre}</h4>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-                <SidebarTrigger className="flex items-center" />
+            <SidebarHeader
+                className=''
+            >
+                {headerImage && (
+                    <img
+                        src={headerImage}
+                        alt="Header FCYT"
+                        className='rounded-md w-full h-full'
+                    />
+                )}
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
@@ -137,9 +152,12 @@ export function AppSidebar() {
             <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <div className="flex flex-row gap-4 items-center">
-                            <User2 />
+                        <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 items-center">
+                            <div className="row-span-2 flex items-center">
+                                <User2 />
+                            </div>
                             <strong>{`${datosUsuario?.nombre} ${datosUsuario?.apellido}`}</strong>
+                            <span className="text-sm text-muted-foreground">{rol}</span>
                         </div>
                     </SidebarMenuItem>
                 </SidebarMenu>

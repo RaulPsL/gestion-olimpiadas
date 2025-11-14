@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
+import React, { Dispatch } from "react";
 import { Input } from "../ui/input";
 import {
   DropdownMenu,
@@ -34,12 +34,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Spinner } from "../ui/spinner";
 import { Combobox } from "../Combobox";
+import { nivelesItems } from "@/static/filter-data";
 
 interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   columns: ColumnDef<TData, TValue>[],
   data: TData[],
   fechaCalificacion: string,
   fechaFin: string,
+  avalado: boolean,
+  setUpdate: Dispatch<React.SetStateAction<boolean>>
   handleSubmit: () => void,
   isLoading: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -51,29 +54,13 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   handleToggleEdicion: (edicion: boolean) => void
 };
 
-const nivelesItems = [
-  {
-    id: "todos",
-    value: "todos",
-    label: "Todos los niveles",
-  },
-  {
-    id: "primaria",
-    value: "primaria",
-    label: "Primaria",
-  },
-  {
-    id: "secundaria",
-    value: "secundaria",
-    label: "Secundaria",
-  },
-];
-
 export function DataTableCalificaciones<TData, TValue, TFormValues extends FieldValues>({
   columns,
   data,
   fechaCalificacion,
   fechaFin,
+  avalado,
+  setUpdate,
   handleSubmit,
   isLoading,
   setIsLoading,
@@ -124,6 +111,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
     }
     if (success) {
       const timer = setTimeout(() => {
+        setUpdate(prev => !prev);
         setDialogOpen(false);
       }, 3000);
       return () => clearTimeout(timer);
@@ -211,18 +199,16 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
         }
           
         <div className="ml-auto flex flex-row items-center gap-2">
-          { (calificacion < fin && fin < currentDate) ? (
+          { (avalado) ? (
               <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
                 <CircleAlert className="h-4 w-4 flex-shrink-0" />
                 <span>Se terminó la fase.</span>
               </div>
             ) : (
-              <Alert className="border-green-200 bg-green-50 items-center py-2 px-3 w-fit">
-                <CircleAlert className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-700 ml-2">
-                  Esperando avalación ...
-                </AlertDescription>
-              </Alert>
+              <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+                <CircleAlert className="h-4 w-4 flex-shrink-0" />
+                <span>Esperando avalación ...</span>
+              </div>
             )
           }
 
@@ -375,6 +361,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={row.getValue('estado') === "desclasificado" ? "opacity-50 pointer-events-none" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
+import React, { Dispatch } from "react";
 import { Input } from "../ui/input";
 import {
   DropdownMenu,
@@ -41,6 +41,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[],
   otherData: TData[],
   fechaFin: Date,
+  setUpdate: Dispatch<React.SetStateAction<boolean>>,
   handleSubmit: () => void,
   isLoading: boolean,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -59,6 +60,7 @@ export function DataTableCierrresFases<TData, TValue>({
   otherData,
   fechaFin,
   isLoading,
+  setUpdate,
   handleSubmit,
   setIsLoading,
   apiError,
@@ -124,6 +126,7 @@ export function DataTableCierrresFases<TData, TValue>({
     }
     if (success) {
       const timer = setTimeout(() => {
+        setUpdate(prev => !prev);
         setDialogOpen(false);
       }, 3000);
       return () => clearTimeout(timer);

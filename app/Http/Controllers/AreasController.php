@@ -235,14 +235,16 @@ class AreasController extends Controller
                     'fases.*.fecha_inicio' => 'required|date',
                     'fases.*.fecha_calificacion' => 'required|date',
                     'fases.*.fecha_fin' => 'required|date',
+                    'fases.*.nivel' => 'required|string',
                     'fases.*.usuarios' => 'required|exists:usuarios,ci',
                 ]);
 
                 foreach ($request->fases as $faseData) {
                     $usuarios = Usuario::whereIn('ci', $faseData['usuarios'])->get();
-
+                    $nivel = strtoupper(trim($faseData['nivel']));
+                    $sigla_fase = $sigla . substr($nivel, 0, strlen($nivel) > 2 ? 3 : 2) . strtoupper(substr($faseData['tipo_fase'], 0, 3));
                     $fase = $area->fases()->create([
-                        'sigla' => $sigla . strtoupper(substr($faseData['tipo_fase'], 0, 3)),
+                        'sigla' => $sigla_fase,
                         'tipo_fase' => $faseData['tipo_fase'],
                         'descripcion' => $faseData['descripcion'] ?? 'Fase sin descripción',
                         'cantidad_max_participantes' => $faseData['cantidad_max_participantes'],
@@ -251,6 +253,7 @@ class AreasController extends Controller
                         'fecha_inicio' => $faseData['fecha_inicio'],
                         'fecha_calificacion' => $faseData['fecha_calificacion'],
                         'fecha_fin' => $faseData['fecha_fin'],
+                        'area_id' => $area->id,
                         'nivel_id' => $faseData['nivel'],
                     ]);
 

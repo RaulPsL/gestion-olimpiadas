@@ -19,6 +19,7 @@ export const getCalificacionesGrupos = async (siglaAreas: string[]) => {
 
 export const updateCalificacionesOlimpistas = async (
     data: FormNotas,
+    ci: number,
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
     setApiError: React.Dispatch<React.SetStateAction<string>>,
@@ -38,10 +39,11 @@ export const updateCalificacionesOlimpistas = async (
             setIsLoading(false);
             return;
         }
-
+        const nuevoData = {usuario_ci: ci, ...data};
         console.log('Enviando datos...');
 
-        const response = await axiosPrivate.put(`/calificaciones/olimpistas`, data);
+        console.log('Datos de envio: ', nuevoData);
+        const response = await axiosPrivate.put(`/calificaciones/olimpistas`, nuevoData);
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         if (response.status === 200) {

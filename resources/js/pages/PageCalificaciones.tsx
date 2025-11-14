@@ -11,6 +11,7 @@ import { ListChecksIcon } from "lucide-react";
 
 export default function PageCalificaciones() {
     const [calificaciones, setCalificaciones] = React.useState<any>();
+    const [update, setUpdate] = React.useState<boolean>(false);
     const [keys, setKeys] = React.useState<string[]>();
     const { data } = useAuth();
     const areasCalificacionUsuario = data?.areas.map((area) => area.nombre);
@@ -21,14 +22,14 @@ export default function PageCalificaciones() {
             setCalificaciones(response);
         };
         staticData();
-    }, []);
+    }, [update]);
 
     React.useEffect(() => {
         console.log(calificaciones);
         if (calificaciones) {
             setKeys(Object.keys(calificaciones));
         }
-    }, [calificaciones]);
+    }, [calificaciones, update]);
 
     return (
         <SidebarProvider>
@@ -50,7 +51,7 @@ export default function PageCalificaciones() {
                             {keys?.map((key) => (
                                 <TabsContent value={key} key={key}>
                                     <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                        <TableCalificaciones calificaciones={calificaciones[key]} />
+                                        <TableCalificaciones calificaciones={calificaciones[key]} setUpdate={setUpdate}/>
                                     </div>
                                 </TabsContent>
                             ))}

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Area;
 use App\Models\Calificacion;
 use App\Models\Fase;
 use App\Models\Log;
 use App\Models\Olimpista;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class CalificacionesController extends Controller
@@ -20,17 +20,24 @@ class CalificacionesController extends Controller
             $request->validate([
                 'areas' => 'required',
             ]);
-            $fases = Fase::select(['id', 'area_id', 'sigla', 'fecha_fin'])
-                // ->where('estado', ['en curso', 'pendiente'])
+            $fases = Fase::select(['id', 'area_id', 'sigla', 'fecha_fin', 'estado'])
+                ->whereIn('estado', ['en curso', 'pendiente'])
                 ->with([
                     'olimpistas.colegio.provincia.departamento',
-                    'area'
-                ])->get();
+                    'area',
+                    'cierre',
+                ])
+                ->whereHas('area', function ($query) use ($request){
+                    $query->whereIn('nombre', $request->areas);
+                })
+                ->get();
             $listaFinal = [];
             foreach (collect($fases) as $fase) {
                 $area = $fase->area->nombre;
+                $es_avalado = $fase->cierre && ($fase->cierre->usuario_encargado_id && $fase->cierre->usuario_evaluador_id);
                 $calificaciones = collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
-                    return [
+                    if ($olimpista->estado !== 'activo') {
+                        return [
                         'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
                         'estado' => $olimpista->estado,
                         'colegio' => $olimpista->colegio->nombre,
@@ -45,12 +52,15 @@ class CalificacionesController extends Controller
                         'nota' => $olimpista->pivot->puntaje,
                         'comentarios' => $olimpista->pivot->comentarios,
                     ];
+                    }
                 });
                 if ($calificaciones->count() > 0) {
                     $listaFinal["$area"] = [
                         'fecha_calificacion' => date('d/M/Y H:i', strtotime($fase->fecha_calificacion)),
                         'fecha_fin' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
-                        'calificaciones' => $calificaciones
+                        'avalado' => $es_avalado,
+                        'estad' => $fase->estado,
+                        'calificaciones' => $calificaciones->sortByDesc('nota')->values()
                     ];
                 }
             }
@@ -70,13 +80,14 @@ class CalificacionesController extends Controller
     {
         try {
             $request->validate([
+                'usuario_ci' => 'required',
                 'notas' => 'required',
                 'notas.*.nota_olimpista_id' => 'required|integer',
                 'notas.*.nota_fase_id' => 'required|integer',
                 'notas.*.estado_olimpista' => 'required|string',
                 'notas.*.nota' => 'required',
             ]);
-            $user = $request->user()->id;
+            $user = Usuario::where('ci', $request->usuario_ci)->first()->id;
             $tabla = (new Calificacion())->getTable();
             $cantidad_modificada = 0;
             foreach ($request->notas as $nota) {

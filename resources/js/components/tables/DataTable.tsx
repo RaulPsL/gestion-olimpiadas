@@ -25,30 +25,13 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Button } from "../ui/button";
 import { ChevronDown, ZoomIn, ZoomOut } from "lucide-react";
 import { Combobox } from "../Combobox";
+import { nivelesItems } from "@/static/filter-data";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[],
   data: TData[],
   fieldSearch?: string,
 };
-
-const nivelesItems = [
-  {
-    id: "todos",
-    value: "todos",
-    label: "Todos los niveles",
-  },
-  {
-    id: "primaria",
-    value: "primaria",
-    label: "Primaria",
-  },
-  {
-    id: "secundaria",
-    value: "secundaria",
-    label: "Secundaria",
-  },
-];
 
 export function DataTable<TData, TValue>({
   columns,
@@ -89,11 +72,11 @@ export function DataTable<TData, TValue>({
 
     // Si selecciona "todos" o no hay selección, limpiar el filtro
     if (values.length === 0 || values.includes("todos")) {
-      table.getColumn("nivel")?.setFilterValue("");
+      table.getColumn("grado_escolar")?.setFilterValue("");
       setSelectedNivel([]);
     } else {
       // Si hay un valor seleccionado, aplicar el filtro
-      table.getColumn("nivel")?.setFilterValue(values[0]);
+      table.getColumn("grado_escolar")?.setFilterValue(values[0]);
     }
   };
 

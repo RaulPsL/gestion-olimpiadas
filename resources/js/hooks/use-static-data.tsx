@@ -68,7 +68,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                     descripction: totalOlimpistas,
                     badge: {
                         icon: IconUsers,
-                        content: totalOlimpistas,
+                        content: Math.round(totalOlimpistas),
                     },
                     footer: {
                         description: 'Todos los concursantes que aun participan de todas las áreas.',
@@ -88,14 +88,14 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                                 title: "Generar excel",
                                 action: () => generarExcelMultiplesHojas(olimpistas, 'olimpistas'),
                             }
-                        ] : <Link to='/clasificaciones/area' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
                 },
                 {
                     title: 'Concursantes clasificados',
                     descripction: statistics?.clasificados,
                     badge: {
                         icon: IconUserPlus,
-                        content: `+${clasificados}%`,
+                        content: `+${Math.round(clasificados)}%`,
                     },
                     footer: {
                         description: 'Concursantes que pasaron a la siguiente fase en general.',
@@ -115,14 +115,14 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                                 title: "Generar excel",
                                 action: () => generarExcel(olimpistas.clasificados, 'clasificados'),
                             }
-                        ] : <Link to='/clasificaciones/area' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
                 },
                 {
                     title: 'Concursantes no clasificados',
                     descripction: statistics?.['no clasificados'],
                     badge: {
                         icon: IconUserMinus,
-                        content: `-${noclasificados}%`,
+                        content: `-${Math.round(noclasificados)}%`,
                     },
                     footer: {
                         description: 'Concursantes que no pasaron a la siguiente fase en general.',
@@ -142,14 +142,14 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                                 title: "Generar excel",
                                 action: () => generarExcel(olimpistas['no clasificados'], 'no_clasificados'),
                             }
-                        ] : <Link to='/clasificaciones/area' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
                 },
                 {
                     title: 'Concursantes desclasificados',
                     descripction: statistics?.desclasificados,
                     badge: {
                         icon: IconUserOff,
-                        content: `-${desclasificados}%`,
+                        content: `-${Math.round(desclasificados)}%`,
                     },
                     footer: {
                         description: 'Concursantes que salieron de la competencia en general.',
@@ -169,7 +169,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                                 title: "Generar excel",
                                 action: () => generarExcel(olimpistas.desclasificados, 'desclasificados'),
                             }
-                        ] : <Link to='/clasificaciones/area' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
                 },
             ]
 
@@ -179,7 +179,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                     descripction: totalUsuarios,
                     badge: {
                         icon: IconUsers,
-                        content: totalUsuarios,
+                        content: Math.round(totalUsuarios),
                     },
                     footer: {
                         description: 'Todos los usuarios de todas las areas.',
@@ -205,7 +205,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                     descripction: evaluadores,
                     badge: {
                         icon: IconUsers,
-                        content: evaluadores,
+                        content: Math.round(evaluadores),
                     },
                     footer: {
                         description: 'Todos los evaluadores de todas las áreas.',
@@ -231,7 +231,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                     descripction: encargados,
                     badge: {
                         icon: IconUsers,
-                        content: encargados,
+                        content: Math.round(encargados),
                     },
                     footer: {
                         description: 'Todos los encargados de todas las áreas',
@@ -264,7 +264,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                         descripction: totalGanadores,
                         badge: {
                             icon: IconUsers,
-                            content: totalGanadores,
+                            content: Math.round(totalGanadores),
                         },
                         footer: {
                             description: `Consursantes que ganaron la competencia del área de ${area} nivel ${g.nivel}`,
@@ -298,7 +298,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                         descripction: totalGanadores,
                         badge: {
                             icon: IconUsers,
-                            content: totalGanadores,
+                            content: Math.round(totalGanadores),
                         },
                         footer: {
                             description: `Grupos que ganaron la competencia del área de ${area} nivel ${g.nivel}`,

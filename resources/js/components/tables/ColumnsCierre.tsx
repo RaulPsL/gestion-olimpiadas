@@ -127,7 +127,7 @@ export const createColumnsCierres = (
       return (
         <Button
           variant={puedeCerrar ? "default" : "ghost"}
-          disabled={!puedeCerrar}
+          disabled={puedeCerrar}
           onClick={() => {
             setValue("fase_id", fila.fase_id);
             setValue(

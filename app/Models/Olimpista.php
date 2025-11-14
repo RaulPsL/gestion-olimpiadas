@@ -73,5 +73,5 @@ class Olimpista extends Model
 
     public function tutores() { return $this->belongsToMany(Tutor::class, 'tutor_olimpistas'); }
 
-
+    public function grado() { return $this->belongsTo(Grado::class); }
 }

@@ -16,33 +16,30 @@ class ClasificasionController extends Controller
             $fases = Fase::with([
                 'area',
                 'olimpistas.colegio',
-                ])
+                'olimpistas.grado'
+            ])
                 // ->where('tipo_fase', 'finales')
                 ->get();
             $fasesFiltradas = $fases->map(function ($fase) {
                 $olimpistas = collect($fase->olimpistas);
                 if (!empty($olimpistas)) {
-                    return $olimpistas->map( function ($olimpista) use ($fase) {
-                        return [
-                            'fase' => $fase->sigla,
-                            'area' => $fase->area->nombre,
-                            'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
-                            'ci' => $olimpista->ci,
-                            'estado' => $olimpista->estado,
-                            'grado_escolar' => $olimpista->grado_escolar,
-                            'colegio' => $olimpista->colegio->nombre,
-                            'nota' => $olimpista->pivot->puntaje,
-                            'comentarios' => $olimpista->pivot->comentarios
-                        ];
+                    return $olimpistas->map(function ($olimpista) use ($fase) {
+                        if ($olimpista->estado != "activo") {
+                            return [
+                                'fase' => $fase->sigla,
+                                'area' => $fase->area->nombre,
+                                'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+                                'ci' => $olimpista->ci,
+                                'estado' => $olimpista->estado,
+                                'grado_escolar' => $olimpista->grado->nombre,
+                                'nota' => $olimpista->pivot->puntaje,
+                                'comentarios' => $olimpista->pivot->comentarios
+                            ];
+                        }
                     })->filter();
                 }
             })->filter();
-            if (count($fasesFiltradas) == 0) {
-                return response()->json([
-                    'message' => "Aun no se tienen finalistas.",
-                    'data' => [],
-                ], 204);
-            }
+
             $preOlimpistas = [];
             foreach ($fasesFiltradas as $value) {
                 $preOlimpistas = array_merge($preOlimpistas, $value->toArray());
@@ -50,7 +47,9 @@ class ClasificasionController extends Controller
             $olimpistasOrdenados = collect($preOlimpistas)->sortByDesc('nota')->groupBy('area');
             $olimpistas = [];
             foreach ($olimpistasOrdenados as $key => $value) {
-                $olimpistas[$key] = collect($value)->groupBy('estado');
+                $nuevo_objeto = collect($value)->groupBy('estado');
+                unset($nuevo_objeto['activo']);
+                $olimpistas[$key] = $nuevo_objeto;
             }
             return response()->json([
                 'message' => "Finalistas obtenidos exitosamente.",
@@ -68,24 +67,30 @@ class ClasificasionController extends Controller
     {
         try {
             $fases = Fase::with([
-                'olimpistas', 'nivel', 'area', 'usuarios'
+                'olimpistas',
+                'nivel',
+                'area',
+                'usuarios'
             ])
-            ->whereHas('area', function ($query) {
-                $query->whereNotIn('sigla', ['ROB', 'INF']);
-            })
-            ->where('tipo_fase', 'finales')
-            ->where('estado', 'finalizada')
-            ->get();
+                ->whereHas('area', function ($query) {
+                    $query->whereNotIn('sigla', ['ROB', 'INF']);
+                })
+                ->where('tipo_fase', 'finales')
+                ->where('estado', 'finalizada')
+                ->get();
 
             $fases_grupos = Fase::with([
-                'grupos', 'nivel', 'area', 'usuarios.roles'
+                'grupos',
+                'nivel',
+                'area',
+                'usuarios.roles'
             ])
-            ->whereHas('area', function ($query) {
-                $query->whereIn('sigla', ['ROB', 'INF']);
-            })
-            ->where('tipo_fase', 'finales')
-            ->where('estado', 'finalizada')
-            ->get();
+                ->whereHas('area', function ($query) {
+                    $query->whereIn('sigla', ['ROB', 'INF']);
+                })
+                ->where('tipo_fase', 'finales')
+                ->where('estado', 'finalizada')
+                ->get();
 
             return response()->json([
                 'message' => "Ganadores obtenidos exitosamente.",
@@ -111,15 +116,15 @@ class ClasificasionController extends Controller
             $finalistas = Fase::whereHas('area', function ($query) use ($sigla) {
                 $query->where('sigla', $sigla);
             })
-            ->where('tipo_fase', 'finales')
-            ->with([
-                'area',
-                'olimpistas' => function($query) {
-                    $query->withPivot('puntaje', 'comentarios')
-                        ->orderBy('pivot_puntaje', 'desc');
-                }
-            ])
-            ->first();
+                ->where('tipo_fase', 'finales')
+                ->with([
+                    'area',
+                    'olimpistas' => function ($query) {
+                        $query->withPivot('puntaje', 'comentarios')
+                            ->orderBy('pivot_puntaje', 'desc');
+                    }
+                ])
+                ->first();
             if ($finalistas and  !empty($finalistas)) {
                 return response()->json([
                     'message' => "Aun no se tienen finalistas.",

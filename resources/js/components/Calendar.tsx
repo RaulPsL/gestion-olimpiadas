@@ -59,7 +59,6 @@ const coloresPorArea: AreaColors = {
   'MATEMÁTICAS': { color: '#f59e0b', bg: '#fef3c7', label: 'Matemáticas' },
   'QUÍMICA': { color: '#f97316', bg: '#fed7aa', label: 'Química' },
   'ROBÓTICA': { color: '#ec4899', bg: '#fce7f3', label: 'Robótica' },
-  'Electrónica': { color: '#eab308', bg: '#fef9c3', label: 'Electrónica' },
 };
 
 // Componente personalizado para eventos con tiempo de calificación
@@ -447,7 +446,7 @@ export default function TypedCalendar() {
             step={30}
             timeslots={2}
             showMultiDayTimes
-            tooltipAccessor={(event) => `${event.title} - ${event.resource?.location || ''}`}
+            tooltipAccessor={(event: any) => `${event.title} - ${event.resource?.location || ''}`}
             components={{
               event: CustomEventComponent
             }}

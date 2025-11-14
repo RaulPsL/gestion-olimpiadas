@@ -6,11 +6,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 import { useAuth, UserData } from "@/hooks/use-context";
 
-import React from "react";
+import React, { Dispatch } from "react";
 import { useForm } from "react-hook-form";
 
 export default function TablecierreFases(
-  { cierres } : { cierres: any[]}
+  {
+    cierres,
+    setUpdate,
+  } : {
+    cierres: any[],
+    setUpdate: Dispatch<React.SetStateAction<boolean>>,
+  }
 ) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [apiError, setApiError] = React.useState<string>("");
@@ -52,14 +58,29 @@ export default function TablecierreFases(
 
   const columns = createColumnsCierres(register, setValue, setDialogOpen, data, setFechaFin);
 
+  const [nuevaLista, setNuevaLista] = React.useState<any[]>(
+    cierres.map(item => ({ ...item, edicion: false }))
+  );
+
+  React.useEffect(() => {
+      if (cierres) {
+        // Actualizar la lista con edicion: false
+        const listaActualizada = cierres.map(item => ({ 
+          ...item,
+        }));
+        setNuevaLista(listaActualizada);
+      }
+    }, [cierres, reset]);
+
   return (
     <Card>
       <CardContent>
         <DataTableCierrresFases
           columns={columns}
           user={data as UserData}
-          otherData={cierres}
+          otherData={nuevaLista}
           fechaFin={fechaFin}
+          setUpdate={setUpdate}
           handleSubmit={handleConfirmSave}
           isLoading={isLoading}
           setIsLoading={setIsLoading}

@@ -11,6 +11,7 @@ import TablecierreFases from "@/tables/TableCierreFases";
 
 export default function PageCierreFases() {
     const [cierres, setCierres] = React.useState<any>();
+    const [update, setUpdate] = React.useState<boolean>(false);
     const [keys, setKeys] = React.useState<string[]>();
     const { data } = useAuth();
     const areasUsuario = data?.areas.map((area) => area.nombre);
@@ -21,13 +22,13 @@ export default function PageCierreFases() {
                 setCierres(response);
             };
         staticData();
-    }, []);
+    }, [update]);
     
     React.useEffect(() => {
         if (cierres) {
             setKeys(Object.keys(cierres));
         }
-    }, [cierres]);
+    }, [cierres, update]);
     
     return (
         <SidebarProvider>
@@ -49,7 +50,7 @@ export default function PageCierreFases() {
                             { keys?.map((key) => (
                                 <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
                                     <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                        <TablecierreFases cierres={cierres?.[key]} />
+                                        <TablecierreFases cierres={cierres?.[key]} setUpdate={setUpdate}/>
                                     </div>
                                 </TabsContent>
                             ))}

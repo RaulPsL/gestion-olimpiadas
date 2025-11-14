@@ -105,8 +105,8 @@ class FasesController extends Controller
                     'fecha_modificacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->updated_at)) : "",
                     'fecha_fin_fase' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
                     'fecha_calificacion_fase' => date('d/M/Y H:i', strtotime($fase->fecha_calificacion)),
-                    'usuario_encargado_id' => $fase->cierre ? "$encargado->ci" : null,
-                    'usuario_evaluador_id' => $fase->cierre ? "$evaluador->ci" : null,
+                    'usuario_encargado_id' => $encargado ? "$encargado->ci" : null,
+                    'usuario_evaluador_id' => $evaluador ? "$evaluador->ci" : null,
                     'fase_id' => $fase->id,
                 ];
 
