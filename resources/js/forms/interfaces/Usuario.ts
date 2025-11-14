@@ -2,12 +2,10 @@ export interface UsuarioForm {
     nombre: string;
     apellido_paterno: string;
     apellido_materno: string;
-    ci: number;
+    ci: string;
     celular: string;
     email: string;
-    password: string;
-    confirmPassword: string;
     areas: string[];
     rol: string;
-    fases: string[];
+    nivel: number;
 }

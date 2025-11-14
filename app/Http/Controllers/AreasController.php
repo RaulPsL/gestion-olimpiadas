@@ -16,7 +16,7 @@ class AreasController extends Controller
     public function index()
     {
         try {
-            $areas = Area::with('fases.olimpistas')->get();
+            $areas = Area::with(['fases.olimpistas', 'niveles'])->get();
             return response()->json([
                 'message' => "Areas obtenidas exitosamente.",
                 'data' => $areas,
@@ -35,13 +35,13 @@ class AreasController extends Controller
             'areas' => 'required',
         ]);
         try {
-            $areas = Area::with('fases.olimpistas')->whereIn('sigla', $request->areas)->get();
+            $areas = Area::with(['fases.olimpistas', 'niveles'])->whereIn('sigla', $request->areas)->get();
             $areasFiltradas = collect($areas)->map(function ($area) {
                 return [
                     'name' => $area->nombre,
                     'cantidad_fases' => collect($area->fases)->count(),
                     'descripcion' => $area->descripcion,
-                    'nivel' => $area->nivel,
+                    'nivel' => $area->niveles,
                     'sigla' => $area->sigla,
                 ];
             });

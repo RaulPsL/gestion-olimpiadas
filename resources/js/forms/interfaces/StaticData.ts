@@ -8,8 +8,6 @@ interface StaticDataOlimpistas {
 
 interface StaticDataUsuarios {
     areas: any[];
-    roles: any[];
-    tipo_fases: any[];
 }
 
 interface StaticDataAreas {

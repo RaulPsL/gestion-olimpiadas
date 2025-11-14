@@ -57,15 +57,15 @@ export const validationRules = {
             message: "Ingrese un email válido"
         }
     },
-    password: {
-        required: "La contraseña es obligatoria",
-        minLength: {
-            value: 8,
-            message: "La contraseña debe tener al menos 8 caracteres"
-        },
-        pattern: {
-            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-            message: "Debe contener: mayúscula, minúscula, número y carácter especial"
+    areas: {
+        validate: (value: string[]) => {
+            if (value && value.length === 0) return "Debe seleccionar al menos un area.";
+            if (value && value.length > 3) return "No puede seleccionar mas de 3 areas."
+        }
+    },
+    nivel: {
+        validate: (value: number) => {
+            if (value && value === 0) return "Debe seleccionar el nivel.";
         }
     },
 };

@@ -10,7 +10,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { Login } from "@/forms/interfaces/LoginIntefase";
 import { useAuth } from "@/hooks/use-context";
-import { AlertCircle, CheckCircle, LogIn } from "lucide-react";
+import { AlertCircle, CheckCircle, Eye, EyeOff, LogIn } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -40,6 +40,8 @@ export default function PageLogin() {
     const [apiError, setApiError] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [success, setSuccess] = React.useState<boolean>(false);
+    const [showPassword, setShowPassword] = React.useState(false);
+
     const { setToken, setData } = useAuth();
     const navigate = useNavigate();
 
@@ -51,7 +53,7 @@ export default function PageLogin() {
                     navigate('/olimpistas/ver olimpistas');
                 }
             }
-            , 2500);
+                , 2500);
             return () => clearTimeout(timer);
         }
     }, [success, apiError]);
@@ -108,14 +110,14 @@ export default function PageLogin() {
                                 <AlertDialog
                                     open={openSpinner}
                                     onOpenChange={setOpenSpinner}
-                                >    
+                                >
                                     <AlertDialogContent>
                                         {
                                             success ? (
                                                 <>
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle className="text-center">
-                                                        Ingresando al sistema...
+                                                            Ingresando al sistema...
                                                         </AlertDialogTitle>
                                                     </AlertDialogHeader>
                                                     <div className="flex justify-center items-center py-8">
@@ -125,11 +127,11 @@ export default function PageLogin() {
                                                         Por favor espere mientras se validan y obtienen los datos.
                                                     </AlertDialogDescription>
                                                 </>
-                                            ):(
+                                            ) : (
                                                 <>
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle className="text-center">
-                                                        Ingresando al sistema...
+                                                            Ingresando al sistema...
                                                         </AlertDialogTitle>
                                                     </AlertDialogHeader>
                                                     <div className="flex justify-center items-center py-8">
@@ -152,7 +154,7 @@ export default function PageLogin() {
                                             id="ci"
                                             type="text"
                                             placeholder="7839209"
-                                            { ...register('ci', rules.ci)}
+                                            {...register('ci', rules.ci)}
                                             onKeyDown={handleKeyDown}
                                             required
                                         />
@@ -174,14 +176,29 @@ export default function PageLogin() {
                                                 ¿Olvido su contraseña?
                                             </a>
                                         </div>
-                                        <Input
-                                            id="password"
-                                            type="password"
-                                            placeholder="***********"
-                                            { ...register('password', rules.password)}
-                                            onKeyDown={handleKeyDown}
-                                            required
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                id="password"
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="********"
+                                                {...register("password", rules.password)}
+                                                onKeyDown={handleKeyDown}
+                                                className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                        </div>
                                         {
                                             errors.password && (
                                                 <p className="text-sm text-red-500">{errors.password.message}</p>

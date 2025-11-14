@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Area;
 use App\Models\Fase;
+use App\Models\Nivel;
 use App\Models\Rol;
 use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
@@ -21,7 +22,7 @@ class UsuariosController extends Controller
             $fases = Fase::with([
                 'area.usuarios.roles',
             ])->get();
-            
+
             $usuariosFiltrados = $fases->flatMap(function ($fase) {
                 return collect($fase->area->usuarios)->map(function ($usuario) use ($fase) {
                     if ($usuario->roles->first()) {
@@ -57,34 +58,25 @@ class UsuariosController extends Controller
     public function indexStaticData()
     {
         try {
-            $areas = Area::all(['sigla', 'nombre'])->map(function ($area, $index) {
+            $areas = Area::with('niveles')->get()->map(function ($area, $index) {
+                $niveles = $area->niveles->map(function ($nivel, $index) {
+                    return [
+                        'id' => $index + 1,
+                        'value' => $nivel->id,
+                        'label' => $nivel->nombre,
+                    ];
+                });
                 return [
-                    'id' => $index+1,
+                    'id' => $index + 1,
+                    'niveles' => $niveles,
                     'value' => $area->sigla,
                     'label' => $area->nombre,
-                ];
-            });
-            $roles = Rol::all(['nombre'])->map(function ($rol, $index) {
-                $label_rol = substr($rol->nombre, 0, 1).strtolower(substr($rol->nombre, 1));
-                return [
-                    'id' => $index+1,
-                    'value' => $rol->nombre,
-                    'label' => $label_rol,
-                ];
-            });
-            $tipo_fases = collect(TipoFase::cases())->map(function ($fase, $index) {
-                return [
-                    'id' => $index+1,
-                    'value' => $fase->value,
-                    'label' => $fase->name,
                 ];
             });
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
                 'data' => [
                     'areas' => $areas,
-                    'roles' => $roles,
-                    'tipo_fases' => $tipo_fases,
                 ],
                 'status' => 200
             ]);
@@ -127,7 +119,7 @@ class UsuariosController extends Controller
         try {
             $usuario = Usuario::where('ci', $ci)->first();
             if ($usuario) {
-                if  ($request->areas and count($request->areas) > 0) {
+                if ($request->areas and count($request->areas) > 0) {
                     $areas = Area::whereIn('sigla', $request->areas)->pluck('id')->toArray();
                     if (!empty($areas)) {
                         $usuario->areas()->attach($areas);
@@ -193,7 +185,8 @@ class UsuariosController extends Controller
         }
     }
 
-    public function register(Request $request){
+    public function register(Request $request)
+    {
         try {
             $request->validate([
                 'nombre' => 'required|string',
@@ -201,9 +194,8 @@ class UsuariosController extends Controller
                 'ci' => 'required|integer',
                 'celular' => 'required|integer',
                 'email' => 'required|string',
-                'password' => 'required|string',
                 'areas' => 'required',
-                'roles' => 'required',
+                'rol' => 'required',
             ]);
 
             $usuario = Usuario::where('ci', $request->ci)->first();
@@ -214,32 +206,47 @@ class UsuariosController extends Controller
                     'data' => $usuario
                 ], 200);
             }
+
+            $caracteres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?';
+
+            $password = '';
+            $max = strlen($caracteres) - 1;
+
+            // Generación criptográficamente segura
+            for ($i = 0; $i < 16; $i++) {
+                $index = random_int(0, $max);
+                $password .= $caracteres[$index];
+            }
+
             $usuario = Usuario::create([
                 'ci' => $request->ci,
                 'nombre' => $request->nombre,
                 'apellido' => $request->apellido,
                 'celular' => $request->celular,
                 'email' => $request->email,
-                'password' => $request->password,
+                'nivel_id' => $request->nivel,
+                'password' => '123456',
             ]);
             if ($request->has('areas') and count($request->areas) > 0) {
                 $areas = Area::whereIn('sigla', $request->areas)->pluck('id')->toArray();
                 if (!empty($areas)) {
                     $usuario->areas()->attach($areas);
                 }
-                if ($request->has('fases') and count($request->fases) > 0) {
-                    $fases = Fase::with([
-                        'area' => function ($query) use ($request) {
-                            $query->whereIn('sigla', $request->areas);
-                        }
-                    ])->whereIn('tipo_fase', $request->fases);
+                if (!empty($nivel)) {
+
+                    $fases = Fase::whereHas('area', function ($query) use ($request) {
+                        $query->whereIn('sigla', $request->areas);
+                    })->whereHas('nivel', function ($query) use ($request) {
+                        $query->where('id', $request->nivel);
+                    });
+
                     if (!empty($fases)) {
                         $usuario->fases()->attach($fases->pluck('id')->toArray());
                     }
                 }
             }
-            if ($request->has('roles') and count($request->roles) > 0) {
-                $roles = Rol::whereIn('nombre', $request->roles)->pluck('id')->toArray();
+            if ($request->has('rol') and count($request->rol) > 0) {
+                $roles = Rol::where('sigla', $request->rol)->pluck('id')->toArray();
                 if (!empty($roles)) {
                     $usuario->roles()->attach($roles);
                 }
@@ -256,7 +263,8 @@ class UsuariosController extends Controller
         }
     }
 
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         try {
             if (!Auth::attempt($request->only(['ci', 'password']))) {
                 return response()->json([
@@ -300,7 +308,7 @@ class UsuariosController extends Controller
                 }
                 return $menu_sup;
             });
-            
+
             return response()->json([
                 'user' => [
                     'data' => $usuario,
@@ -312,7 +320,7 @@ class UsuariosController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => "Error interno del servidor: ".$th->getMessage(),
+                'message' => "Error interno del servidor: " . $th->getMessage(),
             ], 500);
         }
     }

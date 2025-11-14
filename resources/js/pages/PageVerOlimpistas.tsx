@@ -11,8 +11,15 @@ import React from "react";
 import { getOlimpistasByAreas } from "@/api/Olimpistas";
 import { useAuth } from "@/hooks/use-context";
 
+const defaultAreas = [
+    {
+        nombre: '',
+        olimpistas: [],
+    }
+];
+
 export default function PageVerOlimpistas() {
-    const [olimpistas, setOlimpistas] = React.useState<any>();
+    const [olimpistas, setOlimpistas] = React.useState<any>([]);
     const { data } = useAuth();
     const areas = data?.areas.map((area) => area?.nombre);
     const areasSigla = data?.areas.map((area) => area?.sigla);
@@ -22,8 +29,8 @@ export default function PageVerOlimpistas() {
             const staticOlimpistas = await getOlimpistasByAreas(areasSigla as string[]);
             setOlimpistas(staticOlimpistas);
         }
-        staticData();
         console.log(data)
+        staticData();
     }, [data]);
 
     return (
@@ -37,38 +44,75 @@ export default function PageVerOlimpistas() {
                         <Label className="text-2xl">Visualizar olimpistas</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue={ areas?.[0].toLocaleLowerCase() }>
-                            <TabsList>
-                                { areas?.map((area) => (
-                                    <TabsTrigger
-                                        value={ area.toLocaleLowerCase() }
-                                        key={ area.toLocaleLowerCase() }
-                                        id={ area.toLocaleLowerCase() }
-                                    >
-                                        {area}
-                                    </TabsTrigger>
-                                )) }
-                            </TabsList>
-                            {
-                                areas?.map((area) => (
-                                    <TabsContent 
-                                        value={ area.toLocaleLowerCase() }
-                                        key={ area.toLocaleLowerCase() }
-                                        id={ area.toLocaleLowerCase() }
-                                    >
-                                        <Card>
-                                            <CardContent>
-                                                <DataTable
-                                                    columns={columns}
-                                                    data={olimpistas?.[area] !== undefined ? olimpistas[area] : []}
-                                                    fieldSearch="nombre"
-                                                />
-                                            </CardContent>
-                                        </Card>
-                                    </TabsContent>
-                                ))
-                            }
-                        </Tabs>
+                        {
+                            areas && areas?.length > 0 ? (
+                                <Tabs defaultValue={areas?.[0].toLocaleLowerCase()}>
+                                    <TabsList>
+                                        {areas?.map((area) => (
+                                            <TabsTrigger
+                                                value={area.toLocaleLowerCase()}
+                                                key={area.toLocaleLowerCase()}
+                                                id={area.toLocaleLowerCase()}
+                                            >
+                                                {area}
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
+                                    {
+                                        areas?.map((area) => (
+                                            <TabsContent
+                                                value={area.toLocaleLowerCase()}
+                                                key={area.toLocaleLowerCase()}
+                                                id={area.toLocaleLowerCase()}
+                                            >
+                                                <Card>
+                                                    <CardContent>
+                                                        <DataTable
+                                                            columns={columns}
+                                                            data={olimpistas?.[area] !== undefined ? olimpistas[area] : []}
+                                                            fieldSearch="nombre"
+                                                        />
+                                                    </CardContent>
+                                                </Card>
+                                            </TabsContent>
+                                        ))
+                                    }
+                                </Tabs>
+                            ) : (
+                                <Tabs defaultValue={defaultAreas?.[0].nombre.toLocaleLowerCase()}>
+                                    <TabsList>
+                                        {defaultAreas?.map((area) => (
+                                            <TabsTrigger
+                                                value={area.nombre.toLocaleLowerCase()}
+                                                key={area.nombre.toLocaleLowerCase()}
+                                                id={area.nombre.toLocaleLowerCase()}
+                                            >
+                                                {area.nombre}
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
+                                    {
+                                        defaultAreas?.map((area) => (
+                                            <TabsContent
+                                                value={area.nombre.toLocaleLowerCase()}
+                                                key={area.nombre.toLocaleLowerCase()}
+                                                id={area.nombre.toLocaleLowerCase()}
+                                            >
+                                                <Card>
+                                                    <CardContent>
+                                                        <DataTable
+                                                            columns={columns}
+                                                            data={area.olimpistas}
+                                                            fieldSearch="nombre"
+                                                        />
+                                                    </CardContent>
+                                                </Card>
+                                            </TabsContent>
+                                        ))
+                                    }
+                                </Tabs>
+                            )
+                        }
                     </div>
                 </div>
             </SidebarInset>

@@ -16,46 +16,34 @@ export const getStaticData = async ():Promise<StaticDataUsuarios> => {
     const { data } = await axiosPrivate.get("/usuarios/static");
     return {
         areas: data.data.areas,
-        roles: data.data.roles,
-        tipo_fases: data.data.tipo_fases,
     };
 };
 
 export const createUsuario = async (
     data: UsuarioForm,
     selectedAreas: string[],
-    selectedRoles: string[],
-    selectedFases: string[],
+    selectedNiveles: string[],
     setIsLoading: any,
     setSuccess: any,
     setApiError: any,
     reset: any,
     setSelectedAreas: any,
-    setSelectedRoles: any,
-    setSelectedFases: any
+    setSelectedNiveles: any
 ) => {
     setIsLoading(true);
     setApiError("");
     setSuccess(false);
 
     try {
-        if (selectedRoles.length === 0) {
-            setApiError("Debe seleccionar al menos un rol");
-            setIsLoading(false);
-            return;
-        }
-
-        const { confirmPassword, ...userData } = data;
+        console.log('Envio de datos del usuario', data);
         const formData = {
-            ...userData,
+            ...data,
             apellido: `${data.apellido_paterno} ${data.apellido_materno}`,
             ci: Number(data.ci),
             areas: selectedAreas,
-            roles: selectedRoles,
-            fases: selectedFases
+            rol: [data.rol],
+            nivel: selectedNiveles,
         };
-
-        console.log("Enviando datos de usuario:", formData);
 
         const result = await axiosPrivate.post("/register", formData);
         
@@ -63,8 +51,7 @@ export const createUsuario = async (
         setSuccess(true);
         reset();
         setSelectedAreas([]);
-        setSelectedRoles([]);
-        setSelectedFases([]);
+        setSelectedNiveles([]);
     } catch (error: any) {
         console.error("Error al crear usuario:", error);
 
