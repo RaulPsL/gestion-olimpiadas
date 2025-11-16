@@ -4,7 +4,6 @@ import { MassiveForm } from "@/forms/interfaces/AcademicForm";
 
 export const getOlimpistas = async () => {
     const { data } = await axiosPrivate.get("/olimpistas");
-    console.log(`Datos obtenidos: `, data.data);
     return data.data;
 };
 
@@ -12,19 +11,16 @@ export const getOlimpistasByAreas = async (areas: string[]) => {
     const { data } = await axiosPrivate.post("/olimpistas/areas", {
         areas: areas
     });
-    console.log(`Datos obtenidos: `, data.data);
     return data.data;
 };
 
 export const getStatistics = async () => {
     const { data } = await axiosPublic.get("/statistics");
-    console.log(`Datos obtenidos: `, data.data);
     return data.data;
 };
 
 export const getReport = async () => {
     const { data } = await axiosPrivate.get("/logs/report/olimpistas");
-    console.log(`Datos obtenidos: `, data.data);
     return data.data;
 };
 
@@ -136,7 +132,6 @@ export const createMassiveOlimpistas = async (
 
         if (data.colegio) {
             formData.append('colegio[nombre_colegio]', data.colegio.nombre_colegio);
-            formData.append('colegio[direccion_colegio]', data.colegio.direccion_colegio);
             formData.append('colegio[telefono_colegio]', data.colegio.telefono_colegio.toString());
             formData.append('colegio[provincia_id]', data.colegio.provincia_id.toString());
             formData.append('colegio[departamento_id]', data.colegio.departamento_id.toString());

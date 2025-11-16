@@ -67,4 +67,6 @@ class Usuario extends Authenticatable
     {
         return $this->hasMany(VerificacionCierre::class, 'usuario_evaluador_id');
     }
+
+    public function nivel () { return $this->belongsToOne(Nivel::class); }
 }

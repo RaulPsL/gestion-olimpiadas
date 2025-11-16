@@ -216,7 +216,6 @@ class OlimpistasController extends Controller
             'niveles_por_area' => 'required',
             'colegio' => 'required',
             'colegio.nombre_colegio' => 'required|string',
-            'colegio.direccion_colegio' => 'required|string',
             'colegio.telefono_colegio' => 'required|integer',
             'colegio.provincia_colegio' => 'required',
         ]);
@@ -235,7 +234,6 @@ class OlimpistasController extends Controller
             if (!$colegio) {
                 $colegio = Colegio::create([
                     'nombre' => $request->colegio['nombre_colegio'],
-                    'direccion' => $request->colegio['direccion_colegio'],
                     'telefono' => $request->colegio['telefono_colegio'],
                     'provincia_id' => $request->colegio['provincia_colegio'],
                 ]);
@@ -307,7 +305,6 @@ class OlimpistasController extends Controller
             'archivo' => 'required|file|mimes:xlsx,xls,csv',
             'colegio' => 'required',
             'colegio.nombre_colegio' => 'required|string',
-            'colegio.direccion_colegio' => 'required|string',
             'colegio.telefono_colegio' => 'required|integer',
             'colegio.provincia_id' => 'required',
             'colegio.area' => 'required|string',
@@ -374,7 +371,6 @@ class OlimpistasController extends Controller
             if (!$colegio) {
                 $colegio = Colegio::create([
                     'nombre' => $request->colegio['nombre_colegio'],
-                    'direccion' => $request->colegio['direccion_colegio'],
                     'telefono' => $request->colegio['telefono_colegio'],
                     'provincia_id' => $request->colegio['provincia_id'],
                 ]);

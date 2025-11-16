@@ -4,12 +4,12 @@ import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
-import { getCalificacionesOlimpistas } from "@/api/Calificaciones";
+import { getCalificacionesGrupos, getCalificacionesOlimpistas } from "@/api/Calificaciones";
 import TableCalificaciones from "@/tables/TablaCalificaciones";
 import { useAuth } from "@/hooks/use-context";
 import { ListChecksIcon } from "lucide-react";
 
-export default function PageCalificaciones() {
+export default function PageCalificaciones({ esGrupo } : { esGrupo: boolean}) {
     const [calificaciones, setCalificaciones] = React.useState<any>();
     const [update, setUpdate] = React.useState<boolean>(false);
     const [keys, setKeys] = React.useState<string[]>();
@@ -18,7 +18,10 @@ export default function PageCalificaciones() {
 
     React.useEffect(() => {
         const staticData = async () => {
-            const response = await getCalificacionesOlimpistas(areasCalificacionUsuario as string[]);
+            const response = 
+                esGrupo ? 
+                await getCalificacionesOlimpistas(areasCalificacionUsuario as string[]) : 
+                await getCalificacionesGrupos(areasCalificacionUsuario as string[]);
             setCalificaciones(response);
         };
         staticData();

@@ -1,13 +1,14 @@
 import { updateCalificaciones } from "@/api/Calificaciones";
-import { createColumnsCalificaciones } from "@/components/tables/ColumnsCalificaciones";
+import { createColumnsCalificacionesGrupo } from "@/components/tables/ColumnsCalificacionesGrupo";
 import { DataTableCalificaciones } from "@/components/tables/DataTableCalificaciones";
 import { Card, CardContent } from "@/components/ui/card";
 import { FormNotas } from "@/forms/interfaces/Notas";
+import { FormNotasGrupo } from "@/forms/interfaces/NotasGrupos";
 import { useAuth } from "@/hooks/use-context";
 import React, { Dispatch } from "react";
 import { useForm } from "react-hook-form";
 
-export default function TableCalificaciones(
+export default function TableCalificacionesGrupo(
   { calificaciones, setUpdate } : {
     calificaciones: {
       fecha_calificacion: string,
@@ -24,12 +25,11 @@ export default function TableCalificaciones(
   const [success, setSuccess] = React.useState<boolean>(false);
   const { data } = useAuth();
   const ci = data?.data.ci;
-  const initialFormData: FormNotas = {
-    type: 'olimpista',
+  const initialFormData: FormNotasGrupo = {
+    type: 'grupos',
     notas: calificaciones.calificaciones.map(item => ({
-      nota_olimpista_id: item.nota_olimpista_id,
+      nota_grupo_id: item.nota_grupo_id,
       nota_fase_id: item.nota_fase_id,
-      estado_olimpista: item.estado,
       nota: item.nota,
       comentarios: item.comentarios
     }))
@@ -40,7 +40,7 @@ export default function TableCalificaciones(
     handleSubmit,
     setValue,
     reset,
-  } = useForm<FormNotas>({
+  } = useForm<FormNotasGrupo>({
     defaultValues: initialFormData
   });
 
@@ -58,12 +58,11 @@ export default function TableCalificaciones(
       setNuevaLista(listaActualizada);
 
       // Resetear el formulario con los nuevos valores
-      const formData: FormNotas = {
-        type: 'olimpista',
+      const formData: FormNotasGrupo = {
+        type: 'grupos',
         notas: calificaciones.calificaciones.map(item => ({
-          nota_olimpista_id: item.nota_olimpista_id,
+          nota_grupo_id: item.nota_olimpista_id,
           nota_fase_id: item.nota_fase_id,
-          estado_olimpista: item.estado,
           nota: item.nota,
           comentarios: item.comentarios
         }))
@@ -81,7 +80,7 @@ export default function TableCalificaciones(
     );
   }
 
-  const columns = createColumnsCalificaciones(register, setValue, new Date(calificaciones.fecha_calificacion));
+  const columns = createColumnsCalificacionesGrupo(register, setValue, new Date(calificaciones.fecha_calificacion));
   return (
     <Card>
       <CardContent>

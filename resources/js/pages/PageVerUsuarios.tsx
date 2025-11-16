@@ -9,14 +9,18 @@ import { DataTable } from "@/components/tables/DataTable";
 import React from "react";
 import { getUsuarios } from "@/api/Usuarios";
 import { columnsInterno } from "@/components/tables/ColumnsInterno";
+import { useAuth } from "@/hooks/use-context";
 
 export default function PageVerEvaluadores() {
     const [rolUsuario, setRolUsuario] = React.useState<any>({});
     const [keys, setKeys] = React.useState<any[]>([]);
+    const { data } = useAuth();
 
     React.useEffect(() => {
+        const areas = data?.areas.map((area) => area.sigla);
+        const usuarios = data?.rol.sigla === 'EDA' ? ['EVA'] : ['EVA', 'EDA']
         const staticData = async () => {
-            const staticRol = await getUsuarios();
+            const staticRol = await getUsuarios(usuarios, areas as string[]);
             setRolUsuario(staticRol);
         };
         staticData();

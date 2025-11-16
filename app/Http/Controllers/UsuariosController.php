@@ -16,17 +16,26 @@ class UsuariosController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $request->validate([
+                'usuarios' => 'required',
+                'areas' => 'required'
+            ]);
             $fases = Fase::with([
-                'area.usuarios.roles',
-            ])->get();
+                'area',
+                'nivel'
+            ])
+            ->whereHas('area', function ($query) use ($request) {
+                $query->with('usuarios.roles', 'usuarios.nivel')->whereIn('sigla', $request->areas);
+            })
+            ->get();
 
-            $usuariosFiltrados = $fases->flatMap(function ($fase) {
-                return collect($fase->area->usuarios)->map(function ($usuario) use ($fase) {
-                    if ($usuario->roles->first()) {
-                        $rol = $usuario->roles->first();
+            $usuariosFiltrados = $fases->flatMap(function ($fase) use ($request) {
+                return collect($fase->area->usuarios)->map(function ($usuario) use ($fase, $request) {
+                    $rol = $usuario->roles->first();
+                    if ($rol && in_array($rol->sigla, $request->usuarios)) {
                         return [
                             'ci' => $usuario->ci,
                             'nombre' => "$usuario->nombre $usuario->apellido",
@@ -34,13 +43,13 @@ class UsuariosController extends Controller
                             'email' => $usuario->email,
                             'area' => $fase->area->sigla,
                             'fase' => $fase->sigla,
-                            'nivel' => $fase->area->nivel,
+                            'nivel' => $fase->nivel->nombre,
                             'rol' => $rol->nombre,
                             'rol_sigla' => $rol->sigla,
                         ];
                     }
                 })->filter();
-            })->unique('ci')->values(); // Filtra por CI único
+            })->values(); // Filtra por CI único
 
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",

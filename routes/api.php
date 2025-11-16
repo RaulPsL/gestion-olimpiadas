@@ -34,7 +34,7 @@ Route::prefix('grupos')->group(function () {
 });
 
 Route::prefix('usuarios')->group(function () {
-    Route::get('/', [App\Http\Controllers\UsuariosController::class, 'index']);
+    Route::post('/', [App\Http\Controllers\UsuariosController::class, 'index']);
     Route::get('/static', [App\Http\Controllers\UsuariosController::class, 'indexStaticData']);
     Route::get('/{ci}', [App\Http\Controllers\UsuariosController::class, 'show']);
     Route::put('/{ci}', [App\Http\Controllers\UsuariosController::class, 'update']);

@@ -6,4 +6,5 @@ export type FormNotas = {
     nota: number;
     comentarios: string;
   }[];
+  type: 'olimpista';
 };

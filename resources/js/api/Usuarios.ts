@@ -2,8 +2,12 @@ import { UsuarioForm } from "@/forms/interfaces/Usuario";
 import { axiosPrivate, axiosPublic } from "./api";
 import { Login } from "@/forms/interfaces/LoginIntefase";
 
-export const getUsuarios = async () => {
-    const { data } = await axiosPrivate.get("/usuarios");
+export const getUsuarios = async (usuarios: string[], areas: string[]) => {
+    const { data } = await axiosPrivate.post("/usuarios", {
+        usuarios: usuarios,
+        areas: areas
+    });
+    console.log({usuarios, areas});
     return data.data;
 };
 

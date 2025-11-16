@@ -71,7 +71,6 @@ export default function FormOlimpista() {
             },
             colegio: {
                 nombre_colegio: "",
-                direccion_colegio: "",
                 telefono_colegio: "",
                 departamento_colegio: "",
             }
@@ -700,23 +699,6 @@ export default function FormOlimpista() {
                                         />
                                         {errors.colegio?.telefono_colegio && (
                                             <p className="text-sm text-red-500">{errors.colegio?.telefono_colegio.message}</p>
-                                        )}
-                                    </div>
-
-                                    {/* Dirección del Colegio */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="direccion_colegio">
-                                            Dirección del colegio <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            id="direccion_colegio"
-                                            type="text"
-                                            placeholder="Ej. Av. Aniceto Arce"
-                                            {...register("colegio.direccion_colegio", validationRules.direccion_colegio)}
-                                            className={errors.colegio?.direccion_colegio ? "border-red-500" : ""}
-                                        />
-                                        {errors.colegio?.direccion_colegio && (
-                                            <p className="text-sm text-red-500">{errors.colegio?.direccion_colegio.message}</p>
                                         )}
                                     </div>
                                 </div>

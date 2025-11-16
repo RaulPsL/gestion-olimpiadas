@@ -128,6 +128,7 @@ export function DataTableCierrresFases<TData, TValue>({
       const timer = setTimeout(() => {
         setUpdate(prev => !prev);
         setDialogOpen(false);
+        setSuccess(false);
       }, 3000);
       return () => clearTimeout(timer);
     }

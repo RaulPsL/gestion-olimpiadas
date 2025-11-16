@@ -22,7 +22,6 @@ export interface OlimpistaForm {
     },
     colegio: {
         nombre_colegio: string;
-        direccion_colegio: string;
         telefono_colegio: string;
         departamento_colegio: string;
         provincia_colegio: string;

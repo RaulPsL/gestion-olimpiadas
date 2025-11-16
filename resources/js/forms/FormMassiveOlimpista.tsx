@@ -17,6 +17,10 @@ import { useFilterGrades } from "@/hooks/use-filter-grades";
 import { useFilterAreasUser } from "@/hooks/use-areas-user";
 import { useOnlyNumbers } from "@/hooks/use-input-number";
 import { useOnlyLetters } from "@/hooks/use-input-text";
+import { readFile } from "xlsx";
+import readXlsxFile from "read-excel-file";
+import { number } from "zod";
+import { schemaXls } from "./interfaces/SchemaFile";
 
 export default function FormMassiveOlimista() {
     const [currentStep, setCurrentStep] = React.useState(1);
@@ -58,7 +62,6 @@ export default function FormMassiveOlimista() {
             },
             colegio: {
                 nombre_colegio: "",
-                direccion_colegio: "",
                 telefono_colegio: "",
                 area: "",
                 provincia_id: 0,
@@ -89,6 +92,31 @@ export default function FormMassiveOlimista() {
             setSelectedFile(null);
         }
     }, [archivoSeleccionado]);
+
+    React.useEffect(() => {
+        if (selectedFile) {
+            console.log(selectedFile)
+            const readFile = async () => {
+                const headers = ["nombres","apellido_paterno","apellido_materno","ci","celular","email","fecha_nacimiento","grado_escolar"];
+                let data: any = null;
+                if (selectedFile?.name.includes('xls') || selectedFile?.name.includes('xlsx')) {
+                    data = await readXlsxFile(selectedFile);
+                    const indexOfCells = headers.map((head) => (data[0].indexOf(head)));
+                    const gradosArea = areas.find((area) => area.value === areaField.value[0]).grados.map((grado: any) => grado.label);
+    
+                    console.log(indexOfCells.some((i) => data.forEach((row: any) => row[i] === "")));
+    
+                    console.log(gradosArea);
+                }
+                const headersFaltantes = headers.filter((head) => { if (!data?.[0].includes(head)) return head });
+                if (headersFaltantes.length > 0) {
+                    console.log("Faltan los siguientes datos: ", headersFaltantes.join(','))
+                }
+                
+            }
+            readFile();
+        }
+    }, [selectedFile]);
 
     const validateFile = (file: File): string | true => {
         if (file.size > 10 * 1024 * 1024) {
@@ -161,15 +189,15 @@ export default function FormMassiveOlimista() {
 
     const downloadTemplate = () => {
         const csvContent = "nombres,apellido_paterno,apellido_materno,ci,celular,grado_escolar\n" +
-            "Juan Carlos,García,López,8947493,73456789,1ro secundara\n" +
-            "María Elena,Rodríguez,Pérez,7856234,76543210,2do secundaria\n" +
-            "Carlos,Mendoza,Silva,9123456,78901234,3ro secundaria";
+            "Juan Carlos,García,López,8947493,73456789,1ro Secundaria\n" +
+            "María Elena,Rodríguez,Pérez,7856234,76543210,2do Secundaria\n" +
+            "Carlos,Mendoza,Silva,9123456,78901234,3ro Secundaria";
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob([csvContent], { type: 'text/xlsx;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        link.setAttribute("download", "plantilla_olimpistas.csv");
+        link.setAttribute("download", "plantilla_olimpistas.xlsx");
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -205,8 +233,9 @@ export default function FormMassiveOlimista() {
         } else if (currentStep === 2) {
             isValid = await trigger([
                 "colegio.nombre_colegio",
-                "colegio.direccion_colegio",
-                "colegio.telefono_colegio"
+                "colegio.telefono_colegio",
+                "colegio.provincia_id",
+                "colegio.departamento_id"
             ]);
 
             if (isValid) {
@@ -446,22 +475,6 @@ export default function FormMassiveOlimista() {
                                 />
                                 {errors.colegio?.telefono_colegio && (
                                     <p className="text-sm text-red-500">{errors.colegio?.telefono_colegio.message}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="direccion_colegio">
-                                    Dirección del colegio <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="direccion_colegio"
-                                    type="text"
-                                    placeholder="Ej. Av. Aniceto Arce"
-                                    {...register("colegio.direccion_colegio", validationRules.direccion_colegio)}
-                                    className={errors.colegio?.direccion_colegio ? "border-red-500" : ""}
-                                />
-                                {errors.colegio?.direccion_colegio && (
-                                    <p className="text-sm text-red-500">{errors.colegio?.direccion_colegio.message}</p>
                                 )}
                             </div>
 

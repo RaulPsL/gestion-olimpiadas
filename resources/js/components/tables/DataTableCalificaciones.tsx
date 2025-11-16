@@ -42,6 +42,7 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   fechaCalificacion: string,
   fechaFin: string,
   avalado: boolean,
+  filter: any,
   setUpdate: Dispatch<React.SetStateAction<boolean>>
   handleSubmit: () => void,
   isLoading: boolean,
@@ -60,6 +61,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   fechaCalificacion,
   fechaFin,
   avalado,
+  filter,
   setUpdate,
   handleSubmit,
   isLoading,
@@ -111,8 +113,10 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
     }
     if (success) {
       const timer = setTimeout(() => {
+        setOpenToEdition(false);
         setUpdate(prev => !prev);
         setDialogOpen(false);
+        setSuccess(false);
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -125,7 +129,6 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
     handleSubmit();
     if (success) {
       setDialogOpen(true);
-      setOpenToEdition(false);
       handleToggleEdicion(false);
     }
   };
@@ -165,7 +168,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
               
               {/* Combobox para filtrar por nivel */}
               <Combobox
-                items={nivelesItems}
+                items={filter}
                 value={selectedNivel}
                 onChange={handleNivelChange}
                 placeholder="Filtrar por nivel..."

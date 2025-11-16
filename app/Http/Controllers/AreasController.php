@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\Nivel;
 use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
@@ -235,13 +236,14 @@ class AreasController extends Controller
                     'fases.*.fecha_inicio' => 'required|date',
                     'fases.*.fecha_calificacion' => 'required|date',
                     'fases.*.fecha_fin' => 'required|date',
-                    'fases.*.nivel' => 'required|string',
+                    'fases.*.nivel' => 'required',
                     'fases.*.usuarios' => 'required|exists:usuarios,ci',
                 ]);
 
                 foreach ($request->fases as $faseData) {
                     $usuarios = Usuario::whereIn('ci', $faseData['usuarios'])->get();
-                    $nivel = strtoupper(trim($faseData['nivel']));
+                    $nombre_nivel = Nivel::where('id', $faseData['nivel'])->first()->nombre;
+                    $nivel = strtoupper(trim($nombre_nivel));
                     $sigla_fase = $sigla . substr($nivel, 0, strlen($nivel) > 2 ? 3 : 2) . strtoupper(substr($faseData['tipo_fase'], 0, 3));
                     $fase = $area->fases()->create([
                         'sigla' => $sigla_fase,

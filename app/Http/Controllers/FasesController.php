@@ -171,8 +171,9 @@ class FasesController extends Controller
                 $usuarios['usuario_evaluador_id'] = Usuario::where('ci', $request->usuario_evaluador_id)->first()->id;
             }
             if ($cierre) {
-                $cierre = $cierre->update($usuarios);
-                if (!empty($cierre['usuario_evaluador_id']) && !empty($cierre['usuario_evaluador_id'])) {
+                $cierre->update($usuarios);
+                $cierre->refresh();
+                if (!empty($cierre->usuario_evaluador_id) && !empty($cierre->usuario_evaluador_id)) {
                     $fase_actual->update(['estado' => 'finalizada']);
                 }
             } else {

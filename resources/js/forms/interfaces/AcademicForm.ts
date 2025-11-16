@@ -9,10 +9,10 @@ export interface MassiveForm {
     };
     colegio: {
         nombre_colegio: string;
-        direccion_colegio: string;
         telefono_colegio: string;
         provincia_id: number;
         departamento_id: number;
+        grado_escolar?: number;
         area: string,
     };
     archivo: FileList;

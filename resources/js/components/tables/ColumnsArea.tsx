@@ -33,13 +33,13 @@ export const columns: ColumnDef<Area>[] = [
       <div className="text-center">{row.original.descripcion}</div>
     ),
   },
-  {
-    accessorKey: "nivel",
-    header: "Nivel",
-    cell: ({ row }) => (
-      <div className="text-center capitalize">{row.original.nivel}</div>
-    ),
-  },
+  // {
+  //   accessorKey: "nivel",
+  //   header: "Nivel",
+  //   cell: ({ row }) => (
+  //     <div className="text-center capitalize">{row.original.nivel}</div>
+  //   ),
+  // },
   {
     accessorKey: "sigla",
     header: "Sigla",

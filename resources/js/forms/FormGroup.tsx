@@ -59,7 +59,6 @@ export default function FormGroup() {
             },
             colegio: {
                 nombre_colegio: "",
-                direccion_colegio: "",
                 telefono_colegio: "",
                 area: "",
                 grado_escolar: 0,
@@ -209,8 +208,9 @@ export default function FormGroup() {
         } else if (currentStep === 2) {
             isValid = await trigger([
                 "colegio.nombre_colegio",
-                "colegio.direccion_colegio",
-                "colegio.telefono_colegio"
+                "colegio.telefono_colegio",
+                "colegio.provincia_id",
+                "colegio.departamento_id"
             ]);
 
             if (isValid) {
@@ -503,22 +503,6 @@ export default function FormGroup() {
                                 />
                                 {errors.colegio?.telefono_colegio && (
                                     <p className="text-sm text-red-500">{errors.colegio?.telefono_colegio.message}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="direccion_colegio">
-                                    Dirección del colegio <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="direccion_colegio"
-                                    type="text"
-                                    placeholder="Ej. Av. Aniceto Arce"
-                                    {...register("colegio.direccion_colegio", validationRules.direccion_colegio)}
-                                    className={errors.colegio?.direccion_colegio ? "border-red-500" : ""}
-                                />
-                                {errors.colegio?.direccion_colegio && (
-                                    <p className="text-sm text-red-500">{errors.colegio?.direccion_colegio.message}</p>
                                 )}
                             </div>
 

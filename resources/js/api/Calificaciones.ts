@@ -1,6 +1,7 @@
 import { FormNotas } from "@/forms/interfaces/Notas";
 import { axiosPrivate } from "./api";
 import { UseFormReset } from "react-hook-form";
+import { FormNotasGrupo } from "@/forms/interfaces/NotasGrupos";
 
 export const getCalificacionesOlimpistas = async (areas: string[]) => {
     const { data } = await axiosPrivate.post("/calificaciones/olimpistas", {
@@ -17,13 +18,13 @@ export const getCalificacionesGrupos = async (siglaAreas: string[]) => {
     return data.data;
 };
 
-export const updateCalificacionesOlimpistas = async (
-    data: FormNotas,
+export const updateCalificaciones = async (
+    data: FormNotas | FormNotasGrupo,
     ci: number,
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
     setApiError: React.Dispatch<React.SetStateAction<string>>,
-    reset: UseFormReset<FormNotas>,
+    reset: UseFormReset<FormNotas | FormNotasGrupo>,
 ) => {
     // setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -42,8 +43,8 @@ export const updateCalificacionesOlimpistas = async (
         const nuevoData = {usuario_ci: ci, ...data};
         console.log('Enviando datos...');
 
-        console.log('Datos de envio: ', nuevoData);
-        const response = await axiosPrivate.put(`/calificaciones/olimpistas`, nuevoData);
+        console.log(typeof data);
+        const response = await axiosPrivate.put(`/calificaciones/${data.type === 'olimpista' ? "olimpistas" : "grupos"}`, nuevoData);
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         if (response.status === 200) {

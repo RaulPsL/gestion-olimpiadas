@@ -121,7 +121,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EVA']}
                             >
-                                <PageCalificaciones />
+                                <PageCalificaciones esGrupo/>
                             </PrivatRoute>
                         }
                     />
@@ -131,7 +131,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EVA']}
                             >
-                                <PageCalificaciones />
+                                <PageCalificaciones esGrupo={false}/>
                             </PrivatRoute>
                         }
                     />
