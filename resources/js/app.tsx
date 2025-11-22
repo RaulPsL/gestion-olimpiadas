@@ -10,12 +10,12 @@ import { AuthProvider } from './hooks/use-context';
 import { PrivatRoute } from './hooks/use-private-route';
 import PageVerOlimpistas from './pages/PageVerOlimpistas';
 import PageVerAreas from './pages/PageVerAreas';
-import PageVerEvaluadores from './pages/PageVerUsuarios';
 import PageVerFases from './pages/PageverFases';
 import PageCrearFase from './pages/PageCrearFase';
 import PageVerAcciones from './pages/PageVerAcciones';
 import PageCierreFases from './pages/PageCierreFases';
 import PageGenerarDocs from './pages/PageDocument';
+import PageVerUsuarios from './pages/PageVerUsuarios';
 
 function App() {
     return (
@@ -61,7 +61,17 @@ function App() {
                             <PrivatRoute
                                 rol={['EDA', 'EVA']}
                             >
-                                <PageVerEvaluadores />
+                                <PageVerUsuarios />
+                            </PrivatRoute>
+                        }
+                    />
+                    <Route
+                        path="/ver usuarios"
+                        element={
+                            <PrivatRoute
+                                rol={['ADM']}
+                            >
+                                <PageVerUsuarios />
                             </PrivatRoute>
                         }
                     />
@@ -121,7 +131,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EVA']}
                             >
-                                <PageCalificaciones esGrupo/>
+                                <PageCalificaciones esGrupo={false}/>
                             </PrivatRoute>
                         }
                     />
@@ -131,7 +141,7 @@ function App() {
                             <PrivatRoute
                                 rol={['EVA']}
                             >
-                                <PageCalificaciones esGrupo={false}/>
+                                <PageCalificaciones esGrupo={true}/>
                             </PrivatRoute>
                         }
                     />

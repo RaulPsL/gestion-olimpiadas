@@ -60,6 +60,16 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
         }
     }, [areaField]);
 
+    React.useEffect(() => {
+        if (success) {
+          const timer = setTimeout(() => {
+            setSuccess(false);
+          }, 3000);
+          return () => clearTimeout(timer);
+        }
+    
+      }, [isLoading]);
+
     return (
         <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
@@ -246,7 +256,7 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
                                     data,
                                     areaField.value as string[],
                                     // rolesField.value as string[],
-                                    nivelField.value as string[],
+                                    nivelField.value as number[],
                                     setIsLoading,
                                     setSuccess,
                                     setApiError,

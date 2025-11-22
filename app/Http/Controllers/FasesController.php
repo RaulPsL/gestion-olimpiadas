@@ -103,8 +103,8 @@ class FasesController extends Controller
                     'area' => $fase->area->nombre,
                     'fecha_creacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->created_at)) : "",
                     'fecha_modificacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->updated_at)) : "",
-                    'fecha_fin_fase' => date('d/M/Y H:i', strtotime($fase->fecha_fin)),
-                    'fecha_calificacion_fase' => date('d/M/Y H:i', strtotime($fase->fecha_calificacion)),
+                    'fecha_fin_fase' => $fase->fecha_fin,
+                    'fecha_calificacion_fase' => $fase->fecha_calificacion,
                     'usuario_encargado_id' => $encargado ? "$encargado->ci" : null,
                     'usuario_evaluador_id' => $evaluador ? "$evaluador->ci" : null,
                     'fase_id' => $fase->id,
@@ -202,7 +202,7 @@ class FasesController extends Controller
         try {
             $request->validate([
                 'fase_id' => 'required',
-                'aumento_fin' => 'required|string',
+                'aumento_fin' => 'required|integer',
             ]);
 
             $cierre = VerificacionCierre::where('fase_id', $request->fase_id)->get()->first();
@@ -211,13 +211,12 @@ class FasesController extends Controller
             $index_fase = array_search($fase_actual->id, $fases->pluck('id')->toArray());
 
             if ($cierre) {
-                $cierre->update(['updated_at' => Carbon::now()]);
+                $cierre->update(['usuario_encargado_id' => null, 'usuario_evaluador_id' => null]);
 
                 $anterior_fin = Carbon::parse($fase_actual->fecha_fin);
                 $anterior_calificacion = Carbon::parse($fase_actual->fecha_calificacion);
-                $nuevo_fin = Carbon::parse($request->aumento_fin);
 
-                $diff_minutos = $anterior_fin->diffInMinutes($nuevo_fin, false);
+                $diff_minutos = (int)$request->aumento_fin;
 
                 $nuevo_tiempo_fin = $anterior_fin->copy()->addMinutes($diff_minutos);
                 $nuevo_tiempo_calificacion = $anterior_calificacion->copy()->addMinutes($diff_minutos);
@@ -248,7 +247,7 @@ class FasesController extends Controller
             ], 202);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Error al obtener las fases.',
+                'message' => 'Error al actualizar las fases.',
                 'cierre' => VerificacionCierre::where('fase_id', $request->fase_id)->first(),
                 'error' => $th->getMessage(),
             ], 500);

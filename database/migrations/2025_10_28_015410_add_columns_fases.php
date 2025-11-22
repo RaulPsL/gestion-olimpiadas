@@ -15,6 +15,7 @@ return new class extends Migration
             $table->integer('cantidad_ganadores')->nullable();
             $table->foreignId('nivel_id')->nullable()->constrained()->onDelete('cascade');
             $table->dateTime('fecha_calificacion')->nullable();
+            $table->foreignId('fase_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 

@@ -59,29 +59,45 @@ class Fase extends Model
         'puntaje_minimo' => 'integer',
     ];
 
-    public function area() { return $this->belongsTo(Area::class); }
+    public function area()
+    {
+        return $this->belongsTo(Area::class);
+    }
 
-    public function calificacions() { return $this->hasMany(Calificacion::class); }
+    public function calificacions()
+    {
+        return $this->hasMany(Calificacion::class);
+    }
 
-    public function usuarios() {
+    public function usuarios()
+    {
         return $this->belongsToMany(Usuario::class, 'usuario_fases');
     }
 
-    public function olimpistas() {
+    public function olimpistas()
+    {
         return $this->belongsToMany(Olimpista::class, 'calificacions')
             ->withPivot('puntaje', 'comentarios');
     }
 
-    public function grupos() {
+    public function grupos()
+    {
         return $this->belongsToMany(Grupo::class, 'calificacion_grupos')
             ->withPivot('puntaje', 'comentarios');
     }
 
-    public function cierre() {
+    public function cierre()
+    {
         return $this->hasOne(VerificacionCierre::class);
     }
 
-    public function nivel() {
+    public function nivel()
+    {
         return $this->belongsTo(Nivel::class);
+    }
+
+    public function fase_siguiente()
+    {
+        return $this->belongsTo(Fase::class);
     }
 }

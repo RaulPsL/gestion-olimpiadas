@@ -17,10 +17,7 @@ import { useFilterGrades } from "@/hooks/use-filter-grades";
 import { useFilterAreasUser } from "@/hooks/use-areas-user";
 import { useOnlyNumbers } from "@/hooks/use-input-number";
 import { useOnlyLetters } from "@/hooks/use-input-text";
-import { readFile } from "xlsx";
 import readXlsxFile from "read-excel-file";
-import { number } from "zod";
-import { schemaXls } from "./interfaces/SchemaFile";
 
 export default function FormMassiveOlimista() {
     const [currentStep, setCurrentStep] = React.useState(1);
@@ -97,22 +94,22 @@ export default function FormMassiveOlimista() {
         if (selectedFile) {
             console.log(selectedFile)
             const readFile = async () => {
-                const headers = ["nombres","apellido_paterno","apellido_materno","ci","celular","email","fecha_nacimiento","grado_escolar"];
+                const headers = ["nombres", "apellido_paterno", "apellido_materno", "ci", "celular", "email", "fecha_nacimiento", "grado_escolar"];
                 let data: any = null;
                 if (selectedFile?.name.includes('xls') || selectedFile?.name.includes('xlsx')) {
                     data = await readXlsxFile(selectedFile);
                     const indexOfCells = headers.map((head) => (data[0].indexOf(head)));
                     const gradosArea = areas.find((area) => area.value === areaField.value[0]).grados.map((grado: any) => grado.label);
-    
+
                     console.log(indexOfCells.some((i) => data.forEach((row: any) => row[i] === "")));
-    
+
                     console.log(gradosArea);
                 }
                 const headersFaltantes = headers.filter((head) => { if (!data?.[0].includes(head)) return head });
                 if (headersFaltantes.length > 0) {
                     console.log("Faltan los siguientes datos: ", headersFaltantes.join(','))
                 }
-                
+
             }
             readFile();
         }
@@ -188,10 +185,25 @@ export default function FormMassiveOlimista() {
     };
 
     const downloadTemplate = () => {
-        const csvContent = "nombres,apellido_paterno,apellido_materno,ci,celular,grado_escolar\n" +
-            "Juan Carlos,García,López,8947493,73456789,1ro Secundaria\n" +
-            "María Elena,Rodríguez,Pérez,7856234,76543210,2do Secundaria\n" +
-            "Carlos,Mendoza,Silva,9123456,78901234,3ro Secundaria";
+        const csvContent = "nombres,apellido_paterno,apellido_materno,ci,celular,grado_escolar,email,fecha_nacimiento\n" +
+            "Sofía,Gutiérrez,Herrera,7823109,69128403,1ro Secundaria,sofia.gutierrez@colegioperedo.edu.bo,2012-03-15\n" +
+            "Nicolás,Vargas,Rojas,8492034,67820394,4to Primaria,nicolas.vargas@colegioperedo.edu.bo,2014-10-22\n" +
+            "Martina,Fernández,Aguilar,7659201,68520493,2do Secundaria,martina.fernandez@colegioperedo.edu.bo,2011-07-09\n" +
+            "Gabriel,Morales,López,8321049,69930284,6to Primaria,gabriel.morales@colegioperedo.edu.bo,2013-05-11\n" +
+            "Valentina,Torres,Rivera,7182940,66720394,3ro Primaria,valentina.torres@colegioperedo.edu.bo,2015-02-18\n" +
+            "Diego,Castillo,Guzmán,9021834,69018203,5to Primaria,diego.castillo@colegioperedo.edu.bo,2013-09-24\n" +
+            "Antonella,Ramírez,Soto,7438209,67520938,4to Primaria,antonella.ramirez@colegioperedo.edu.bo,2014-04-30\n" +
+            "Joaquín,López,Delgado,8942013,67291820,2do Secundaria,joaquin.lopez@colegioperedo.edu.bo,2016-06-02\n" +
+            "Renata,Mendoza,Flores,8192037,69301824,6to Primaria,renata.mendoza@colegioperedo.edu.bo,2013-01-19\n" +
+            "Sebastián,Ruiz,Camacho,7510928,67192803,3ro Primaria,sebastian.ruiz@colegioperedo.edu.bo,2015-07-25\n" +
+            "Julieta,Sánchez,Vargas,8291042,69928401,1ro Secundaria,julieta.sanchez@colegioperedo.edu.bo,2016-09-17\n" +
+            "Emiliano,Pérez,Gutiérrez,7920138,67552014,4to Primaria,emiliano.perez@colegioperedo.edu.bo,2014-11-12\n" +
+            "Camila,Navarro,Romero,8649203,69012834,5to Primaria,camila.navarro@colegioperedo.edu.bo,2013-08-03\n" +
+            "Rodrigo,Fernández,Aguilar,7140293,66783920,2do Secundaria,rodrigo.fernandez@colegioperedo.edu.bo,2016-05-26\n" +
+            "Isabella,Torres,Mendoza,8439201,67203948,4to Primaria,isabella.torres@colegioperedo.edu.bo,2014-01-30\n" +
+            "Facundo,Martínez,Ruiz,9051820,68402931,6to Primaria,facundo.martinez@colegioperedo.edu.bo,2013-02-09\n" +
+            "Ana,Vargas,Castillo,7591830,69948203,3ro Primaria,ana.vargas@colegioperedo.edu.bo,2015-12-06\n" +
+            "Tomás,Ramírez,Medina,8192304,67102938,1ro Secundaria,tomas.ramirez@colegioperedo.edu.bo,2016-04-20";
 
         const blob = new Blob([csvContent], { type: 'text/xlsx;charset=utf-8;' });
         const link = document.createElement("a");

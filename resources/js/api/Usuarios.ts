@@ -7,7 +7,6 @@ export const getUsuarios = async (usuarios: string[], areas: string[]) => {
         usuarios: usuarios,
         areas: areas
     });
-    console.log({usuarios, areas});
     return data.data;
 };
 
@@ -26,7 +25,7 @@ export const getStaticData = async ():Promise<StaticDataUsuarios> => {
 export const createUsuario = async (
     data: UsuarioForm,
     selectedAreas: string[],
-    selectedNiveles: string[],
+    selectedNiveles: number[],
     setIsLoading: any,
     setSuccess: any,
     setApiError: any,
@@ -46,7 +45,7 @@ export const createUsuario = async (
             ci: Number(data.ci),
             areas: selectedAreas,
             rol: [data.rol],
-            nivel: selectedNiveles,
+            nivel: selectedNiveles[0] > 0 ? Number(selectedNiveles) : null,
         };
 
         const result = await axiosPrivate.post("/register", formData);
@@ -79,9 +78,45 @@ export const createUsuario = async (
     }
 };
 
-export const updateUsuario = async (codsis: number, data: any) => {
-    const response = await axiosPrivate.put(`/usuarios/${codsis}`, data);
-    return response.data;
+export const updateUsuario = async (
+    ci: number,
+    data: UsuarioForm,
+    selectedAreas: string[],
+    selectedNiveles: number[],
+    setIsLoading: any,
+    setSuccess: any,
+    setApiError: any,
+    setSelectedAreas: any,
+    setSelectedNiveles: any
+) => {
+    setIsLoading(true);
+    try {
+        // const response = await axiosPrivate.put(`/usuarios/${ci}`, data);
+        data = {
+            ...data,
+            areas: selectedAreas,
+            niveles: selectedNiveles,
+        }
+        console.log("Usuario modificado:", data);
+        setSuccess(true);
+        setIsLoading(false);
+        setSelectedAreas([]);
+        setSelectedNiveles([]);
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            const backendErrors = error.response.data.errors;
+            if (backendErrors) {
+                const errorMessages = Object.values(backendErrors).flat();
+                setApiError(errorMessages.join(", "));
+            } else {
+                setApiError(error.response.data.message || "Error de validación");
+            }
+        } else if (error.response?.status === 500) {
+            setApiError("Error interno del servidor. Intente nuevamente.");
+        } else {
+            setApiError("Error de conexión. Verifique su internet.");
+        }
+    }
 };
 
 export const deleteUsuario = async (codsis: number) => {

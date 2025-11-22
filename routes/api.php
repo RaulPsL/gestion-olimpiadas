@@ -82,7 +82,7 @@ Route::prefix('clasificaciones')->group(function () {
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
 });
 
-Route::middleware(['auth:sanctum', 'role:ADM'])->post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
+Route::post('/register', [App\Http\Controllers\UsuariosController::class, 'register']);
 
 Route::get('/calendar', [App\Http\Controllers\FasesController::class, 'indexCalendar']);
 Route::get('/statistics', [App\Http\Controllers\LogController::class, 'statistics']);

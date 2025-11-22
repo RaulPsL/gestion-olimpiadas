@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\FaseNotification;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 
@@ -53,3 +54,5 @@ $response = $kernel->handle(
 )->send();
 
 $kernel->terminate($request, $response);
+// Will how automate the task notification by admins reading on real time and send at front???
+event(new FaseNotification('hello world')); 

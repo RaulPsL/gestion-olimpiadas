@@ -21,6 +21,19 @@ export type CierreFases = {
   fase_id: number;
 };
 
+const formatDate = (fecha: string | null | undefined): string => {
+  if (!fecha) return '-';
+  
+  const date = new Date(fecha);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  
+  return `${hours}:${minutes} ${day}/${month}/${year}`;
+};
+
 export const createColumnsCierres = (
   register: UseFormRegister<FormCierreFase | FormGetupFase>,
   setValue: UseFormSetValue<FormCierreFase | FormGetupFase>,
@@ -58,6 +71,20 @@ export const createColumnsCierres = (
     accessorKey: "fase",
     header: "Fase",
   },
+  // {
+  //   accessorKey: 'fecha_inicio_fase',
+  //   header: 'Fecha inicio',
+  // },
+  {
+    accessorKey: 'fecha_calificacion_fase',
+    header: 'Fecha calificación',
+    cell: ({ row }) => formatDate(row.original.fecha_calificacion_fase)
+  },
+  {
+    accessorKey: 'fecha_fin_fase',
+    header: 'Fecha fin',
+    cell: ({ row }) => formatDate(row.original.fecha_fin_fase)
+  },
   {
     accessorKey: "fase_id",
     cell: ({ row }) => (
@@ -83,21 +110,15 @@ export const createColumnsCierres = (
 
       // --- Condición para CERRAR fase ---
       const puedeCerrar =
-        fila.estado === "en curso" &&
-        (usuarioRol === "EVA" || usuarioRol === "EDA") &&
+        fila.estado !== "finalizada" &&
         now >= fechaCalificacion &&
-        now <= fechaFin &&
-        (
-          fila.usuario_encargado_id === null ||
-          fila.usuario_evaluador_id === null ||
-          fila.usuario_encargado_id === "" ||
-          fila.usuario_evaluador_id === "" ||
-          fila.usuario_encargado_id === ciUsuario ||
-          fila.usuario_evaluador_id === ciUsuario
-        );
+        now <= fechaFin;
+
+      const paraEva = (fila.usuario_evaluador_id && fila.usuario_evaluador_id !== "") as boolean;
+      const paraEda = (fila.usuario_encargado_id && fila.usuario_encargado_id !== "") as boolean;
 
       // --- Condición para REVERTIR cierre ---
-      const tiempoLimite = new Date(fechaFin.getTime() + 15 * 60000); // +15 min
+      const tiempoLimite = new Date(fechaFin.getTime() + 15 * 60000);
       const puedeRevertir =
         usuarioRol === "ADM" &&
         fila.estado === "finalizada" &&
@@ -107,7 +128,6 @@ export const createColumnsCierres = (
         fila.usuario_encargado_id !== "" &&
         fila.usuario_evaluador_id !== "";
 
-      // --- Render según el rol ---
       if (usuarioRol === "ADM") {
         return (
           <Button
@@ -127,7 +147,7 @@ export const createColumnsCierres = (
       return (
         <Button
           variant={puedeCerrar ? "default" : "ghost"}
-          disabled={puedeCerrar}
+          disabled={ !puedeCerrar && data?.rol?.sigla === "EDA" ? paraEda : paraEva }
           onClick={() => {
             setValue("fase_id", fila.fase_id);
             setValue(

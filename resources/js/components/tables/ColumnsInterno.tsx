@@ -1,4 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Badge } from "../ui/badge";
+import FormAssignArea from "@/forms/FormAssignArea";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -8,7 +11,8 @@ export type Interno = {
   nombre: string,
   celular: number,
   email: string;
-  area: string;
+  sigla_areas: string,
+  areas: string;
   fase: string,
   nivel: string,
   rol: string,
@@ -24,20 +28,12 @@ export const columnsInterno: ColumnDef<Interno>[] = [
     header: "C.I",
   },
   {
-    accessorKey: "celular",
-    header: "Celular",
-  },
-  {
     accessorKey: "email",
     header: "Email",
   },
   {
-    accessorKey: "area",
-    header: "Area",
-  },
-  {
-    accessorKey: "fase",
-    header: "Fase",
+    accessorKey: "sigla_areas",
+    header: "Áreas",
   },
   {
     accessorKey: "nivel",
@@ -47,10 +43,24 @@ export const columnsInterno: ColumnDef<Interno>[] = [
     ),
   },
   {
-    accessorKey: "rol",
-    header: "Rol",
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.rol}</div>
-    ),
+    accessorKey: "integrantes",
+    header: "Integrantes",
+    cell: ({ row }) => {
+      return (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Badge
+              variant="secondary"
+              className="cursor-pointer hover:bg-secondary/80 transition-colors"
+            >
+              Asignar
+            </Badge>
+          </DialogTrigger>
+          <DialogContent className="max-w-[95vw] w-full max-h-[90vh] h-fit flex flex-col">
+            <FormAssignArea otherData={row.original}/>
+          </DialogContent>
+        </Dialog>
+      );
+    }
   },
 ]

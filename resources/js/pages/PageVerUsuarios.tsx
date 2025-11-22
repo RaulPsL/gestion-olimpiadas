@@ -11,7 +11,7 @@ import { getUsuarios } from "@/api/Usuarios";
 import { columnsInterno } from "@/components/tables/ColumnsInterno";
 import { useAuth } from "@/hooks/use-context";
 
-export default function PageVerEvaluadores() {
+export default function PageVerUsuarios() {
     const [rolUsuario, setRolUsuario] = React.useState<any>({});
     const [keys, setKeys] = React.useState<any[]>([]);
     const { data } = useAuth();

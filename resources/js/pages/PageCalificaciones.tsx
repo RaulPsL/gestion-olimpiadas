@@ -8,6 +8,7 @@ import { getCalificacionesGrupos, getCalificacionesOlimpistas } from "@/api/Cali
 import TableCalificaciones from "@/tables/TablaCalificaciones";
 import { useAuth } from "@/hooks/use-context";
 import { ListChecksIcon } from "lucide-react";
+import TableCalificacionesGrupo from "@/tables/TableCalificacionesGrupo";
 
 export default function PageCalificaciones({ esGrupo } : { esGrupo: boolean}) {
     const [calificaciones, setCalificaciones] = React.useState<any>();
@@ -20,8 +21,8 @@ export default function PageCalificaciones({ esGrupo } : { esGrupo: boolean}) {
         const staticData = async () => {
             const response = 
                 esGrupo ? 
-                await getCalificacionesOlimpistas(areasCalificacionUsuario as string[]) : 
-                await getCalificacionesGrupos(areasCalificacionUsuario as string[]);
+                await getCalificacionesGrupos(areasCalificacionUsuario as string[]) :
+                await getCalificacionesOlimpistas(areasCalificacionUsuario as string[]);
             setCalificaciones(response);
         };
         staticData();
@@ -54,7 +55,9 @@ export default function PageCalificaciones({ esGrupo } : { esGrupo: boolean}) {
                             {keys?.map((key) => (
                                 <TabsContent value={key} key={key}>
                                     <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                        <TableCalificaciones calificaciones={calificaciones[key]} setUpdate={setUpdate}/>
+                                        {
+                                            esGrupo ? <TableCalificacionesGrupo calificaciones={calificaciones[key]} setUpdate={setUpdate}/> : <TableCalificaciones calificaciones={calificaciones[key]} setUpdate={setUpdate}/>
+                                        }
                                     </div>
                                 </TabsContent>
                             ))}

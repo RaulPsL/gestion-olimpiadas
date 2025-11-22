@@ -31,7 +31,6 @@ export type Calificacion = {
 export const createColumnsCalificaciones = (
   register: UseFormRegister<FormNotas>,
   setValue: UseFormSetValue<FormNotas>,
-  fechaCalificacion: Date,
 ): ColumnDef<Calificacion>[] => [
     {
       accessorKey: "nombre",
@@ -51,35 +50,10 @@ export const createColumnsCalificaciones = (
       }
     },
     {
-      accessorKey: "nota_fase_id",
-      cell: ({ row }) => {
-        const faseId = Number(row.original.nota_fase_id);
-        return (
-          <Input
-            type="number"
-            defaultValue={faseId}
-            {...register(`notas.${row.index}.nota_fase_id`, { valueAsNumber: true })}
-          />
-        )
-      }
-    },
-    {
       accessorKey: "estado",
       header: "Estado",
       cell: ({ row }) => {
         const estadoActual = row.original.estado;
-        const path = `notas.${row.index}.estado_olimpista` as const;
-
-        const handleCambiarEstado = () => {
-          // Solo permite cambiar a "desclasificado"
-          const nuevoEstado = "desclasificado";
-
-          // Actualiza React Hook Form
-          setValue(path, nuevoEstado);
-
-          // Actualiza valor interno del row (para UI)
-          row.original.estado = nuevoEstado;
-        };
 
         // Colores según estado
         let className = "capitalize text-white bg-green-600"; // por defecto
@@ -91,7 +65,6 @@ export const createColumnsCalificaciones = (
             size="sm"
             variant={estadoActual === "desclasificado" ? "destructive" : "outline"}
             className={className}
-            onClick={handleCambiarEstado}
             disabled={estadoActual === "desclasificado"} // opcional: no permitir deshacer
           >
             {estadoActual}

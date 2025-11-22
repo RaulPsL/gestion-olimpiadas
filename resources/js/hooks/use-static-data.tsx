@@ -4,8 +4,9 @@ import { generarListaPDF } from "@/pdfs/ListUsersPDF";
 import { generarExcel, generarExcelMultiplesHojas } from "@/pdfs/ListUsersXLS";
 import { IconTrendingDown, IconTrendingUp, IconUserMinus, IconUserOff, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
-import { TrendingUpDown } from "lucide-react";
+import { HatGlasses, TrendingUpDown } from "lucide-react";
 import { getGanadores } from "@/api/Clasificacciones";
+import { generarCertificados } from "@/pdfs/CertificatePdf";
 
 export default function useStaticData({ data, setData }: { data?: any, setData: Dispatch<React.SetStateAction<any>> }) {
     const [usuarios, setUsuarios] = React.useState<any>({});
@@ -272,6 +273,10 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                         },
                         options: [
                             {
+                                title: "Generar en Certificados",
+                                action: () => generarCertificados(ganadores, area),
+                            },
+                            {
                                 title: "Generar en PDF",
                                 action: () => generarListaPDF({
                                     usuarios: ganadores,
@@ -279,10 +284,6 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                                     olimpistas: true
                                 }),
                             },
-                            {
-                                title: "Generar excel",
-                                action: () => generarExcelMultiplesHojas(ganadores?.integrantes, `ganadores-${area}`),
-                            }
                         ]
                     };
                 })

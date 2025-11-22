@@ -21,12 +21,6 @@ import {
 } from "@/components/ui/table";
 import React, { Dispatch } from "react";
 import { Input } from "../ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { CheckCircle, CircleAlert, CircleX, NotebookPen, SaveAll, ZoomIn, ZoomOut } from "lucide-react";
 import { FieldValues, UseFormReset } from "react-hook-form";
@@ -34,7 +28,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Spinner } from "../ui/spinner";
 import { Combobox } from "../Combobox";
-import { nivelesItems } from "@/static/filter-data";
 
 interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   columns: ColumnDef<TData, TValue>[],
@@ -202,7 +195,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
         }
           
         <div className="ml-auto flex flex-row items-center gap-2">
-          { (avalado) ? (
+          { (avalado && currentDate > new Date(fechaCalificacion) && currentDate > new Date(fechaFin)) ? (
               <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
                 <CircleAlert className="h-4 w-4 flex-shrink-0" />
                 <span>Se terminó la fase.</span>
@@ -364,7 +357,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={row.getValue('estado') === "desclasificado" ? "opacity-50 pointer-events-none" : ""}
+                  className={ row.original?.estado === "desclasificado" ? "opacity-50 pointer-events-none" : "" }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -401,7 +394,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            Anteriores
           </Button>
           <Button
             variant="outline"
@@ -409,7 +402,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            Siguientes
           </Button>
         </div>
       </div>

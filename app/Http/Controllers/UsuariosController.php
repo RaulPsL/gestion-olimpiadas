@@ -28,20 +28,23 @@ class UsuariosController extends Controller
                 'nivel'
             ])
             ->whereHas('area', function ($query) use ($request) {
-                $query->with('usuarios.roles', 'usuarios.nivel')->whereIn('sigla', $request->areas);
+                $query->with('usuarios.roles', 'usuarios.nivel', 'usuarios.areas')->whereIn('sigla', $request->areas);
             })
             ->get();
 
             $usuariosFiltrados = $fases->flatMap(function ($fase) use ($request) {
                 return collect($fase->area->usuarios)->map(function ($usuario) use ($fase, $request) {
                     $rol = $usuario->roles->first();
+                    $areas = implode(',', $usuario->areas->map(function ($area) { return $area->nombre; })->toArray());
+                    $sigla_areas = implode(',', $usuario->areas->map(function ($area) { return $area->sigla; })->toArray());
                     if ($rol && in_array($rol->sigla, $request->usuarios)) {
                         return [
                             'ci' => $usuario->ci,
                             'nombre' => "$usuario->nombre $usuario->apellido",
                             'celular' => $usuario->celular,
                             'email' => $usuario->email,
-                            'area' => $fase->area->sigla,
+                            'areas' => $areas,
+                            'sigla_areas' => $sigla_areas,
                             'fase' => $fase->sigla,
                             'nivel' => $fase->nivel->nombre,
                             'rol' => $rol->nombre,
@@ -49,7 +52,7 @@ class UsuariosController extends Controller
                         ];
                     }
                 })->filter();
-            })->values(); // Filtra por CI único
+            })->unique('ci')->values(); // Filtra por CI único
 
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
@@ -205,6 +208,7 @@ class UsuariosController extends Controller
                 'email' => 'required|string',
                 'areas' => 'required',
                 'rol' => 'required',
+                'nivel' => 'nullable|integer',
             ]);
 
             $usuario = Usuario::where('ci', $request->ci)->first();
@@ -236,6 +240,7 @@ class UsuariosController extends Controller
                 'nivel_id' => $request->nivel,
                 'password' => '123456',
             ]);
+
             if ($request->has('areas') and count($request->areas) > 0) {
                 $areas = Area::whereIn('sigla', $request->areas)->pluck('id')->toArray();
                 if (!empty($areas)) {

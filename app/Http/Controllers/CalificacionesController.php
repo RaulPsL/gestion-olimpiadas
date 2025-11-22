@@ -72,6 +72,7 @@ class CalificacionesController extends Controller
                         'avalado' => $es_avalado,
                         'niveles' => $niveles_area,
                         'estado' => $fase->estado,
+                        'fase_id' => $fase->id,
                         'calificaciones' => $calificaciones->sortByDesc('nota')->values()
                     ];
                 }
@@ -156,6 +157,7 @@ class CalificacionesController extends Controller
                         'avalado' => $es_avalado,
                         'niveles' => $niveles_area,
                         'estado' => $fase->estado,
+                        'fase_id' => $fase->id,
                         'calificaciones' => $calificaciones->sortByDesc('nota')->values(),
                     ];
                 }
@@ -178,8 +180,8 @@ class CalificacionesController extends Controller
             $request->validate([
                 'usuario_ci' => 'required',
                 'notas' => 'required',
+                'fase_id' => 'required|integer',
                 'notas.*.nota_olimpista_id' => 'required|integer',
-                'notas.*.nota_fase_id' => 'required|integer',
                 'notas.*.estado_olimpista' => 'required|string',
                 'notas.*.nota' => 'required',
             ]);
@@ -190,6 +192,7 @@ class CalificacionesController extends Controller
                 collect($request->notas)->map(
                     function ($nota) { return $nota['nota']; }
                     ))->sum()/count($request->notas))/2;
+            $fase = Fase::with('fase_siguiente')->where('id', $request->fase_id)->first();
             foreach ($request->notas as $nota) {
                 $calificacion = Calificacion::where('olimpista_id', $nota['nota_olimpista_id'])
                     ->where('fase_id', $nota['nota_fase_id'])
@@ -205,6 +208,7 @@ class CalificacionesController extends Controller
                     $olimpista->update([
                         'estado' => 'clasificado'
                     ]);
+                    $olimpista->fases()->attach($fase->fase_siguiente->id, ['puntaje' => 0.00, 'comentarios' => '']);
                 }
                 if ($nota['nota'] <= $nota_promedio && $nota['nota'] > 0) {
                     $olimpista->update([
@@ -227,6 +231,7 @@ class CalificacionesController extends Controller
                     $cantidad_modificada++;
                 }
             }
+            $fase->update(['estado' => 'pendiente']);
             return response()->json([
                 'message' => "Calificaciones actualizadas exitosamente.",
                 'data' => $cantidad_modificada,

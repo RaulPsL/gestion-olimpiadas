@@ -5,6 +5,6 @@ export type FormCierreFase = {
 };
 
 export type FormGetupFase = {
-  aumento_fin: string,
+  aumento_fin: number,
   fase_id: number,
 };

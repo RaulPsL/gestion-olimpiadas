@@ -8,8 +8,9 @@ import React, { Dispatch } from "react";
 import { useForm } from "react-hook-form";
 
 export default function TableCalificaciones(
-  { calificaciones, setUpdate } : {
+  { calificaciones, setUpdate }: {
     calificaciones: {
+      fase_id: number,
       fecha_calificacion: string,
       fecha_fin: string,
       avalado: boolean,
@@ -25,11 +26,10 @@ export default function TableCalificaciones(
   const { data } = useAuth();
   const ci = data?.data.ci;
   const initialFormData: FormNotas = {
+    fase_id: calificaciones.fase_id,
     type: 'olimpista',
     notas: calificaciones.calificaciones.map(item => ({
       nota_olimpista_id: item.nota_olimpista_id,
-      nota_fase_id: item.nota_fase_id,
-      estado_olimpista: item.estado,
       nota: item.nota,
       comentarios: item.comentarios
     }))
@@ -51,19 +51,18 @@ export default function TableCalificaciones(
   React.useEffect(() => {
     if (calificaciones?.calificaciones) {
       // Actualizar la lista con edicion: false
-      const listaActualizada = calificaciones.calificaciones.map(item => ({ 
-        ...item, 
-        edicion: false 
+      const listaActualizada = calificaciones.calificaciones.map(item => ({
+        ...item,
+        edicion: false
       }));
       setNuevaLista(listaActualizada);
 
       // Resetear el formulario con los nuevos valores
       const formData: FormNotas = {
+        fase_id: calificaciones.fase_id,
         type: 'olimpista',
         notas: calificaciones.calificaciones.map(item => ({
           nota_olimpista_id: item.nota_olimpista_id,
-          nota_fase_id: item.nota_fase_id,
-          estado_olimpista: item.estado,
           nota: item.nota,
           comentarios: item.comentarios
         }))
@@ -73,7 +72,7 @@ export default function TableCalificaciones(
   }, [calificaciones, reset]);
 
   const handleToggleEdicion = (edicion: boolean) => {
-    setNuevaLista(prevData => 
+    setNuevaLista(prevData =>
       prevData.map(item => ({
         ...item,
         edicion
@@ -81,7 +80,7 @@ export default function TableCalificaciones(
     );
   }
 
-  const columns = createColumnsCalificaciones(register, setValue, new Date(calificaciones.fecha_calificacion));
+  const columns = createColumnsCalificaciones(register, setValue);
   return (
     <Card>
       <CardContent>
@@ -95,13 +94,13 @@ export default function TableCalificaciones(
           setUpdate={setUpdate}
           handleSubmit={
             handleSubmit((data) => updateCalificaciones(
-                data,
-                ci,
-                setIsLoading,
-                setSuccess,
-                setApiError,
-                reset,
-              )
+              data,
+              ci,
+              setIsLoading,
+              setSuccess,
+              setApiError,
+              reset,
+            )
             )
           }
           isLoading={isLoading}

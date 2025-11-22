@@ -273,7 +273,7 @@ export function DataTableCierrresFases<TData, TValue>({
                                   type="button"
                                   onClick={() => {
                                     setMinutes(val);
-                                    setValue('aumento_fin', String(val))
+                                    setValue('aumento_fin', Number(val))
                                   }}
                                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${minutes === val
                                     ? 'bg-primary text-primary-foreground shadow-sm'

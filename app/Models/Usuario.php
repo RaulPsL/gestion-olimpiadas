@@ -25,6 +25,7 @@ class Usuario extends Authenticatable
         'email',
         'password',
         'ci',
+        'nivel_id',
     ];
 
     /**

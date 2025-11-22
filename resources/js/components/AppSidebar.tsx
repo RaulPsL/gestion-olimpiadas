@@ -74,6 +74,42 @@ export function AppSidebar() {
         }
     }, [datosUsuario]);
 
+    React.useEffect(() => {
+        if (data?.rol.sigla === "EVA" && areas && areas?.length > 0) {
+            const areaInf = areas.find((area) => area === "INF");
+            const areaRob = areas.find((area) => area === "ROB");
+            if (!areaInf && !areaRob) {
+                setMenu(prev => (
+                    prev.map(menu => {
+                        if (menu.submenu) {
+                            return {
+                                ...menu,
+                                submenu: menu.submenu.filter(
+                                    (submenu: any) => submenu.title !== 'Grupos'
+                                )
+                            };
+                        }
+                        return menu;
+                    })
+                ));
+            } else {
+                setMenu(prev => (
+                    prev.map(menu => {
+                        if (menu.submenu) {
+                            return {
+                                ...menu,
+                                submenu: menu.submenu.filter(
+                                    (submenu: any) => submenu.title !== 'Olimpistas'
+                                )
+                            };
+                        }
+                        return menu;
+                    })
+                ));
+            }
+        }
+    }, [datosUsuario]);
+
     const handleMenuButton = (item: any, isActive: boolean = false) => {
         return (
             <SidebarMenuButton asChild data-active={isActive}>
@@ -149,19 +185,39 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter>
+            {/* <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 items-center">
-                            <div className="row-span-2 flex items-center">
-                                <User2 />
+                        <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 items-start">
+                            <div className="row-span-3 flex items-start pt-1">
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <User2 className="w-5 h-5 text-primary" />
+                                </div>
                             </div>
-                            <strong>{`${datosUsuario?.nombre} ${datosUsuario?.apellido}`}</strong>
-                            <span className="text-sm text-muted-foreground">{rol}</span>
+
+                            <div className="flex flex-col gap-1">
+                                <strong className="text-base font-semibold">
+                                    {`${datosUsuario?.nombre} ${datosUsuario?.apellido}`}
+                                </strong>
+
+                                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                                    <span className="font-medium">Rol:</span> {rol}
+                                </span>
+
+                                {
+                                    (areas && areas.length <= 3) && (
+                                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                                            <span className="font-medium">Áreas:</span>
+                                            {areas.length === 1 && data?.areas.map((area) => area.nombre).join(', ')}
+                                            {areas.length > 1 && areas.join(', ')}
+                                        </span>
+                                    )
+                                }
+                            </div>
                         </div>
                     </SidebarMenuItem>
                 </SidebarMenu>
-            </SidebarFooter>
+            </SidebarFooter> */}
         </Sidebar>
     )
 }

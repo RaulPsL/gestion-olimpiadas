@@ -8,4 +8,5 @@ export interface UsuarioForm {
     areas: string[];
     rol: string;
     nivel: number;
+    niveles?: number[];
 }

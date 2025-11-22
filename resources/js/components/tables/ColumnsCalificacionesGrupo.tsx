@@ -54,10 +54,10 @@ export const columns: ColumnDef<GrupoOlimpista>[] = [
 export type CalificacionGrupo = {
     nombre: string,
     nota_grupo_id: number,
-    nota_fase_id: number,
     edicion: boolean,
     colegio: string,
     departamento: string,
+    estado: string,
     area: string,
     nivel: string,
     nota: number,
@@ -88,54 +88,29 @@ export const createColumnsCalificacionesGrupo = (
             }
         },
         {
-            accessorKey: "nota_fase_id",
-            cell: ({ row }) => {
-                const faseId = Number(row.original.nota_fase_id);
-                return (
-                    <Input
-                        type="number"
-                        defaultValue={faseId}
-                        {...register(`notas.${row.index}.nota_fase_id`, { valueAsNumber: true })}
-                    />
-                )
-            }
+          accessorKey: "estado",
+          header: "Estado",
+          cell: ({ row }) => {
+            const estadoActual = row.original.estado;
+            const path = `notas.${row.index}.estado_olimpista` as const;
+
+            // Colores según estado
+            let className = "capitalize text-white bg-green-600"; // por defecto
+            if (estadoActual === "desclasificado") className = "capitalize text-white bg-gray-500";
+            if (estadoActual === "no clasificado") className = "capitalize text-white bg-red-700";
+
+            return (
+              <Button
+                size="sm"
+                variant={estadoActual === "desclasificado" ? "destructive" : "outline"}
+                className={className}
+                disabled={estadoActual === "desclasificado"} // opcional: no permitir deshacer
+              >
+                {estadoActual}
+              </Button>
+            );
+          },
         },
-        // {
-        //   accessorKey: "estado",
-        //   header: "Estado",
-        //   cell: ({ row }) => {
-        //     const estadoActual = row.original.estado;
-        //     const path = `notas.${row.index}.estado_olimpista` as const;
-
-        //     const handleCambiarEstado = () => {
-        //       // Solo permite cambiar a "desclasificado"
-        //       const nuevoEstado = "desclasificado";
-
-        //       // Actualiza React Hook Form
-        //       setValue(path, nuevoEstado);
-
-        //       // Actualiza valor interno del row (para UI)
-        //       row.original.estado = nuevoEstado;
-        //     };
-
-        //     // Colores según estado
-        //     let className = "capitalize text-white bg-green-600"; // por defecto
-        //     if (estadoActual === "desclasificado") className = "capitalize text-white bg-gray-500";
-        //     if (estadoActual === "no clasificado") className = "capitalize text-white bg-red-700";
-
-        //     return (
-        //       <Button
-        //         size="sm"
-        //         variant={estadoActual === "desclasificado" ? "destructive" : "outline"}
-        //         className={className}
-        //         onClick={handleCambiarEstado}
-        //         disabled={estadoActual === "desclasificado"} // opcional: no permitir deshacer
-        //       >
-        //         {estadoActual}
-        //       </Button>
-        //     );
-        //   },
-        // },
         {
             accessorKey: "colegio",
             header: ({ column }) => {
@@ -144,7 +119,7 @@ export const createColumnsCalificacionesGrupo = (
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        <ArrowUpDown />
+                        Colegio <ArrowUpDown />
                     </Button>
                 )
             },
@@ -157,13 +132,13 @@ export const createColumnsCalificacionesGrupo = (
             accessorKey: "fase",
             header: "Fase"
         },
-        {
-            accessorKey: "nivel",
-            header: "Nivel",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.original.nivel}</div>
-            )
-        },
+        // {
+        //     accessorKey: "nivel",
+        //     header: "Nivel",
+        //     cell: ({ row }) => (
+        //         <div className="capitalize">{row.original.nivel}</div>
+        //     )
+        // },
         {
             accessorKey: "posicion",
             header: "Posición",
@@ -224,7 +199,7 @@ export const createColumnsCalificacionesGrupo = (
                                 {count} {count === 1 ? 'Integrante' : 'Integrantes'}
                             </Badge>
                         </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                        <DialogContent className="max-w-[95vw] w-full max-h-[90vh] h-fit flex flex-col">
                             <DialogHeader>
                                 <DialogTitle>Lista de Integrantes</DialogTitle>
                                 <DialogDescription>
@@ -232,7 +207,7 @@ export const createColumnsCalificacionesGrupo = (
                                 </DialogDescription>
                             </DialogHeader>
 
-                            <div className="mt-4">
+                            <div className="flex-1 overflow-y-auto overflow-x-hidden mt-4 pr-2">
                                 <DataTable columns={columns} data={integrantes} />
                             </div>
                         </DialogContent>

@@ -14,6 +14,7 @@ export default function TableCalificacionesGrupo(
       fecha_calificacion: string,
       fecha_fin: string,
       avalado: boolean,
+      fase_id: number,
       niveles: string[],
       calificaciones: any[],
     },
@@ -26,10 +27,10 @@ export default function TableCalificacionesGrupo(
   const { data } = useAuth();
   const ci = data?.data.ci;
   const initialFormData: FormNotasGrupo = {
+    fase_id: 0,
     type: 'grupos',
     notas: calificaciones.calificaciones.map(item => ({
       nota_grupo_id: item.nota_grupo_id,
-      nota_fase_id: item.nota_fase_id,
       nota: item.nota,
       comentarios: item.comentarios
     }))
@@ -49,6 +50,7 @@ export default function TableCalificacionesGrupo(
   );
 
   React.useEffect(() => {
+    console.log(calificaciones)
     if (calificaciones?.calificaciones) {
       // Actualizar la lista con edicion: false
       const listaActualizada = calificaciones.calificaciones.map(item => ({ 
@@ -59,10 +61,10 @@ export default function TableCalificacionesGrupo(
 
       // Resetear el formulario con los nuevos valores
       const formData: FormNotasGrupo = {
+        fase_id: calificaciones.fase_id,
         type: 'grupos',
         notas: calificaciones.calificaciones.map(item => ({
           nota_grupo_id: item.nota_olimpista_id,
-          nota_fase_id: item.nota_fase_id,
           nota: item.nota,
           comentarios: item.comentarios
         }))

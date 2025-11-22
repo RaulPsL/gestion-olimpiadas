@@ -1,7 +1,7 @@
 export type FormNotasGrupo = {
+  fase_id: number,
   notas: {
     nota_grupo_id: number;
-    nota_fase_id: number;
     nota: number;
     comentarios: string;
   }[];

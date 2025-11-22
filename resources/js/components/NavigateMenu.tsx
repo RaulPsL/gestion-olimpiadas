@@ -11,11 +11,8 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Button } from "./ui/button";
-import { useAuth } from "@/hooks/use-context";
 
 export function NavigateMenu({ role }: { role: boolean }) {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -23,16 +20,12 @@ export function NavigateMenu({ role }: { role: boolean }) {
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link to="/">Inicio</Link>
           </NavigationMenuLink>
-          {!role && (
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-              <Link to="/clasificaciones/areas">Todos los olimpistas</Link>
-            </NavigationMenuLink>
-          )}
-          {!role && (
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-              <Link to="/clasificaciones/grupos">Todos los grupos</Link>
-            </NavigationMenuLink>
-          )}
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link to="/clasificaciones/areas">Todos los olimpistas</Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link to="/clasificaciones/grupos">Todos los grupos</Link>
+          </NavigationMenuLink>
           {/* {!role && (
             <NavigationMenuLink>
               <Link to="/fases">Todas las fases</Link>
@@ -92,14 +85,13 @@ export function NavigateMenu({ role }: { role: boolean }) {
                 <Button
                   variant="ghost"
                   onClick={
-                    () => { 
-                      logout();
-                      navigate('/login');
-                  }}
+                    () => {
+
+                    }}
                 >
                   Cerrar sesion
                 </Button>
-              ):(
+              ) : (
                 <Link to={"/login"}>{"Iniciar sesion"}</Link>
               )
             }
