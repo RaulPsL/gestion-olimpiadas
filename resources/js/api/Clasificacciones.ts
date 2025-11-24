@@ -5,6 +5,11 @@ export const getClasificacionesByArea = async () => {
     return data.data;
 };
 
+export const getClasificacionesGrupoByArea = async () => {
+    const { data } = await axiosPublic.get("/clasificaciones/grupo/area");
+    return data.data;
+};
+
 export const getGanadores = async () => {
     const { data } = await axiosPublic.get(`/clasificaciones/ganadores`);
     console.log('Datos: ', data.data)

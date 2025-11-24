@@ -24,7 +24,8 @@ function App() {
                 <Routes>
                     <Route path="/" element={<PageHome />} />
                     <Route path="/login" element={<PageLogin />} />
-                    <Route path="/clasificaciones/areas" element={ <PageClasificaciones /> } />
+                    <Route path="/clasificaciones/olimpistas" element={ <PageClasificaciones esGrupo={false} /> } />
+                    <Route path="/clasificaciones/grupos" element={ <PageClasificaciones esGrupo={true} /> } />
                     <Route
                         path="/olimpistas/registrar olimpista(s)"
                         element={

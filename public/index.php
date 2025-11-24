@@ -55,4 +55,3 @@ $response = $kernel->handle(
 
 $kernel->terminate($request, $response);
 // Will how automate the task notification by admins reading on real time and send at front???
-event(new FaseNotification('hello world')); 

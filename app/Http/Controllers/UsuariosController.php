@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FaseNotification as EventsFaseNotification;
 use App\Models\Area;
 use App\Models\Fase;
 use App\Models\Nivel;
 use App\Models\Rol;
 use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
+use App\Notifications\FaseNotification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,16 +30,20 @@ class UsuariosController extends Controller
                 'area',
                 'nivel'
             ])
-            ->whereHas('area', function ($query) use ($request) {
-                $query->with('usuarios.roles', 'usuarios.nivel', 'usuarios.areas')->whereIn('sigla', $request->areas);
-            })
-            ->get();
+                ->whereHas('area', function ($query) use ($request) {
+                    $query->with('usuarios.roles', 'usuarios.nivel', 'usuarios.areas')->whereIn('sigla', $request->areas);
+                })
+                ->get();
 
             $usuariosFiltrados = $fases->flatMap(function ($fase) use ($request) {
                 return collect($fase->area->usuarios)->map(function ($usuario) use ($fase, $request) {
                     $rol = $usuario->roles->first();
-                    $areas = implode(',', $usuario->areas->map(function ($area) { return $area->nombre; })->toArray());
-                    $sigla_areas = implode(',', $usuario->areas->map(function ($area) { return $area->sigla; })->toArray());
+                    $areas = implode(',', $usuario->areas->map(function ($area) {
+                        return $area->nombre;
+                    })->toArray());
+                    $sigla_areas = implode(',', $usuario->areas->map(function ($area) {
+                        return $area->sigla;
+                    })->toArray());
                     if ($rol && in_array($rol->sigla, $request->usuarios)) {
                         return [
                             'ci' => $usuario->ci,
@@ -322,6 +329,22 @@ class UsuariosController extends Controller
                 }
                 return $menu_sup;
             });
+            event(new EventsFaseNotification('Ingreso de usuario correcto.', $usuario->ci));
+            // Fase::with('area')->whereHas(
+            //     'area',
+            //     function ($query) use ($areas) {
+            //         $areas_nombre = $areas->map(function ($area) {
+            //             return $area['nombre'];
+            //         });
+            //         $query->whereIn('nombre', $areas_nombre);
+            //     }
+            // )->each(function ($fase) use ($user_menu) {
+            //     $user_menu->notify(
+            //         new FaseNotification('Calificacion de fase')
+            //     )
+            //         // ->delay(Carbon::parse($fase->fecha_calificacion)->subMinutes(5))
+            //     ;
+            // });
 
             return response()->json([
                 'user' => [

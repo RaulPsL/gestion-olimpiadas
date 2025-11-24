@@ -5,6 +5,9 @@ import { Badge } from "../ui/badge";
 import { UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 import { Dispatch } from "react";
+import { useFormatDate } from "@/hooks/use-format-date";
+import { useNotification } from "@/hooks/use-notifications";
+import { UserData } from "@/hooks/use-context";
 
 export type CierreFases = {
   encargado: string;
@@ -21,24 +24,11 @@ export type CierreFases = {
   fase_id: number;
 };
 
-const formatDate = (fecha: string | null | undefined): string => {
-  if (!fecha) return '-';
-  
-  const date = new Date(fecha);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  
-  return `${hours}:${minutes} ${day}/${month}/${year}`;
-};
-
 export const createColumnsCierres = (
   register: UseFormRegister<FormCierreFase | FormGetupFase>,
   setValue: UseFormSetValue<FormCierreFase | FormGetupFase>,
   setDialogOpen: Dispatch<React.SetStateAction<boolean>>,
-  data: any,
+  data: UserData,
   setFechaFin: Dispatch<React.SetStateAction<Date>>,
 ): ColumnDef<CierreFases>[] => [
   {
@@ -78,12 +68,12 @@ export const createColumnsCierres = (
   {
     accessorKey: 'fecha_calificacion_fase',
     header: 'Fecha calificación',
-    cell: ({ row }) => formatDate(row.original.fecha_calificacion_fase)
+    cell: ({ row }) => useFormatDate(row.original.fecha_calificacion_fase)
   },
   {
     accessorKey: 'fecha_fin_fase',
     header: 'Fecha fin',
-    cell: ({ row }) => formatDate(row.original.fecha_fin_fase)
+    cell: ({ row }) => useFormatDate(row.original.fecha_fin_fase)
   },
   {
     accessorKey: "fase_id",
@@ -158,6 +148,9 @@ export const createColumnsCierres = (
               "usuario_evaluador_id",
               usuarioRol === "EVA" ? ciUsuario : 0
             );
+            if (fila.usuario_encargado_id !== "" && fila.usuario_evaluador_id !== "") {
+              useNotification(`${data.data.ci}`);
+            }
             setDialogOpen((prev) => !prev);
           }}
         >

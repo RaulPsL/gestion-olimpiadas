@@ -91,9 +91,9 @@ export const updateUsuario = async (
 ) => {
     setIsLoading(true);
     try {
-        // const response = await axiosPrivate.put(`/usuarios/${ci}`, data);
+        const response = await axiosPrivate.put(`/usuarios/${ci}`, data);
         data = {
-            ...data,
+            ...response.data,
             areas: selectedAreas,
             niveles: selectedNiveles,
         }

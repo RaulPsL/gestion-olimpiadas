@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FaseNotification;
 use App\Models\Calificacion;
 use App\Models\CalificacionGrupo;
 use App\Models\Fase;
+use App\Models\Grupo;
 use App\Models\Log;
 use App\Models\Olimpista;
 use App\Models\Usuario;
@@ -182,10 +184,9 @@ class CalificacionesController extends Controller
                 'notas' => 'required',
                 'fase_id' => 'required|integer',
                 'notas.*.nota_olimpista_id' => 'required|integer',
-                'notas.*.estado_olimpista' => 'required|string',
                 'notas.*.nota' => 'required',
             ]);
-            $user = Usuario::where('ci', $request->usuario_ci)->first()->id;
+            $user = Usuario::where('ci', $request->usuario_ci)->first();
             $tabla = (new Calificacion())->getTable();
             $cantidad_modificada = 0;
             $nota_promedio = (collect(
@@ -195,8 +196,24 @@ class CalificacionesController extends Controller
             $fase = Fase::with('fase_siguiente')->where('id', $request->fase_id)->first();
             foreach ($request->notas as $nota) {
                 $calificacion = Calificacion::where('olimpista_id', $nota['nota_olimpista_id'])
-                    ->where('fase_id', $nota['nota_fase_id'])
+                    ->where('fase_id', $request->fase_id)
                     ->first();
+
+                if ($calificacion && ($nota['nota'] != 0 || $nota['comentarios'] != '')) {
+                    $calificacion->update([
+                        'puntaje' => $nota['nota'],
+                        'comentarios' => $nota['comentarios'] ? $nota['comentarios'] : "",
+                    ]);
+
+                    Log::create([
+                        'usuario_id' => $user->id,
+                        'accion' => $request->method(),
+                        'tabla' => $tabla,
+                        'calificacion_id' => $calificacion->id,
+                        'olimpista_id' => $nota['nota_olimpista_id'],
+                    ]);
+                    $cantidad_modificada++;
+                }
 
                 $olimpista = Olimpista::findOrFail($nota['nota_olimpista_id']);
                 if ($nota['nota'] === 0) {
@@ -215,23 +232,10 @@ class CalificacionesController extends Controller
                         'estado' => 'no clasificado'
                     ]);
                 }
-                if ($calificacion && ($nota['nota'] != 0 || $nota['comentarios'] != '')) {
-                    $calificacion->update([
-                        'puntaje' => $nota['nota'],
-                        'comentarios' => $nota['comentarios'] ? $nota['comentarios'] : "",
-                    ]);
-
-                    Log::create([
-                        'usuario_id' => $user,
-                        'accion' => $request->method(),
-                        'tabla' => $tabla,
-                        'calificacion_id' => $calificacion->id,
-                        'olimpista_id' => $nota['nota_olimpista_id'],
-                    ]);
-                    $cantidad_modificada++;
-                }
+                
             }
             $fase->update(['estado' => 'pendiente']);
+            event(new FaseNotification("El usuario $user->nombre $user->apellido - $user->ci a realizado la entrega de notas de la fase $fase->sigla.", 1234581));
             return response()->json([
                 'message' => "Calificaciones actualizadas exitosamente.",
                 'data' => $cantidad_modificada,
@@ -250,16 +254,21 @@ class CalificacionesController extends Controller
             $request->validate([
                 'usuario_ci' => 'required',
                 'notas' => 'required',
+                'fase_id' => 'required',
                 'notas.*.nota_grupo_id' => 'required|integer',
-                'notas.*.nota_fase_id' => 'required|integer',
                 'notas.*.nota' => 'required',
             ]);
             $user = Usuario::where('ci', $request->usuario_ci)->first()->id;
             $tabla = (new CalificacionGrupo())->getTable();
             $cantidad_modificada = 0;
+            $nota_promedio = (collect(
+                collect($request->notas)->map(
+                    function ($nota) { return $nota['nota']; }
+                    ))->sum()/count($request->notas))/2;
+            $fase = Fase::with('fase_siguiente')->where('id', $request->fase_id)->first();
             foreach ($request->notas as $nota) {
                 $calificacion = CalificacionGrupo::where('grupo_id', $nota['nota_grupo_id'])
-                    ->where('fase_id', $nota['nota_fase_id'])
+                    ->where('fase_id', $request->fase_id)
                     ->first();
 
                 if ($calificacion && ($nota['nota'] != 0 || $nota['comentarios'] != '')) {
@@ -277,7 +286,26 @@ class CalificacionesController extends Controller
                     ]);
                     $cantidad_modificada++;
                 }
+
+                $grupo = Grupo::findOrFail($nota['nota_grupo_id']);
+                if ($nota['nota'] === 0) {
+                    $grupo->update([
+                        'estado' => 'desclasificado'
+                    ]);
+                }
+                if ($nota['nota'] > $nota_promedio) {
+                    $grupo->update([
+                        'estado' => 'clasificado'
+                    ]);
+                    $grupo->fases()->attach($fase->fase_siguiente->id, ['puntaje' => 0.00, 'comentarios' => '']);
+                }
+                if ($nota['nota'] <= $nota_promedio && $nota['nota'] > 0) {
+                    $grupo->update([
+                        'estado' => 'no clasificado'
+                    ]);
+                }
             }
+            event(new FaseNotification("El usuario $user->nombre $user->apellido - $user->ci a realizado la entrega de notas de la fase $fase->sigla.", 1234581));
             return response()->json([
                 'message' => "Calificaciones actualizadas exitosamente.",
                 'data' => $cantidad_modificada,

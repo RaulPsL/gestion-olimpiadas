@@ -54,27 +54,26 @@ class LogController extends Controller
     public function logCierreFases()
     {
         try {
-            $fases = VerificacionCierre::with(['encargado', 'evaluador', 'fase.area'])->get();
-            $log_fases = $fases->map(function ($fase) {
-                $encargado = $fase->encargado;
-                $nombre_encargado = "$encargado->nombre $encargado->apelido - $encargado->rol";
-                $evaluador = $fase->evaluador;
-                $nombre_evaluador = "$evaluador->nombre $evaluador->apelido - $evaluador->rol";
+            $cierres = VerificacionCierre::with(['encargado.roles', 'evaluador.roles', 'fase.area'])->get();
+            $log_cierres = $cierres->map(function ($Cierre) {
+                $usuario = $Cierre->encargado ? $Cierre->encargado : $Cierre->evaluador;
+                $nombre_usuario = "$usuario->nombre $usuario->apellido";
+                $rol = $usuario->roles->first()->nombre;
                 return [
-                    "encargado" => $nombre_encargado,
-                    "evaluador" => $nombre_evaluador,
-                    "fase" => $fase->sigla,
-                    "estado_fase" => $fase->estado,
-                    "area" => $fase->area->nombre,
-                    "fecha_creacion" => $fase->create_at,
-                    "fecha_modificacion" => $fase->update_at,
-                    "fecha_fin_fase" => $fase->fase->fecha_fin,
-                    "fecha_inicio_fase" => $fase->fase->feha_inicio,
-                    "fecha_calificacion_fase" => $fase->fase->fecha_calificacion,
+                    "usuario" => $nombre_usuario,
+                    "rol" => $rol,
+                    "fase" => $Cierre->fase->sigla,
+                    "estado_fase" => $Cierre->fase->estado,
+                    "area" => $Cierre->fase->area->nombre,
+                    "fecha_creacion" => $Cierre->created_at,
+                    "fecha_modificacion" => $Cierre->updated_at,
+                    "fecha_fin_fase" => $Cierre->fase->fecha_fin,
+                    "fecha_inicio_fase" => $Cierre->fase->fecha_inicio,
+                    "fecha_calificacion_fase" => $Cierre->fase->fecha_calificacion,
                 ];
             });
             return response()->json([
-                'data' => $log_fases,
+                'data' => $log_cierres,
                 'message' => 'Log de fases obtenidas con exito.',
             ], 200);
         } catch (\Throwable $th) {

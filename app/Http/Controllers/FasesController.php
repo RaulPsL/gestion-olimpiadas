@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FaseNotification;
 use App\Models\Area;
 use App\Models\Fase;
 use App\Models\Traits\Casts\EstadoFase;
@@ -21,7 +22,7 @@ class FasesController extends Controller
             $request->validate([
                 'areas' => 'required'
             ]);
-            $fases = Fase::with('area')->get();
+            $fases = Fase::with(['area', 'fase_siguiente'])->get();
             $fasesFiltradas = collect($fases)->map(function ($fase) {
                 return [
                     'name' => $fase->sigla,
@@ -32,6 +33,7 @@ class FasesController extends Controller
                     'fecha_calificacion' => date('d/M/Y', strtotime($fase->fecha_calificacion)),
                     'fecha_fin' => date('d/M/Y', strtotime($fase->fecha_fin)),
                     'estado' => $fase->estado,
+                    'fase_siguiente' => $fase->fase_siguiente,
                 ];
             })->groupBy('area');
             $fasesPorArea = [];
@@ -175,6 +177,9 @@ class FasesController extends Controller
                 $cierre->refresh();
                 if (!empty($cierre->usuario_evaluador_id) && !empty($cierre->usuario_evaluador_id)) {
                     $fase_actual->update(['estado' => 'finalizada']);
+                    $usuarios = Usuario::whereIn('id', array_values($usuarios))->map(function ($usuario) { return "$usuario->nombre $usuario->apellido - $usuario->ci"; });
+                    $nombre_usuarios = implode(',', $usuarios);
+                    event(new FaseNotification("La fase: $fase_actual->sigla ha sido cerrada por los usuarios: $nombre_usuarios.", 1234581));
                 }
             } else {
                 $usuarios['fase_id'] = $request->fase_id;

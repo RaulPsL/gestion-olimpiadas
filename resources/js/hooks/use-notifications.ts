@@ -1,23 +1,22 @@
-import {
-    Pusher,
-    PusherMember,
-    PusherChannel,
-    PusherEvent,
-} from '@pusher/pusher-websocket-react-native';
+import React from "react";
+import Pusher from "pusher-js";
+import { toast } from "sonner";
 
-const pusher = Pusher.getInstance();
-
-await pusher.init({
-    apiKey: "99b8dd49fa941f85bd1a",
-    cluster: "ap1"
+export const useNotification = (userCi: string) => {
+    const pusher = new Pusher("99b8dd49fa941f85bd1a", {
+        cluster: 'ap1',
+    });
+    const channel = pusher.subscribe(`user.${userCi}`);
+    console.log('Enviando los evento')
+    channel.bind("my-event", (data: any) => {
+        console.log("Notificacion entregada con exito: ", data.message);
+        toast("Notificación", {
+            description: data.message,
+        });
 });
 
-await pusher.connect();
-await pusher.subscribe({
-    channelName: "my-channel",
-    onEvent: (event: PusherEvent) => {
-        // In here make the alert when a fase has finished or comming or it´s in califications 
-        // Wear alert of shadcn and the alert posicionated in right corner of page
-        console.log(`Event received: ${event}`);
-    }
-});
+return () => {
+    pusher.unsubscribe(`user.${userCi}`);
+    pusher.disconnect();
+};
+}

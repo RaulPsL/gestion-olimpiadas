@@ -98,6 +98,6 @@ class Fase extends Model
 
     public function fase_siguiente()
     {
-        return $this->belongsTo(Fase::class);
+        return $this->belongsTo(Fase::class, 'fase_id');
     }
 }

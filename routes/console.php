@@ -1,6 +1,9 @@
 <?php
 
+use App\Events\FaseUpdate;
+use App\Models\Fase;
 use App\Notifications\FaseNotification;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -20,4 +23,16 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Schedule::call(new FaseNotification)->daily();
+// schedule(function () {
+//     $fases = Fase::all();
+//     $currentDate = Carbon::now();
+//     $fases->each(function ($fase) use ($currentDate) {
+//         if ($currentDate >= Carbon::parse($fase->fecha_inicio)) {
+//             $fase->update(['estado' => 'en curso']);
+//             return;
+//         }
+//         if ($currentDate >= Carbon::parse($fase->fecha_fin)) {
+//             $fase->update(['estado' => 'finalizada']);
+//         }
+//     });
+// })->daily();

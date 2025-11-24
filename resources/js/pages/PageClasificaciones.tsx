@@ -4,18 +4,20 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
-import { getClasificacionesByArea } from "@/api/Clasificacciones";
-import { columns } from "@/components/tables/ColumnsClasificaciones";
+import { getClasificacionesByArea, getClasificacionesGrupoByArea } from "@/api/Clasificacciones";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/tables/DataTable";
+import { columnsGrupo } from "@/components/tables/ColumnsClasificacionesGrupo";
+import { columns } from "@/components/tables/ColumnsClasificaciones";
 
-export default function PageClasificaciones() {
+export default function PageClasificaciones({ esGrupo }: { esGrupo: boolean }) {
     const [clasificaciones, setClasificaciones] = React.useState<any>();
     const [keys, setKeys] = React.useState<string[]>();
+    const columnsClasificaciones = esGrupo ? columnsGrupo : columns;
 
     React.useEffect(() => {
         const staticData = async () => {
-            const response = await getClasificacionesByArea();
+            const response = esGrupo ? await getClasificacionesGrupoByArea() : await getClasificacionesByArea();
             setClasificaciones(response);
         };
         staticData();
@@ -54,7 +56,7 @@ export default function PageClasificaciones() {
                                                         <Label className="text-2xl">Olimpistas {estadoOlimpista}s</Label>
                                                         <CardContent className="w-full">
                                                             <DataTable
-                                                                columns={columns}
+                                                                columns={columnsClasificaciones}
                                                                 data={clasificaciones?.[key]?.[estadoOlimpista]}
                                                                 fieldSearch="nombre"
                                                             />

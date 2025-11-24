@@ -21,7 +21,7 @@ export function NavigateMenu({ role }: { role: boolean }) {
             <Link to="/">Inicio</Link>
           </NavigationMenuLink>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/clasificaciones/areas">Todos los olimpistas</Link>
+            <Link to="/clasificaciones/olimpistas">Todos los olimpistas</Link>
           </NavigationMenuLink>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link to="/clasificaciones/grupos">Todos los grupos</Link>

@@ -56,7 +56,7 @@ export default function TablecierreFases(
 
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
-  const columns = createColumnsCierres(register, setValue, setDialogOpen, data, setFechaFin);
+  const columns = createColumnsCierres(register, setValue, setDialogOpen, data as UserData, setFechaFin);
 
   const [nuevaLista, setNuevaLista] = React.useState<any[]>(
     cierres.map(item => ({ ...item, edicion: false }))

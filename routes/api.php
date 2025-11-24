@@ -78,6 +78,7 @@ Route::prefix('logs')->group(function () {
 
 Route::prefix('clasificaciones')->group(function () {
     Route::get('/area', [App\Http\Controllers\ClasificasionController::class, 'indexArea']);
+    Route::get('/grupo/area', [App\Http\Controllers\ClasificasionController::class, 'indexAreaGrupo']);
     Route::get('/ganadores', [App\Http\Controllers\ClasificasionController::class, 'ganadores']);
     Route::get('/{area}', [App\Http\Controllers\ClasificasionController::class, 'showByArea']);
 });

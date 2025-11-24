@@ -1,5 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../ui/badge";
+import { useFormatDate } from "@/hooks/use-format-date";
 
 export type LogsCalificaciones = {
   usuario: string,
@@ -14,8 +15,8 @@ export type LogsCalificaciones = {
 };
 
 export type LogsCierreFase = {
-  sup_usuario_and_rol: string,
-  sub_usuario_and_rol: string,
+  usuario: string,
+  rol: string,
   fase: string,
   estado_fase: string,
   area: string,
@@ -88,12 +89,12 @@ export const columnsLogCalificaciones: ColumnDef<LogsCalificaciones>[] = [
 
 export const columnsLogCierreFases: ColumnDef<LogsCierreFase>[] = [
   {
-    accessorKey: "sup_usuario_and_rol",
-    header: "Encargado",
+    accessorKey: "usuario",
+    header: "Usuario",
   },
   {
-    accessorKey: "sub_usuario_and_rol",
-    header: "Evaluador",
+    accessorKey: "rol",
+    header: "Rol",
   },
   {
     accessorKey: "fase",
@@ -131,15 +132,11 @@ export const columnsLogCierreFases: ColumnDef<LogsCierreFase>[] = [
   {
     accessorKey: "fecha_creacion",
     header: "Fecha de acción",
-    cell: ({ row }) => (
-      <div className="text-center capitalize">{row.original.fecha_creacion}</div>
-    ),
+    cell: ({ row }) => useFormatDate(row.original.fecha_creacion),
   },
   {
     accessorKey: "fecha_modificacion",
     header: "Fecha de acción",
-    cell: ({ row }) => (
-      <div className="text-center capitalize">{row.original.fecha_modificacion}</div>
-    ),
+    cell: ({ row }) => useFormatDate(row.original.fecha_modificacion),
   },
 ];

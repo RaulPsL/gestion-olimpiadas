@@ -18,10 +18,12 @@ class FaseNotification implements ShouldBroadcast
      * Create a new event instance.
      */
     public $message;
+    public $user_id;
 
-    public function __construct($message)
+    public function __construct($message, $user_id)
     {
         $this->message = $message;
+        $this->user_id = $user_id;
     }
 
     /**
@@ -32,7 +34,7 @@ class FaseNotification implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('my-channel'),
+            new Channel("user.$this->user_id"),
         ];
     }
 

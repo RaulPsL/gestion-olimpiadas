@@ -86,7 +86,7 @@ export default function TableCalificaciones(
       <CardContent>
         <DataTableCalificaciones
           columns={columns}
-          data={nuevaLista}
+          otherData={nuevaLista}
           filter={calificaciones.niveles}
           fechaCalificacion={calificaciones.fecha_calificacion}
           fechaFin={calificaciones.fecha_fin}

@@ -28,10 +28,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Spinner } from "../ui/spinner";
 import { Combobox } from "../Combobox";
+import { useNotification } from "@/hooks/use-notifications";
+import { useAuth } from "@/hooks/use-context";
 
 interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
   columns: ColumnDef<TData, TValue>[],
-  data: TData[],
+  otherData: TData[],
   fechaCalificacion: string,
   fechaFin: string,
   avalado: boolean,
@@ -50,7 +52,7 @@ interface DataTableProps<TData, TValue, TFormValues extends FieldValues> {
 
 export function DataTableCalificaciones<TData, TValue, TFormValues extends FieldValues>({
   columns,
-  data,
+  otherData,
   fechaCalificacion,
   fechaFin,
   avalado,
@@ -77,13 +79,14 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
   const [openSearch, setOpenSearch] = React.useState<boolean>(false);
   const [selectedNivel, setSelectedNivel] = React.useState<(string | number)[]>([]);
+  const { data } = useAuth();
 
   const currentDate = new Date();
   const fin = new Date(fechaFin);
   const calificacion = new Date(fechaCalificacion);
 
   const table = useReactTable({
-    data,
+    data: otherData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -110,6 +113,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
         setUpdate(prev => !prev);
         setDialogOpen(false);
         setSuccess(false);
+        useNotification(`${data?.data.ci}`);
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -310,7 +314,7 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                 setOpenToEdition(true)
                 handleToggleEdicion(true)
               }}
-              disabled={fin < currentDate && calificacion < fin}
+              // disabled={fin < currentDate && calificacion < fin}
             >
               <NotebookPen className="mr-2 h-4 w-4" />
               Calificar

@@ -43,7 +43,7 @@ export const updateCalificaciones = async (
         const nuevoData = {usuario_ci: ci, ...data};
         console.log('Enviando datos...');
 
-        console.log(typeof data);
+        console.log(data);
         const response = await axiosPrivate.put(`/calificaciones/${data.type === 'olimpista' ? "olimpistas" : "grupos"}`, nuevoData);
         await new Promise(resolve => setTimeout(resolve, 2000));
 

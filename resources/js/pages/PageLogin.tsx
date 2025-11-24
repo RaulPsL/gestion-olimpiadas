@@ -10,7 +10,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { Login } from "@/forms/interfaces/LoginIntefase";
 import { useAuth } from "@/hooks/use-context";
-import { AlertCircle, CheckCircle, Eye, EyeOff, LogIn } from "lucide-react";
+import { useNotification } from "@/hooks/use-notifications";
+import { AlertCircle, Eye, EyeOff, LogIn } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +30,7 @@ export default function PageLogin() {
         handleSubmit,
         reset,
         register,
+        watch,
         formState: { errors },
         trigger
     } = useForm<Login>({
@@ -41,7 +43,7 @@ export default function PageLogin() {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [success, setSuccess] = React.useState<boolean>(false);
     const [showPassword, setShowPassword] = React.useState(false);
-
+    const userCi = watch('ci');
     const { setToken, setData } = useAuth();
     const navigate = useNavigate();
 
@@ -62,6 +64,7 @@ export default function PageLogin() {
         const isValid = await trigger();
         if (isValid) {
             setOpenSpinner(true);
+            useNotification(`${userCi}`);
             handleSubmit(
                 (data) => login(
                     data,

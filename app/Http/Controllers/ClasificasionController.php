@@ -22,7 +22,8 @@ class ClasificasionController extends Controller
                 ->get();
             $fasesFiltradas = $fases->map(function ($fase) {
                 $olimpistas = collect($fase->olimpistas);
-                if (!empty($olimpistas)) {
+                $area_fase = $fase->area->sigla;
+                if (!in_array($area_fase, ['INF', 'ROB']) && !empty($olimpistas)) {
                     return $olimpistas->map(function ($olimpista) use ($fase) {
                         if ($olimpista->estado != "activo") {
                             return [
@@ -54,6 +55,63 @@ class ClasificasionController extends Controller
             return response()->json([
                 'message' => "Finalistas obtenidos exitosamente.",
                 'data' => $olimpistas,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error al obtener los finalistas.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function indexAreaGrupo()
+    {
+        try {
+            $fases = Fase::with([
+                'area',
+                'grupos.colegio',
+                'grupos.olimpistas.grado'
+            ])
+            ->get();
+            $fasesFiltradas = $fases->map(function ($fase) {
+                $grupos = collect($fase->grupos);
+                $area_fase = $fase->area->sigla;
+                if (in_array($area_fase, ['INF', 'ROB']) && !empty($grupos)) {
+                    return $grupos->map(function ($grupo) use ($fase) {
+                        $integrantes = $grupo->olimpistas->map(function ($olimpista) {
+                            return [
+                                'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+                                'ci' => $olimpista->ci,
+                                'estado' => $olimpista->estado,
+                                'grado_escolar' => $olimpista->grado->nombre,
+                            ];
+                        });
+                        return [
+                            'fase' => $fase->sigla,
+                            'area' => $fase->area->nombre,
+                            'nombre' => "$grupo->nombre",
+                            'estado' => $grupo->estado,
+                            'nota' => $grupo->pivot->puntaje,
+                            'integrantes' => $integrantes,
+                        ];
+                    })->filter();
+                }
+            })->filter();
+
+            $preGrupos = [];
+            foreach ($fasesFiltradas as $value) {
+                $preGrupos = array_merge($preGrupos, $value->toArray());
+            }
+            $gruposOrdenados = collect($preGrupos)->sortByDesc('nota')->groupBy('area');
+            $grupos = [];
+            foreach ($gruposOrdenados as $key => $value) {
+                $nuevo_objeto = collect($value)->groupBy('estado');
+                unset($nuevo_objeto['activo']);
+                $grupos[$key] = $nuevo_objeto;
+            }
+            return response()->json([
+                'message' => "Clasificaciones obtenidas exitosamente.",
+                'data' => $grupos,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

@@ -24,11 +24,15 @@ export default function PageVerAcciones() {
             }
             if (data?.rol.sigla === 'ADM') {
                 const cierres = await getLogsCierreFases();
-                setCalificacionesOAcciones([]);
+                setCalificacionesOAcciones(cierres);
             }
         };
         staticData();
     }, []);
+
+    React.useEffect(() => {
+        console.log('Datos tabla: ', calificacionesOAcciones);
+    }, [calificacionesOAcciones])
 
     return (
         <SidebarProvider>
@@ -43,8 +47,8 @@ export default function PageVerAcciones() {
                     <div className="flex w-full flex-col gap-6">
                         <Tabs defaultValue={data?.rol.sigla === 'EDA' ? otherKeys?.[0] : 'acciones'}>
                             <TabsList>
-                                { 
-                                    data?.rol.sigla === 'EDA' ? 
+                                {
+                                    data?.rol.sigla === 'EDA' ?
                                         otherKeys?.map((key) => {
                                             return (<TabsTrigger value={key} key={key}>{key}</TabsTrigger>);
                                         }) :
@@ -52,38 +56,36 @@ export default function PageVerAcciones() {
                                 }
                             </TabsList>
                             {
-                                data?.rol.sigla === 'EDA' && otherKeys?.map((key) => {
+                                data?.rol.sigla === 'EDA' || data?.rol.sigla === 'EVA' ? otherKeys?.map((key) => {
                                     return (
-                                    <TabsContent value={key} key={key}>
-                                        <Card>
-                                            <CardContent>
-                                                <DataTable
-                                                    columns={columnsLogCalificaciones}
-                                                    data={
-                                                        calificacionesOAcciones?.[key]?.lengt > 0 ? 
-                                                            calificacionesOAcciones?.[key] : []
-                                                    }
-                                                    fieldSearch={"usuario"}
-                                                />
-                                            </CardContent>
-                                        </Card>
-                                    </TabsContent>);
-                                })
-                            }
-                            {
-                                data?.rol.sigla === 'ADM' && (
-                                    <TabsContent value="acciones" key="acciones">
-                                        <Card>
-                                            <CardContent>
-                                                <DataTable
-                                                    columns={columnsLogCierreFases}
-                                                    data={[]}
-                                                    fieldSearch={"usuario"}
-                                                />
-                                            </CardContent>
-                                        </Card>
-                                    </TabsContent>
-                                )
+                                        <TabsContent value={key} key={key}>
+                                            <Card>
+                                                <CardContent>
+                                                    <DataTable
+                                                        columns={columnsLogCalificaciones}
+                                                        data={
+                                                            calificacionesOAcciones?.[key] ?
+                                                                calificacionesOAcciones?.[key] : []
+                                                        }
+                                                        fieldSearch={"usuario"}
+                                                    />
+                                                </CardContent>
+                                            </Card>
+                                        </TabsContent>);
+                                }) :
+                                    (
+                                        <TabsContent value="acciones" key="acciones">
+                                            <Card>
+                                                <CardContent>
+                                                    <DataTable
+                                                        columns={columnsLogCierreFases}
+                                                        data={calificacionesOAcciones ?? []}
+                                                        fieldSearch={"usuario"}
+                                                    />
+                                                </CardContent>
+                                            </Card>
+                                        </TabsContent>
+                                    )
                             }
                         </Tabs>
                     </div>
