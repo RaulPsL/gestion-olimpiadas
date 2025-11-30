@@ -2,6 +2,7 @@ import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm
 import { axiosPrivate, axiosPublic } from "./api";
 import { UseFormReset } from "react-hook-form";
 import { Rol } from "@/hooks/use-context";
+import { FaseForm } from "@/forms/interfaces/Fase";
 
 export const getFases = async (areas: string[]) => {
     try {
@@ -33,6 +34,52 @@ export const getFases = async (areas: string[]) => {
 export const createFase = async (data: any) => {
     const response = await axiosPrivate.post("/fases", data);
     return response.data;
+};
+
+export const updateFase = async (
+    fase_id: number,
+    data: any,
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setSuccess: React.Dispatch<React.SetStateAction<boolean>>,
+    setApiError: React.Dispatch<React.SetStateAction<string>>,
+    reset: UseFormReset<FaseForm>,
+    // selectedEvaluadores: string[],
+    // setSelectedEvaluadores: any
+) => {
+    setIsLoading(true);
+    setApiError('');
+    try {
+        const newData = {
+            fecha_inicio: data.fecha_inicio,
+            fecha_fin: data.fecha_fin,
+            fecha_calificacion: data.fecha_calificacion,
+            cantidad_ganadores: data.cantidad_ganadores,
+            // evaluadores: selectedEvaluadores,
+        };
+        console.log('Data: ', newData);
+        const response = await axiosPrivate.put(`/fases/${fase_id}`, newData);
+        if (response.status === 200) 
+            setSuccess(true);
+            setIsLoading(false);
+            return response.data;
+        
+    } catch (error: any) {
+        console.error("Error al obtener las fases:", error);
+
+        if (error.response?.status === 422) {
+            const backendErrors = error.response.data.errors;
+            if (backendErrors) {
+                const errorMessages = Object.values(backendErrors).flat();
+                console.log(errorMessages.join(", "));
+            } else {
+                console.log(error.response.data.message || "Error de validación");
+            }
+        } else if (error.response?.status === 500) {
+            setApiError("Error interno del servidor. Intente nuevamente.");
+        } else {
+            setApiError("Error de conexión. Verifique su internet.");
+        }
+    }
 };
 
 export const getCierres = async (areas: string[]) => {

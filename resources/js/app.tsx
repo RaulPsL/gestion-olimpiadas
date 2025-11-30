@@ -19,7 +19,7 @@ import PageVerUsuarios from './pages/PageVerUsuarios';
 
 function App() {
     return (
-        <div className="flex flex-1 flex-col gap-4 px-4">
+        <div className="dark flex flex-1 flex-col gap-4 px-4">
             <AuthProvider>
                 <Routes>
                     <Route path="/" element={<PageHome />} />

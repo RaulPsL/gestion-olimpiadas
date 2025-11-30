@@ -22,18 +22,20 @@ class FasesController extends Controller
             $request->validate([
                 'areas' => 'required'
             ]);
-            $fases = Fase::with(['area', 'fase_siguiente'])->get();
+            $fases = Fase::with(['area', 'nivel', 'olimpistas'])->get();
             $fasesFiltradas = collect($fases)->map(function ($fase) {
                 return [
+                    'fase_id' => $fase->id,
                     'name' => $fase->sigla,
                     'tipo_fase' => $fase->tipo_fase,
                     'area' => $fase->area->nombre,
-                    'cantidad_participantes' => collect($fase->olimpistas())->count(),
-                    'fecha_inicio' => date('d/M/Y', strtotime($fase->fecha_inicio)),
-                    'fecha_calificacion' => date('d/M/Y', strtotime($fase->fecha_calificacion)),
-                    'fecha_fin' => date('d/M/Y', strtotime($fase->fecha_fin)),
+                    'cantidad_participantes' => collect($fase->olimpistas)->count(),
+                    'fecha_inicio' => $fase->fecha_inicio,
+                    'fecha_calificacion' => $fase->fecha_calificacion,
+                    'fecha_fin' => $fase->fecha_fin,
+                    'cantidad_ganadores' => $fase->cantidad_ganadores,
                     'estado' => $fase->estado,
-                    'fase_siguiente' => $fase->fase_siguiente,
+                    'nivel' => $fase->nivel->nombre,
                 ];
             })->groupBy('area');
             $fasesPorArea = [];
@@ -55,19 +57,21 @@ class FasesController extends Controller
     public function indexCalendar()
     {
         try {
-            $fases = Fase::with(['area', 'nivel'])->get()->map(function ($fase, $index) {
+            $fases = Fase::with(['area', 'nivel', 'olimpistas'])->get()->map(function ($fase, $index) {
                 $area = $fase->area;
                 $nivel = $fase->nivel;
                 $nombre_nivel = $nivel ? "$nivel->nombre" : "";
+                $area_nombre = strtolower($area->nombre);
                 return [
                     'id' => $index + 1,
-                    'title' => "$area->nombre $nombre_nivel",
+                    'title' => "$area_nombre - $nombre_nivel",
                     'start' => $fase->fecha_inicio,
                     'calificacion' => $fase->fecha_calificacion,
                     'end' => $fase->fecha_fin,
                     'resource' => [
+                        'state_fase' => $fase->estado,
                         'area' => $area->nombre,
-                        'participants' => collect($fase->olimpistas())->count(),
+                        'participants' => collect($fase->olimpistas)->count(),
                         'type' => $fase->tipo_fase,
                         'state' => $fase->estado,
                     ]
@@ -134,20 +138,29 @@ class FasesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function showByEstado(string $estado)
+    public function update(Request $request, int $id)
     {
         try {
-            $fases = Fase::all();
-            if (EstadoFase::isEstadoCases($estado)) {
-                $fases = Fase::where('estado', $estado)->get();
+            $fase = Fase::findOrFail($id);
+            if (!$fase) {
+                return response()->json([
+                    'message' => "No se encontró la fase $id.",
+                ], 400);
             }
+            $fase->update([
+                "fecha_inicio" => $request->fecha_inicio,
+                "fecha_fin" => $request->fecha_fin,
+                "fecha_calificacion" => $request->fecha_calificacion,
+                "cantidad_ganadores" => $request->cantidad_ganadores,
+                "evaluadores" => $request->evaluadores,
+            ]);
             return response()->json([
-                'message' => "Fases con estado: $estado, obtenidas exitosamente.",
-                'data' => $fases,
+                'message' => "La fase $id se actualizo correctamente.",
+                'data' => $fase,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => 'Error al obtener las fases.',
+                'message' => 'Error al modificar la fase.',
                 'error' => $th->getMessage(),
             ], 500);
         }
@@ -177,8 +190,10 @@ class FasesController extends Controller
                 $cierre->refresh();
                 if (!empty($cierre->usuario_evaluador_id) && !empty($cierre->usuario_evaluador_id)) {
                     $fase_actual->update(['estado' => 'finalizada']);
-                    $usuarios = Usuario::whereIn('id', array_values($usuarios))->map(function ($usuario) { return "$usuario->nombre $usuario->apellido - $usuario->ci"; });
-                    $nombre_usuarios = implode(',', $usuarios);
+                    $usuarios = Usuario::whereIn('id', array_values($usuarios))->get()->map(function ($usuario) {
+                        return "$usuario->nombre $usuario->apellido - $usuario->ci";
+                    });
+                    $nombre_usuarios = implode(',', $usuarios->toArray());
                     event(new FaseNotification("La fase: $fase_actual->sigla ha sido cerrada por los usuarios: $nombre_usuarios.", 1234581));
                 }
             } else {

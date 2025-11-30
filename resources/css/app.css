@@ -4,70 +4,258 @@
 
 @layer base {
   :root {
-    --radius: 0.625rem;
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Bordes más suaves y modernos */
+    --radius: 0.75rem;
+    
+    /* Colores base - Modo claro con tonos más suaves */
+    --background: 220 20% 97%;
+    --foreground: 224 15% 15%;
+    
+    /* Cards con efecto glassmorphism */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 224 15% 15%;
+    
+    /* Popovers */
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 224 15% 15%;
+    
+    /* Primary - Azul vibrante moderno */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Púrpura suave */
+    --secondary: 262 52% 47%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Muted - Tonos neutros más suaves */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    
+    /* Accent - Verde esmeralda para highlights */
+    --accent: 173 80% 40%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Destructive - Rojo más suave pero visible */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Bordes sutiles */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
+    
+    /* Sidebar moderna */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 224 15% 20%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 224 15% 20%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 221 83% 53%;
+    
+    /* Colores adicionales para el tema Artificium */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(262 52% 47%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(173 80% 40%) 100%);
+    --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --sidebar: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    /* Background más oscuro y profundo */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    
+    /* Cards con glassmorphism oscuro */
+    --card: 224 50% 8%;
+    --card-foreground: 213 31% 91%;
+    
+    /* Popovers oscuros */
+    --popover: 224 50% 8%;
+    --popover-foreground: 213 31% 91%;
+    
+    /* Primary más brillante en dark mode */
+    --primary: 221 83% 53%;
+    --primary-foreground: 224 71% 4%;
+    
+    /* Secondary vibrante */
+    --secondary: 262 70% 60%;
+    --secondary-foreground: 224 71% 4%;
+    
+    /* Muted oscuro */
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20% 65%;
+    
+    /* Accent brillante */
+    --accent: 173 80% 40%;
+    --accent-foreground: 224 71% 4%;
+    
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 213 31% 91%;
+    
+    /* Bordes sutiles oscuros */
+    --border: 223 47% 15%;
+    --input: 223 47% 15%;
+    --ring: 221 83% 53%;
+    
+    /* Sidebar oscura premium */
+    --sidebar: 224 65% 6%;
+    --sidebar-foreground: 213 31% 91%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 223 47% 11%;
+    --sidebar-accent-foreground: 213 31% 91%;
+    --sidebar-border: 223 47% 15%;
+    --sidebar-ring: 221 83% 53%;
+    
+    /* Colores adicionales dark mode */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Gradientes dark mode */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(262 70% 60%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(173 80% 40%) 100%);
+    --gradient-card: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%);
   }
 
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+@layer utilities {
+  /* Glassmorphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Gradientes reutilizables */
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(262 52% 47%) 100%);
+  }
+  
+  .gradient-success {
+    background: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(173 80% 40%) 100%);
+  }
+  
+  .gradient-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  }
+  
+  .dark .gradient-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%);
+  }
+  
+  /* Sombras modernas */
+  .shadow-premium {
+    box-shadow: 
+      0 1px 2px 0 rgba(0, 0, 0, 0.05),
+      0 8px 24px -4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .shadow-premium-lg {
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 20px 40px -8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Animaciones suaves */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Efectos hover modernos */
+  .hover-lift {
+    @apply transition-smooth hover:-translate-y-1 hover:shadow-premium-lg;
+  }
+  
+  /* Glow effect para elementos importantes */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  
+  .glow-success {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+  }
+}
+
+/* Animaciones personalizadas */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
 }

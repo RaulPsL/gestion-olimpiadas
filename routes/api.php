@@ -44,7 +44,7 @@ Route::prefix('usuarios')->group(function () {
 Route::prefix('fases')->group(function () {
     Route::post('/', [App\Http\Controllers\FasesController::class, 'index'])->name('fases.ver');
     Route::post('/cierres', [App\Http\Controllers\FasesController::class, 'indexCierreFases'])->name('fases.cierres');
-    Route::get('/{estado}', [App\Http\Controllers\FasesController::class, 'showByEstado'])->name('fases.estado');
+    Route::put('/{id}', [App\Http\Controllers\FasesController::class, 'update'])->name('fases.update');
     Route::put('/create/cierres', [App\Http\Controllers\FasesController::class, 'createCierre'])->name('fases.update');
     Route::put('/update/cierres', [App\Http\Controllers\FasesController::class, 'updateCierre'])->name('fases.create');
     Route::delete('/', [App\Http\Controllers\FasesController::class, 'destroy'])->name('fases.destroy');

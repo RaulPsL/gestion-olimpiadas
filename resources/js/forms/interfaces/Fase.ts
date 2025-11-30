@@ -11,4 +11,5 @@ export interface FaseForm {
     area: string;
     nivel: string;
     usuarios: string[];
+    flash?: boolean;
 }

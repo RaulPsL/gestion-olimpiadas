@@ -139,6 +139,7 @@ class CalificacionesController extends Controller
                         'nota_fase_id' => $grupo->pivot->fase_id,
                         'nota' => $grupo->pivot->puntaje,
                         'comentarios' => $grupo->pivot->comentarios,
+                        'estado' => $grupo->estado,
                         'integrantes' => $grupo->olimpistas->map(function ($olimpista) use ($fase) {
                             if ($olimpista->estado !== 'activo') {
                                 return [
@@ -225,7 +226,9 @@ class CalificacionesController extends Controller
                     $olimpista->update([
                         'estado' => 'clasificado'
                     ]);
-                    $olimpista->fases()->attach($fase->fase_siguiente->id, ['puntaje' => 0.00, 'comentarios' => '']);
+                    if ($fase->fase_siguiente) {
+                        $olimpista->fases()->attach($fase->fase_siguiente->id, ['puntaje' => 0.00, 'comentarios' => '']);
+                    }
                 }
                 if ($nota['nota'] <= $nota_promedio && $nota['nota'] > 0) {
                     $olimpista->update([

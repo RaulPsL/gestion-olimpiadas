@@ -12,6 +12,9 @@ import { getStaticData, updateArea } from "@/api/Areas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth, UserData } from "@/hooks/use-context";
+import { useFilterAreasUser } from "@/hooks/use-areas-user";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function FormFase() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -21,10 +24,12 @@ export default function FormFase() {
     const [niveles, setNiveles] = React.useState<any[]>();
     const [fases, setFases] = React.useState<any[]>();
     const [evaluadores, setEvaluadores] = React.useState<any[]>();
-    // const [nivelSelected, setNivelSelected] = React.useState<string>("");
+    const [areasFiltradas, setAreasFiltradas] = React.useState<any[]>([]);
 
-    // Estado para la fecha compartida
     const [sharedDate, setSharedDate] = React.useState<Date>(new Date());
+    const [faseFlash, setFaseFlash] = React.useState<boolean>(false);
+
+    const { data } = useAuth();
 
     useEffect(() => {
         const staticData = async () => {
@@ -39,6 +44,7 @@ export default function FormFase() {
 
     const {
         register,
+        unregister,
         handleSubmit,
         formState: { errors },
         reset,
@@ -60,7 +66,8 @@ export default function FormFase() {
             fecha_fin: new Date(Date.now() + 120 * 60 * 1000),
             area: "",
             nivel: "",
-            usuarios: []
+            usuarios: [],
+            flash: false,
         }
     });
 
@@ -75,7 +82,7 @@ export default function FormFase() {
         register('tipo_fase', newValidationRules.tipo_fase);
         register('usuarios', newValidationRules.usuarios);
         register('fecha_inicio', newValidationRules.fecha_inicio);
-        register('fecha_calificacion', newValidationRules.fecha_fin);
+        register('fecha_calificacion', newValidationRules.fecha_calificacion);
         register('fecha_fin', newValidationRules.fecha_fin);
     });
 
@@ -89,8 +96,23 @@ export default function FormFase() {
         }
     }, [areaField.value]);
 
-    // Add filters to selected area then filter levels and evaluadores
-    // Reemplaza tu función handleDateChange con esta versión corregida:
+    React.useEffect(() => {
+        if (faseFlash === true) {
+            const fechaInicio = new Date(Date.now() + 30 * 60 * 1000)
+            setFases(prev => prev?.filter((tipoFase) => tipoFase.value === 'clasificatorias'));
+            setValue('cantidad_min_participantes', 20);
+            setValue('cantidad_max_participantes', 100);
+            setValue('cantidad_ganadores', 10);
+            register('cantidad_ganadores');
+            setValue('descripcion', 'Breve descripcion de la fase');
+            setValue('fecha_inicio', fechaInicio);
+        }
+        setValue('flash', faseFlash);
+    }, [faseFlash]);
+
+    // if (areas && areas?.length > 0) {
+    //     useFilterAreasUser(areas, data as UserData, areasFiltradas, setAreasFiltradas);
+    // }
 
     const handleDateChange = (
         newDate: Date | undefined,
@@ -181,7 +203,19 @@ export default function FormFase() {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Registro de Fase</CardTitle>
+                <CardTitle className="flex flex-row justify-between">
+                    <p>Registro de Fase</p>
+                    <div className="flex flex-row space-x-5 items-center">
+                        <p className="text-sm">Marcar el recuadro si la fase empezara inmediatamente</p>
+                        <Checkbox
+                            checked={faseFlash}
+                            onCheckedChange={(checked) => {
+                                setFaseFlash(checked === true);
+                                register('cantidad_ganadores');
+                            }}
+                        />
+                    </div>
+                </CardTitle>
                 <CardDescription>
                     Complete los datos para crear una nueva fase de competencia
                 </CardDescription>
@@ -221,6 +255,23 @@ export default function FormFase() {
                         )}
                     </div>
 
+                    {/* Nivel de competencia */}
+                    <div className="space-y-2">
+                        <Label>Nivel de competencia <span className="text-red-500">*</span></Label>
+                        <Combobox
+                            items={niveles}
+                            value={nivelesField.value}
+                            onChange={nivelesField.onChange}
+                            placeholder="Seleccionar nivel..."
+                            searchPlaceholder="Buscar nivel..."
+                            disabled={areaField.value.length === 0}
+                            multiple={false}
+                        />
+                        {errors.area && (
+                            <p className="text-sm text-red-500">{errors.area.message}</p>
+                        )}
+                    </div>
+
                     {/* Campo Tipo de Fase */}
                     <div className="space-y-2">
                         <Label htmlFor="tipo_fase">
@@ -236,23 +287,6 @@ export default function FormFase() {
                         />
                         {errors.tipo_fase && (
                             <p className="text-sm text-red-500">{errors.tipo_fase.message}</p>
-                        )}
-                    </div>
-
-                    {/* Nivel de competencia */}
-                    <div className="space-y-2">
-                        <Label>Nivel de competencia <span className="text-red-500">*</span></Label>
-                        <Combobox
-                            items={niveles}
-                            value={nivelesField.value}
-                            onChange={nivelesField.onChange}
-                            placeholder="Seleccionar nivel..."
-                            searchPlaceholder="Buscar nivel..."
-                            disabled={areaField.value.length === 0}
-                            multiple={false}
-                        />
-                        {errors.area && (
-                            <p className="text-sm text-red-500">{errors.area.message}</p>
                         )}
                     </div>
 
@@ -275,83 +309,95 @@ export default function FormFase() {
                 </div>
 
                 {/* Campo Descripción */}
-                <div className="space-y-2">
-                    <Label htmlFor="descripcion">
-                        Descripción <span className="text-red-500">*</span>
-                    </Label>
-                    <Textarea
-                        id="descripcion"
-                        placeholder="Descripción detallada de la fase..."
-                        {...register("descripcion", newValidationRules.descripcion)}
-                        className={errors.descripcion ? "border-red-500" : ""}
-                        rows={3}
-                    />
-                    {errors.descripcion && (
-                        <p className="text-sm text-red-500">{errors.descripcion.message}</p>
-                    )}
-                </div>
+                {
+                    !faseFlash && (
+                        <div className="space-y-2">
+                            <Label htmlFor="descripcion">
+                                Descripción <span className="text-red-500">*</span>
+                            </Label>
+                            <Textarea
+                                id="descripcion"
+                                placeholder="Descripción detallada de la fase..."
+                                {...register("descripcion", newValidationRules.descripcion)}
+                                className={errors.descripcion ? "border-red-500" : ""}
+                                rows={3}
+                            />
+                            {errors.descripcion && (
+                                <p className="text-sm text-red-500">{errors.descripcion.message}</p>
+                            )}
+                        </div>
+                    )
+                }
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Cantidad Mínima */}
-                    <div className="space-y-2">
-                        <Label htmlFor="cantidad_min_participantes">
-                            Cantidad Mínima <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="cantidad_min_participantes"
-                            type="number"
-                            placeholder="10"
-                            {...register("cantidad_min_participantes", {
-                                ...newValidationRules.cantidad_min_participantes,
-                                valueAsNumber: true
-                            })}
-                            className={errors.cantidad_min_participantes ? "border-red-500" : ""}
-                        />
-                        {errors.cantidad_min_participantes && (
-                            <p className="text-sm text-red-500">{errors.cantidad_min_participantes.message}</p>
-                        )}
-                    </div>
+                {
+                    !faseFlash && (
+                        <div className={`grid grid-cols-1 md:grid-cols-${tipoFaseField.value[0] === 'finales' ? '3' : '2'} gap-4`}>
+                            {/* Cantidad Mínima */}
+                            <div className="space-y-2">
+                                <Label htmlFor="cantidad_min_participantes">
+                                    Cantidad Mínima Participantes<span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="cantidad_min_participantes"
+                                    type="number"
+                                    placeholder="10"
+                                    {...register("cantidad_min_participantes", {
+                                        ...newValidationRules.cantidad_min_participantes,
+                                        valueAsNumber: true
+                                    })}
+                                    className={errors.cantidad_min_participantes ? "border-red-500" : ""}
+                                />
+                                {errors.cantidad_min_participantes && (
+                                    <p className="text-sm text-red-500">{errors.cantidad_min_participantes.message}</p>
+                                )}
+                            </div>
 
-                    {/* Cantidad Máxima */}
-                    <div className="space-y-2">
-                        <Label htmlFor="cantidad_max_participantes">
-                            Cantidad Máxima <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="cantidad_max_participantes"
-                            type="number"
-                            placeholder="20"
-                            {...register("cantidad_max_participantes", {
-                                ...newValidationRules.cantidad_max_participantes,
-                                valueAsNumber: true
-                            })}
-                            className={errors.cantidad_max_participantes ? "border-red-500" : ""}
-                        />
-                        {errors.cantidad_max_participantes && (
-                            <p className="text-sm text-red-500">{errors.cantidad_max_participantes.message}</p>
-                        )}
-                    </div>
+                            {/* Cantidad Máxima */}
+                            <div className="space-y-2">
+                                <Label htmlFor="cantidad_max_participantes">
+                                    Cantidad Máxima Participantes<span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="cantidad_max_participantes"
+                                    type="number"
+                                    placeholder="20"
+                                    {...register("cantidad_max_participantes", {
+                                        ...newValidationRules.cantidad_max_participantes,
+                                        valueAsNumber: true
+                                    })}
+                                    className={errors.cantidad_max_participantes ? "border-red-500" : ""}
+                                />
+                                {errors.cantidad_max_participantes && (
+                                    <p className="text-sm text-red-500">{errors.cantidad_max_participantes.message}</p>
+                                )}
+                            </div>
 
-                    {/* cantidad de ganadores */}
-                    <div className="space-y-2">
-                        <Label htmlFor="cantidad_ganadores">
-                            Cantidad de ganadores <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="cantidad_ganadores"
-                            type="number"
-                            placeholder="10"
-                            {...register("cantidad_ganadores", {
-                                ...newValidationRules.cantidad_ganadores,
-                                valueAsNumber: true
-                            })}
-                            className={errors.cantidad_ganadores ? "border-red-500" : ""}
-                        />
-                        {errors.cantidad_ganadores && (
-                            <p className="text-sm text-red-500">{errors.cantidad_ganadores.message}</p>
-                        )}
-                    </div>
-                </div>
+                            {/* cantidad de ganadores */}
+                            {
+                                tipoFaseField.value[0] === 'finales' && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="cantidad_ganadores">
+                                            Cantidad de ganadores <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id="cantidad_ganadores"
+                                            type="number"
+                                            placeholder="10"
+                                            {...register("cantidad_ganadores", {
+                                                ...newValidationRules.cantidad_ganadores,
+                                                valueAsNumber: true
+                                            })}
+                                            className={errors.cantidad_ganadores ? "border-red-500" : ""}
+                                        />
+                                        {errors.cantidad_ganadores && (
+                                            <p className="text-sm text-red-500">{errors.cantidad_ganadores.message}</p>
+                                        )}
+                                    </div>
+                                )
+                            }
+                        </div>
+                    )
+                }
 
                 {/* Fechas Sincronizadas */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -361,6 +407,7 @@ export default function FormFase() {
                             titleDate=""
                             titleTime=""
                             value={getValues('fecha_inicio')}
+                            disabledCalendar={faseFlash}
                             disabledDate={[
                                 { before: new Date() },
                                 { dayOfWeek: [0] },
@@ -380,7 +427,7 @@ export default function FormFase() {
                         <DateTimePicker
                             titleDate=""
                             titleTime=""
-                            disabledCalendar  // ← Deshabilita el calendario
+                            disabledCalendar
                             value={getValues('fecha_calificacion')}
                             onChange={(date) => {
                                 if (date) {
@@ -397,7 +444,7 @@ export default function FormFase() {
                         <DateTimePicker
                             titleDate=""
                             titleTime=""
-                            disabledCalendar  // ← Deshabilita el calendario
+                            disabledCalendar
                             value={getValues('fecha_fin')}
                             onChange={(date) => {
                                 if (date) {

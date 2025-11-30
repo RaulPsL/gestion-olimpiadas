@@ -11,3 +11,10 @@ export interface Participante {
   departamento: string,
   provincia: string,
 }
+
+export interface DataParticipante {
+  integrantes: Participante[],
+  nivel: string,
+  sigla: string,
+  
+}

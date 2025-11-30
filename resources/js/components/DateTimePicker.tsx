@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChevronDown, ChevronDownIcon } from "lucide-react";
+import { ChevronDown, ChevronDownIcon, Clock8Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -13,8 +13,8 @@ import {
 import { DateTimePickerProps } from "./interfaces/DateTime";
 import { es } from "date-fns/locale";
 
-export function DateTimePicker({ titleDate, 
-  titleTime, 
+export function DateTimePicker({ titleDate,
+  titleTime,
   value,
   onChange,
   disabledTime = false,
@@ -38,18 +38,18 @@ export function DateTimePicker({ titleDate,
 
   const combineDateTime = (date: Date | undefined, time: string): Date | undefined => {
     if (!date) return undefined;
-    
+
     const [hours, minutes, seconds] = time.split(':').map(num => parseInt(num) || 0);
     const newDate = new Date(date);
     newDate.setHours(hours, minutes, seconds, 0);
-    
+
     return newDate;
   };
 
   const handleDateChange = (selectedDate: Date | undefined) => {
     setInternalDate(selectedDate);
     setOpen(false);
-    
+
     if (selectedDate && timeValue) {
       const combined = combineDateTime(selectedDate, timeValue);
       onChange?.(combined);
@@ -68,7 +68,7 @@ export function DateTimePicker({ titleDate,
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = event.target.value;
     setTimeValue(newTime);
-    
+
     if (internalDate && newTime) {
       const combined = combineDateTime(internalDate, newTime);
       onChange?.(combined);
@@ -99,7 +99,7 @@ export function DateTimePicker({ titleDate,
     <div className="flex gap-4">
       <div className="flex flex-col gap-3">
         <Label htmlFor="date-picker" className="px-1">
-          { titleDate }
+          {titleDate}
         </Label>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -129,17 +129,22 @@ export function DateTimePicker({ titleDate,
       </div>
       <div className="flex flex-col gap-3">
         <Label htmlFor="time-picker" className="px-1">
-          { titleTime }
+          {titleTime}
         </Label>
-        <Input
-          type="time"
-          id="time-picker"
-          step="1"
-          value={getDefaultTime()}
-          onChange={handleTimeChange}
-          disabled={disabledTime}
-          className="w-32 bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-        />
+        <div className='relative'>
+          <div className='text-muted-foreground pointer-events-none absolute inset-y-0 left-0 flex items-center justify-center pl-3 peer-disabled:opacity-50'>
+            <Clock8Icon className='size-4' />
+          </div>
+          <Input
+            type="time"
+            id="time-picker"
+            step="1"
+            value={getDefaultTime()}
+            onChange={handleTimeChange}
+            disabled={disabledTime}
+            className='peer bg-background appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none'
+          />
+        </div>
       </div>
     </div>
   )

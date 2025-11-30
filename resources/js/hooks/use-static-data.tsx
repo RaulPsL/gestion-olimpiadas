@@ -4,11 +4,21 @@ import { generarListaPDF } from "@/pdfs/ListUsersPDF";
 import { generarExcel, generarExcelMultiplesHojas } from "@/pdfs/ListUsersXLS";
 import { IconTrendingDown, IconTrendingUp, IconUserMinus, IconUserOff, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
-import { HatGlasses, TrendingUpDown } from "lucide-react";
+import { TrendingUpDown } from "lucide-react";
 import { getGanadores } from "@/api/Clasificacciones";
-import { generarCertificados } from "@/pdfs/CertificatePdf";
 
-export default function useStaticData({ data, setData }: { data?: any, setData: Dispatch<React.SetStateAction<any>> }) {
+export default function useStaticData(
+    {
+        data,
+        setData,
+        setOpenDialog,
+        setSelectedData
+    } : {
+        data?: any,
+        setData: Dispatch<React.SetStateAction<any>>,
+        setOpenDialog?: Dispatch<React.SetStateAction<boolean>>,
+        setSelectedData?: Dispatch<React.SetStateAction<any>>
+    }) {
     const [usuarios, setUsuarios] = React.useState<any>({});
     const [olimpistas, setOlimpistas] = React.useState<any>({});
     const [ganadoresOlimpistas, setGanadoresOlimpistas] = React.useState<any>({});
@@ -273,8 +283,15 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                         },
                         options: [
                             {
-                                title: "Generar en Certificados",
-                                action: () => generarCertificados(ganadores, area),
+                                title: "Generar Certificados",
+                                action: () => {
+                                    if (setSelectedData) {
+                                        setSelectedData(g);
+                                    }
+                                    if (setOpenDialog) {
+                                        setOpenDialog(true);
+                                    }
+                                },
                             },
                             {
                                 title: "Generar en PDF",
@@ -307,6 +324,17 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
                         },
                         options: [
                             {
+                                title: "Generar Certificados",
+                                action: () => {
+                                    if (setSelectedData) {
+                                        setSelectedData(g);
+                                    }
+                                    if (setOpenDialog) {
+                                        setOpenDialog(true);
+                                    }
+                                },
+                            },
+                            {
                                 title: "Generar en PDF",
                                 action: () => generarListaPDF({
                                     usuarios: ganadores,
@@ -325,7 +353,7 @@ export default function useStaticData({ data, setData }: { data?: any, setData: 
 
             console.log('Datos de olimpistas', datosOlimpistasGanadores);
             console.log('Datos de grupos', datosGruposGanadores);
-            if (data !== undefined && data !== null) 
+            if (data !== undefined && data !== null)
                 nuevosDatos = nuevosDatos.concat(datosUsuarios, datosOlimpistasGanadores, datosGruposGanadores);
             if (setData)
                 setData(nuevosDatos);

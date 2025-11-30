@@ -127,8 +127,7 @@ class ClasificasionController extends Controller
             $fases = Fase::with([
                 'olimpistas',
                 'nivel',
-                'area',
-                'usuarios'
+                'area.usuarios.roles',
             ])
                 ->whereHas('area', function ($query) {
                     $query->whereNotIn('sigla', ['ROB', 'INF']);
@@ -140,8 +139,7 @@ class ClasificasionController extends Controller
             $fases_grupos = Fase::with([
                 'grupos',
                 'nivel',
-                'area',
-                'usuarios.roles'
+                'area.usuarios.roles',
             ])
                 ->whereHas('area', function ($query) {
                     $query->whereIn('sigla', ['ROB', 'INF']);

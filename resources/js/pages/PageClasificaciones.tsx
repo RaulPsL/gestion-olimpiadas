@@ -28,6 +28,7 @@ export default function PageClasificaciones({ esGrupo }: { esGrupo: boolean }) {
             setKeys(Object.keys(clasificaciones));
         }
         console.log('Keys: ', keys);
+        console.log('Datos: ', clasificaciones);
     }, [clasificaciones]);
 
     return (

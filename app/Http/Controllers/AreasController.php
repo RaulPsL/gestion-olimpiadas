@@ -238,6 +238,7 @@ class AreasController extends Controller
                     'fases.*.fecha_fin' => 'required|date',
                     'fases.*.nivel' => 'required',
                     'fases.*.usuarios' => 'required|exists:usuarios,ci',
+                    'fases.*.flash' => 'nullable',
                 ]);
 
                 foreach ($request->fases as $faseData) {
@@ -249,6 +250,7 @@ class AreasController extends Controller
                         'sigla' => $sigla_fase,
                         'tipo_fase' => $faseData['tipo_fase'],
                         'descripcion' => $faseData['descripcion'] ?? 'Fase sin descripción',
+                        'estado' => $faseData['flash'] ? 'en curso' : 'pendiente',
                         'cantidad_max_participantes' => $faseData['cantidad_max_participantes'],
                         'cantidad_min_participantes' => $faseData['cantidad_min_participantes'],
                         'cantidad_ganadores' => $faseData['cantidad_ganadores'],

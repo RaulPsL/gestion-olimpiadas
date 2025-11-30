@@ -47,9 +47,9 @@ export default function PageVerFases() {
                                     ) : (
                                         <>
                                             <TabsTrigger value="Matemáticas">Matemáticas</TabsTrigger>
-                                            <TabsTrigger value="Matemáticas">Robotica</TabsTrigger>
-                                            <TabsTrigger value="Matemáticas">Física</TabsTrigger>
-                                            <TabsTrigger value="Matemáticas">Biología</TabsTrigger>
+                                            <TabsTrigger value="Robotica">Robotica</TabsTrigger>
+                                            <TabsTrigger value="Física">Física</TabsTrigger>
+                                            <TabsTrigger value="Biología">Biología</TabsTrigger>
                                         </>
                                     )
                                 }

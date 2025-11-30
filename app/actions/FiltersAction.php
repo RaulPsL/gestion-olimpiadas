@@ -8,7 +8,7 @@ class FiltersAction {
     public static function filterDocs(Collection $lista) {
         return $lista->map(function ($olimpista) {
             return [
-                'nombreParticipante' => "$olimpista->nombres",
+                'nombreParticipante' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
                 'apellidoParticipante' => "$olimpista->apellido_paterno $olimpista->apellido_materno",
                 'estado' => $olimpista->estado,
                 'nota' => $olimpista->pivot->puntaje,
@@ -16,14 +16,19 @@ class FiltersAction {
                 'departamento' => $olimpista->colegio->provincia->departamento->nombre,
                 'provincia' => $olimpista->colegio->provincia->nombre,
             ];
-        });
+        })->sortByDesc('nota')->values();
     }
     public static function filterGanadores(Collection $lista)
     {
         return $lista->map(function ($fase) {
-            $encargado = collect($fase->usuarios)->filter(function ($usuario) {
-                return $usuario->roles->where('sigla', 'EDA')->isNotEmpty();
-            })->values()->first();
+            $encargado = collect($fase->area->usuarios)->filter(function ($usuario) {
+                return collect($usuario->roles)->first()->sigla == "EDA";
+            })->first();
+            $integrantesConPuesto = FiltersAction::filterDocs($fase->olimpistas)
+            ->map(function ($integrante, $index) { 
+                $integrante['puesto'] = $index+1;
+                return $integrante;
+            })->values();
             return [
                 'tipo_fase' => $fase->tipo_fase,
                 'sigla' => $fase->sigla,
@@ -31,7 +36,7 @@ class FiltersAction {
                 'nivel' => $fase->nivel->nombre,
                 'area' => $fase->area->nombre,
                 'encargado' => empty($encargado) ? "" : "$encargado->nombre $encargado->apellido",
-                'integrantes' => FiltersAction::filterDocs($fase->olimpistas),
+                'integrantes' => $integrantesConPuesto,
             ];
         });
     }
@@ -39,9 +44,14 @@ class FiltersAction {
     public static function filterGruposGanadores(Collection $lista)
     {
         return $lista->map(function ($fase) {
-            $encargado = collect($fase->usuarios)->filter(function ($usuario) {
-                return $usuario->roles->where('sigla', 'EDA')->isNotEmpty();
-            })->values()->first();
+            $encargado = collect($fase->area->usuarios)->filter(function ($usuario) {
+                return collect($usuario->roles)->first()->sigla == "EDA";
+            })->first();
+            $integrantesConPuesto = FiltersAction::filterDocs($fase->olimpistas)
+            ->map(function ($integrante, $index) { 
+                $integrante['puesto'] = $index+1;
+                return $integrante;
+            });
             $grupos = $fase->grupos->map(function ($grupo) {
                 return [
                     'nombre_grupo' => $grupo->nombre,
