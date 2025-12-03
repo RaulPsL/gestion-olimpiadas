@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\FaseNotification;
+use App\Events\FaseUpdate;
 use App\Models\Area;
 use App\Models\Fase;
 use App\Models\Traits\Casts\EstadoFase;
@@ -77,7 +78,7 @@ class FasesController extends Controller
                     ]
                 ];
             });
-
+            event(new FaseUpdate());
             return response()->json([
                 'message' => "Fases obtenidas exitosamente.",
                 'data' => $fases,
@@ -246,16 +247,21 @@ class FasesController extends Controller
                     'fecha_calificacion' => $nuevo_tiempo_calificacion,
                     'estado' => 'pendiente',
                 ]);
+                
+                $fases = collect();
 
-                $fases->each(function ($fase, $index) use ($index_fase, $diff_minutos) {
-                    if ($index > $index_fase) {
-                        $fase->update([
-                            'fecha_inicio' => Carbon::parse($fase->fecha_inicio)->addMinutes($diff_minutos),
-                            'fecha_fin' => Carbon::parse($fase->fecha_fin)->addMinutes($diff_minutos),
-                            'fecha_calificacion' => Carbon::parse($fase->fecha_calificacion)->addMinutes($diff_minutos),
-                            'estado' => 'pendiente'
-                        ]);
-                    }
+                while ($fase_actual) {
+                    $fases->push($fase_actual);
+                    $fase_actual = $fase_actual->fase_siguiente();
+                }
+
+                $fases->each(function ($fase) use ($diff_minutos) {
+                    $fase->update([
+                        'fecha_inicio' => Carbon::parse($fase->fecha_inicio)->addMinutes($diff_minutos),
+                        'fecha_fin' => Carbon::parse($fase->fecha_fin)->addMinutes($diff_minutos),
+                        'fecha_calificacion' => Carbon::parse($fase->fecha_calificacion)->addMinutes($diff_minutos),
+                        'estado' => 'pendiente'
+                    ]);
                 });
             }
             return response()->json([

@@ -2,6 +2,8 @@
 
 namespace App\Events;
 
+use App\Models\Fase;
+use Carbon\Carbon;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -10,20 +12,16 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class FaseNotification implements ShouldBroadcast
+class FaseUpdate
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public $message;
-    public $user_id;
-
-    public function __construct($message, $user_id)
+    public function __construct()
     {
-        $this->message = $message;
-        $this->user_id = $user_id;
+        //
     }
 
     /**
@@ -34,15 +32,20 @@ class FaseNotification implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel("user.$this->user_id"),
-            new Channel("user.ADMIN"),
-            new Channel("user.EDA"),
-            new Channel("user.EVA"),
+            new Channel('local'),
         ];
     }
 
     public function broadcastAs()
     {
+        $fases = Fase::all()->filter(function ($fase) {
+            return $fase->fecha_inicio >= Carbon::today() && 
+            $fase->fecha_fin <= Carbon::today()->endOfDay();
+        })->groupBy('nivel_id');
+
+        $primeras_fases = $fases->map(function ($nivel_fases) { return $nivel_fases->first();});
+
+        $primeras_fases->each(function ($fase) { $fase->update(['estado' => 'en curso']); });
         return 'my-event';
     }
 }

@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
+import Footer from "@/components/layout/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
 import { useAuth } from "@/hooks/use-context";

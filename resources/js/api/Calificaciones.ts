@@ -7,7 +7,6 @@ export const getCalificacionesOlimpistas = async (areas: string[]) => {
     const { data } = await axiosPrivate.post("/calificaciones/olimpistas", {
         areas: areas
     });
-    console.log('Calificaciones: ', data);
     return data.data;
 };
 

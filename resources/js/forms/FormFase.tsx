@@ -10,11 +10,13 @@ import { FaseForm } from "./interfaces/Fase";
 import { validationRules } from "./validations/FaseValidate";
 import { getStaticData, updateArea } from "@/api/Areas";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth, UserData } from "@/hooks/use-context";
 import { useFilterAreasUser } from "@/hooks/use-areas-user";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowRight } from "lucide-static";
+import { Badge } from "@/components/ui/badge";
 
 export default function FormFase() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -25,7 +27,9 @@ export default function FormFase() {
     const [fases, setFases] = React.useState<any[]>();
     const [evaluadores, setEvaluadores] = React.useState<any[]>();
     const [areasFiltradas, setAreasFiltradas] = React.useState<any[]>([]);
-
+    const [minutes, setMinutes] = React.useState(0);
+    const [fechaFin, setFechaFin] = React.useState<string>("");
+    const [fechaCalificacion, setFechaCallificacion] = React.useState<string>("");
     const [sharedDate, setSharedDate] = React.useState<Date>(new Date());
     const [faseFlash, setFaseFlash] = React.useState<boolean>(false);
 
@@ -59,8 +63,10 @@ export default function FormFase() {
             sigla: "",
             tipo_fase: "",
             descripcion: "",
+            cantidad_fases: 3,
             cantidad_max_participantes: 20,
             cantidad_min_participantes: 10,
+            cantidad_ganadores: 0,
             fecha_inicio: new Date(),
             fecha_calificacion: new Date(Date.now() + 60 * 60 * 1000),
             fecha_fin: new Date(Date.now() + 120 * 60 * 1000),
@@ -84,6 +90,7 @@ export default function FormFase() {
         register('fecha_inicio', newValidationRules.fecha_inicio);
         register('fecha_calificacion', newValidationRules.fecha_calificacion);
         register('fecha_fin', newValidationRules.fecha_fin);
+        setValue('cantidad_ganadores', 0);
     });
 
     React.useEffect(() => {
@@ -113,6 +120,26 @@ export default function FormFase() {
     // if (areas && areas?.length > 0) {
     //     useFilterAreasUser(areas, data as UserData, areasFiltradas, setAreasFiltradas);
     // }
+
+    const formatTime = (dateTime: Date) => {
+        const hours = dateTime.getHours().toString().padStart(2, '0');
+        const mins = dateTime.getMinutes().toString().padStart(2, '0');
+
+        return `${hours}:${mins}`;
+    };
+
+    React.useEffect(() => {
+        if (minutes > 0) {
+            const fechaInicio = getValues('fecha_inicio');
+            const fecha_calificacion = new Date(fechaInicio.getTime() + minutes * 60 * 30000);
+            const fecha_fin = new Date(fechaInicio.getTime() + minutes * 60 * 60000);
+
+            setFechaCallificacion(formatTime(fecha_calificacion));
+            setFechaFin(formatTime(fecha_fin));
+            setValue('fecha_calificacion', fecha_calificacion);
+            setValue('fecha_fin', fecha_fin);
+        }
+    }, [minutes, getValues('fecha_inicio')]);
 
     const handleDateChange = (
         newDate: Date | undefined,
@@ -206,7 +233,9 @@ export default function FormFase() {
                 <CardTitle className="flex flex-row justify-between">
                     <p>Registro de Fase</p>
                     <div className="flex flex-row space-x-5 items-center">
-                        <p className="text-sm">Marcar el recuadro si la fase empezara inmediatamente</p>
+                        <Badge className="text-center font-mono text-sm bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30">
+                            {'Si quiere crear una sola fase presiona aquí ->'}
+                        </Badge>
                         <Checkbox
                             checked={faseFlash}
                             onCheckedChange={(checked) => {
@@ -217,7 +246,7 @@ export default function FormFase() {
                     </div>
                 </CardTitle>
                 <CardDescription>
-                    Complete los datos para crear una nueva fase de competencia
+                    {`Complete los datos para crear ${faseFlash ? 'una nueva fase' : 'nuevas fases'} de competencia para el área y ${faseFlash ? 'nivel' : 'niveles'}.`}
                 </CardDescription>
             </CardHeader>
 
@@ -227,7 +256,7 @@ export default function FormFase() {
                     <Alert className="border-green-200 bg-green-50">
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <AlertDescription className="text-green-800">
-                            ¡Fase creada exitosamente!
+                            ¡Fase(s) creada exitosamente!
                         </AlertDescription>
                     </Alert>
                 )}
@@ -239,7 +268,7 @@ export default function FormFase() {
                     </Alert>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 rounded-lg p-4 border">
                     <div className="space-y-2">
                         <Label>Área de Competencia <span className="text-red-500">*</span></Label>
                         <Combobox
@@ -265,7 +294,7 @@ export default function FormFase() {
                             placeholder="Seleccionar nivel..."
                             searchPlaceholder="Buscar nivel..."
                             disabled={areaField.value.length === 0}
-                            multiple={false}
+                            multiple={true}
                         />
                         {errors.area && (
                             <p className="text-sm text-red-500">{errors.area.message}</p>
@@ -273,7 +302,9 @@ export default function FormFase() {
                     </div>
 
                     {/* Campo Tipo de Fase */}
-                    <div className="space-y-2">
+                    {
+                        faseFlash ? (
+                            <div className="space-y-2">
                         <Label htmlFor="tipo_fase">
                             Tipo de Fase <span className="text-red-500">*</span>
                         </Label>
@@ -289,6 +320,27 @@ export default function FormFase() {
                             <p className="text-sm text-red-500">{errors.tipo_fase.message}</p>
                         )}
                     </div>
+                        ) : (
+                            <div className="space-y-2">
+                                <Label htmlFor="cantidad_fases">
+                                    Cantidad de fases <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="cantidad_fases"
+                                    type="number"
+                                    placeholder="10"
+                                    {...register("cantidad_fases", {
+                                        ...newValidationRules.cantidad_fases,
+                                        valueAsNumber: true
+                                    })}
+                                    className={errors.cantidad_fases ? "border-red-500" : ""}
+                                />
+                                {errors.cantidad_fases && (
+                                    <p className="text-sm text-red-500">{errors.cantidad_fases.message}</p>
+                                )}
+                            </div>
+                        )
+                    }
 
                     {/* Evaluadores */}
                     <div className="space-y-2">
@@ -311,7 +363,7 @@ export default function FormFase() {
                 {/* Campo Descripción */}
                 {
                     !faseFlash && (
-                        <div className="space-y-2">
+                        <div className="space-y-2 rounded-lg p-4 border">
                             <Label htmlFor="descripcion">
                                 Descripción <span className="text-red-500">*</span>
                             </Label>
@@ -331,7 +383,7 @@ export default function FormFase() {
 
                 {
                     !faseFlash && (
-                        <div className={`grid grid-cols-1 md:grid-cols-${tipoFaseField.value[0] === 'finales' ? '3' : '2'} gap-4`}>
+                        <div className={`grid grid-cols-1 md:grid-cols-${tipoFaseField.value[0] === 'finales' ? '3' : '2'} gap-4 rounded-lg p-4 border`}>
                             {/* Cantidad Mínima */}
                             <div className="space-y-2">
                                 <Label htmlFor="cantidad_min_participantes">
@@ -341,6 +393,7 @@ export default function FormFase() {
                                     id="cantidad_min_participantes"
                                     type="number"
                                     placeholder="10"
+                                    disabled={!faseFlash}
                                     {...register("cantidad_min_participantes", {
                                         ...newValidationRules.cantidad_min_participantes,
                                         valueAsNumber: true
@@ -401,7 +454,7 @@ export default function FormFase() {
 
                 {/* Fechas Sincronizadas */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
+                    <div className="space-y-2 rounded-lg p-4 border">
                         <Label>Fecha y hora inicio del concurso <span className="text-red-500">*</span></Label>
                         <DateTimePicker
                             titleDate=""
@@ -422,40 +475,89 @@ export default function FormFase() {
                             <p className="text-sm text-red-500">{errors.fecha_inicio.message}</p>
                         )}
                     </div>
-                    <div className="space-y-2">
-                        <Label>Hora de Calificacion <span className="text-red-500">*</span></Label>
-                        <DateTimePicker
-                            titleDate=""
-                            titleTime=""
-                            disabledCalendar
-                            value={getValues('fecha_calificacion')}
-                            onChange={(date) => {
-                                if (date) {
-                                    handleDateChange(date, 'fecha_calificacion');
-                                }
-                            }}
-                        />
-                        {errors.fecha_calificacion && (
-                            <p className="text-sm text-red-500">{errors.fecha_calificacion.message}</p>
-                        )}
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Hora Fin <span className="text-red-500">*</span></Label>
-                        <DateTimePicker
-                            titleDate=""
-                            titleTime=""
-                            disabledCalendar
-                            value={getValues('fecha_fin')}
-                            onChange={(date) => {
-                                if (date) {
-                                    handleDateChange(date, 'fecha_fin');
-                                }
-                            }}
-                        />
-                        {errors.fecha_fin && (
-                            <p className="text-sm text-red-500">{errors.fecha_fin.message}</p>
-                        )}
-                    </div>
+                    {
+                        faseFlash && (
+                            <div className="space-y-2 col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div className="space-y-2 rounded-lg p-4 border">
+                                    <Label>Hora de Calificacion <span className="text-red-500">*</span></Label>
+                                    <DateTimePicker
+                                        titleDate=""
+                                        titleTime=""
+                                        disabledCalendar
+                                        value={getValues('fecha_calificacion')}
+                                        onChange={(date) => {
+                                            if (date) {
+                                                handleDateChange(date, 'fecha_calificacion');
+                                            }
+                                        }}
+                                    />
+                                    {errors.fecha_calificacion && (
+                                        <p className="text-sm text-red-500">{errors.fecha_calificacion.message}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2 rounded-lg p-4 border">
+                                    <Label>Hora Fin <span className="text-red-500">*</span></Label>
+                                    <DateTimePicker
+                                        titleDate=""
+                                        titleTime=""
+                                        disabledCalendar
+                                        value={getValues('fecha_fin')}
+                                        onChange={(date) => {
+                                            if (date) {
+                                                handleDateChange(date, 'fecha_fin');
+                                            }
+                                        }}
+                                    />
+                                    {errors.fecha_fin && (
+                                        <p className="text-sm text-red-500">{errors.fecha_fin.message}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )
+                    }
+                    {
+                        !faseFlash && (
+                            <div className="space-y-2 col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div className="space-y-2 rounded-lg p-4 border">
+                                    <Label className="block text-sm font-medium text-white mb-3">
+                                        Tiempo de duración de la fase:
+                                    </Label>
+                                    <div className="grid grid-cols-4 gap-2 mt-3">
+                                        {[1, 2, 3, 4].map((val) => (
+                                            <Button
+                                                key={val}
+                                                type="button"
+                                                onClick={() => {
+                                                    setMinutes(val);
+                                                }}
+                                                className={`px-3 text-sm font-medium rounded-lg transition-colors ${minutes === val
+                                                    ? 'bg-primary text-primary-foreground shadow-sm'
+                                                    : 'bg-background text-foreground border border-input hover:bg-accent hover:text-accent-foreground'
+                                                    }`}
+                                            >
+                                                {val} horas
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Preview de la hora resultante */}
+                                <div className="space-y-2 border rounded-lg p-4 flex flex-col justify-center">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium text-white">Hora de calificacion:</span>
+                                            <span className="text-lg font-semibold text-white">{fechaCalificacion}</span>
+                                        </div>
+                                        <div className="text-white text-lg font-bold"> → </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium text-white">Hora de premiacion:</span>
+                                            <span className="text-lg font-bold text-white">{fechaFin}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
                 </div>
             </CardContent>
 
@@ -478,7 +580,7 @@ export default function FormFase() {
                     className="w-full"
                     disabled={isLoading}
                 >
-                    {isLoading ? "Creando Fase..." : "Crear Fase"}
+                    {isLoading ? "Creando Fase(s)..." : "Crear Fase(s)"}
                 </Button>
 
                 {!success && (

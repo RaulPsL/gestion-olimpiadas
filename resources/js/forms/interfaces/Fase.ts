@@ -1,6 +1,6 @@
 export interface FaseForm {
     sigla: string;
-    tipo_fase: string;
+    tipo_fase?: string;
     descripcion: string;
     cantidad_ganadores: number;
     cantidad_max_participantes: number;
@@ -12,4 +12,5 @@ export interface FaseForm {
     nivel: string;
     usuarios: string[];
     flash?: boolean;
+    cantidad_fases?: number;
 }

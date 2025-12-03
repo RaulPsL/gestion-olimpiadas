@@ -89,8 +89,8 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full space-y-4">
       {/* Barra de búsqueda y filtros mejorada */}
-      <Card className="p-4 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm border-border/50 shadow-lg">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <Card className="p-2 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm border-border/50 shadow-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           {fieldSearch && (
             <div className="relative flex-1 w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -132,7 +132,7 @@ export function DataTable<TData, TValue>({
         </div>
 
         {/* Información de filas */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
           <p className="text-sm text-muted-foreground">
             Mostrando <span className="font-semibold text-foreground">{table.getRowModel().rows.length}</span> de{" "}
             <span className="font-semibold text-foreground">{table.getFilteredRowModel().rows.length}</span> resultado(s)
@@ -159,7 +159,7 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead 
                         key={header.id}
-                        className="text-center font-bold text-foreground/90 py-4 first:rounded-tl-lg last:rounded-tr-lg"
+                        className="text-center font-bold text-foreground/90 py-2 px-2 first:rounded-tl-lg last:rounded-tr-lg"
                       >
                         {header.isPlaceholder
                           ? null
@@ -184,7 +184,7 @@ export function DataTable<TData, TValue>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell 
                         key={cell.id}
-                        className="text-center py-4"
+                        className="text-center py-2 px-2"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -212,7 +212,7 @@ export function DataTable<TData, TValue>({
         </div>
 
         {/* Paginación mejorada */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-border/50 bg-muted/20">
+        <div className="flex items-center justify-between px-4 py-2 border-t border-border/50 bg-muted/20">
           <div className="text-sm text-muted-foreground">
             Página <span className="font-semibold text-foreground">{table.getState().pagination.pageIndex + 1}</span> de{" "}
             <span className="font-semibold text-foreground">{table.getPageCount()}</span>

@@ -117,14 +117,14 @@ export default function useStaticData(
                             {
                                 title: "Generar en PDF",
                                 action: () => generarListaPDF({
-                                    usuarios: olimpistas.clasificados,
+                                    usuarios: olimpistas.clasificado,
                                     tipoPdf: 'clasificados',
                                     olimpistas: true
                                 }),
                             },
                             {
                                 title: "Generar excel",
-                                action: () => generarExcel(olimpistas.clasificados, 'clasificados'),
+                                action: () => generarExcel(olimpistas.clasificado, 'clasificados'),
                             }
                         ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
                 },
@@ -144,14 +144,14 @@ export default function useStaticData(
                             {
                                 title: "Generar en PDF",
                                 action: () => generarListaPDF({
-                                    usuarios: olimpistas['no clasificados'],
+                                    usuarios: olimpistas['no clasificado'],
                                     tipoPdf: 'olimpistas',
                                     olimpistas: true
                                 }),
                             },
                             {
                                 title: "Generar excel",
-                                action: () => generarExcel(olimpistas['no clasificados'], 'no_clasificados'),
+                                action: () => generarExcel(olimpistas['no clasificado'], 'no_clasificados'),
                             }
                         ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
                 },
@@ -171,14 +171,14 @@ export default function useStaticData(
                             {
                                 title: "Generar en PDF",
                                 action: () => generarListaPDF({
-                                    usuarios: olimpistas.desclasificados,
+                                    usuarios: olimpistas.desclasificado,
                                     tipoPdf: 'desclasificados',
                                     olimpistas: true
                                 }),
                             },
                             {
                                 title: "Generar excel",
-                                action: () => generarExcel(olimpistas.desclasificados, 'desclasificados'),
+                                action: () => generarExcel(olimpistas.desclasificado, 'desclasificados'),
                             }
                         ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
                 },
@@ -301,6 +301,10 @@ export default function useStaticData(
                                     olimpistas: true
                                 }),
                             },
+                            {
+                                title: "Generar excel",
+                                action: () => generarExcel(ganadores, `ganadores-${area}`),
+                            }
                         ]
                     };
                 })
@@ -338,7 +342,7 @@ export default function useStaticData(
                                 title: "Generar en PDF",
                                 action: () => generarListaPDF({
                                     usuarios: ganadores,
-                                    tipoPdf: `ganadores-${area}`,
+                                    tipoPdf: `ganadores del área ${area}`,
                                     olimpistas: true
                                 }),
                             },

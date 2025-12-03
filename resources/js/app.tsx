@@ -16,16 +16,18 @@ import PageVerAcciones from './pages/PageVerAcciones';
 import PageCierreFases from './pages/PageCierreFases';
 import PageGenerarDocs from './pages/PageDocument';
 import PageVerUsuarios from './pages/PageVerUsuarios';
+import { PageCalendario } from './pages/PageCalendario';
 
 function App() {
     return (
-        <div className="dark flex flex-1 flex-col gap-4 px-4">
+        <div className="dark flex flex-1 flex-col gap-4">
             <AuthProvider>
                 <Routes>
                     <Route path="/" element={<PageHome />} />
                     <Route path="/login" element={<PageLogin />} />
                     <Route path="/clasificaciones/olimpistas" element={ <PageClasificaciones esGrupo={false} /> } />
                     <Route path="/clasificaciones/grupos" element={ <PageClasificaciones esGrupo={true} /> } />
+                    <Route path="/calendario" element={ <PageCalendario /> } />
                     <Route
                         path="/olimpistas/registrar olimpista(s)"
                         element={

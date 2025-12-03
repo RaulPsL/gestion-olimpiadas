@@ -5,6 +5,7 @@ import { DataTableCierrresFases } from "@/components/tables/DataTableCierreFases
 import { Card, CardContent } from "@/components/ui/card";
 import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 import { useAuth, UserData } from "@/hooks/use-context";
+import { useNotification } from "@/hooks/use-notifications";
 
 import React, { Dispatch } from "react";
 import { useForm } from "react-hook-form";
@@ -38,6 +39,10 @@ export default function TablecierreFases(
 
   const { data } = useAuth();
   const rol = data?.rol.sigla;
+  
+  // Hook de notificaciones - se llama aquí en el nivel superior del componente
+  useNotification(data?.data?.ci || "");
+
   const handleConfirmSave = () => {
     setIsLoading(true);
     handleSubmit((data) => updateCierreFases(
@@ -56,7 +61,13 @@ export default function TablecierreFases(
 
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
-  const columns = createColumnsCierres(register, setValue, setDialogOpen, data as UserData, setFechaFin);
+  const columns = createColumnsCierres(
+    register, 
+    setValue, 
+    setDialogOpen, 
+    data as UserData, 
+    setFechaFin
+  );
 
   const [nuevaLista, setNuevaLista] = React.useState<any[]>(
     cierres.map(item => ({ ...item, edicion: false }))

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\Fase;
 use App\Models\Nivel;
 use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
@@ -246,8 +247,10 @@ class AreasController extends Controller
                     $nombre_nivel = Nivel::where('id', $faseData['nivel'])->first()->nombre;
                     $nivel = strtoupper(trim($nombre_nivel));
                     $sigla_fase = $sigla . substr($nivel, 0, strlen($nivel) > 2 ? 3 : 2) . strtoupper(substr($faseData['tipo_fase'], 0, 3));
-                    $fase = $area->fases()->create([
-                        'sigla' => $sigla_fase,
+                    $fases_ = Fase::where('sigla', 'LIKE', "%$sigla_fase%")->orderBy('fase_id', 'ASC')->get();
+                    $fase_anterior = $fases_->last();
+                    $fase = Fase::create([
+                        'sigla' => $sigla_fase.$fases_->count(),
                         'tipo_fase' => $faseData['tipo_fase'],
                         'descripcion' => $faseData['descripcion'] ?? 'Fase sin descripción',
                         'estado' => $faseData['flash'] ? 'en curso' : 'pendiente',
@@ -259,8 +262,10 @@ class AreasController extends Controller
                         'fecha_fin' => $faseData['fecha_fin'],
                         'area_id' => $area->id,
                         'nivel_id' => $faseData['nivel'],
+                        'fase_id' => $fase_anterior ? $fase_anterior->fase_id : null,
                     ]);
 
+                    $fase_anterior->update(['fase_id', $fase->id]);
                     // Relacionar la fase con los usuarios
                     $fase->usuarios()->sync($usuarios->pluck('id')->toArray());
                 }

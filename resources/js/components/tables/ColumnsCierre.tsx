@@ -260,9 +260,8 @@ export const createColumnsCierres = (
                 "usuario_evaluador_id",
                 usuarioRol === "EVA" ? ciUsuario : 0
               );
-              if (fila.usuario_encargado_id !== "" && fila.usuario_evaluador_id !== "") {
-                useNotification(`${data.data.ci}`);
-              }
+              // No se necesita hacer nada aquí, el hook ya está escuchando
+              // las notificaciones en el componente padre
               setDialogOpen((prev) => !prev);
             }}
             className={puedeCerrar 

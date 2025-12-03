@@ -2,6 +2,7 @@ import { BookUser } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
+import Footer from "@/components/layout/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
 import { getClasificacionesByArea, getClasificacionesGrupoByArea } from "@/api/Clasificacciones";
@@ -72,6 +73,7 @@ export default function PageClasificaciones({ esGrupo }: { esGrupo: boolean }) {
                         )}
                     </div>
                 </div>
+                <Footer />
             </SidebarInset>
         </SidebarProvider>
     );

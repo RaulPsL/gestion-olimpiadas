@@ -77,7 +77,7 @@ export default function Header() {
                             onMouseLeave={() => setIsHovered(false)}
                         >
                             {/* Contenido normal del usuario */}
-                            <div className={`grid grid-cols-[auto_1fr] gap-x-3 items-center px-3 py-2 rounded-md transition-opacity duration-200 ${isHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                            <div className={`text-white grid grid-cols-[auto_1fr] gap-x-3 items-center px-3 py-2 rounded-md transition-opacity duration-200 ${isHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                                 <div className="flex items-center">
                                     <div className="bg-primary/10 p-2 rounded-full">
                                         <User2 className="w-4 h-4 text-primary" />

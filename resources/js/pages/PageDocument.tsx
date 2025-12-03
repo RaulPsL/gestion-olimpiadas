@@ -2,6 +2,7 @@ import { AlertCircle, BookCopy, CheckCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
+import Footer from "@/components/layout/Footer";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SectionAccountingOlimpistas } from "@/components/SectionAccoutingOlimpistas";
 import { useAuth } from "@/hooks/use-context";
@@ -120,6 +121,21 @@ export default function PageGenerarDocs() {
                     </div>
 
                 </div>
+                <Dialog open={downloading} onOpenChange={setDownloading}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle className="text-center">
+                                Descargando certificados...
+                            </DialogTitle>
+                        </DialogHeader>
+                        <div className="flex justify-center items-center py-8">
+                            <Spinner className="h-12 w-12" />
+                        </div>
+                        <DialogDescription className="text-center text-muted-foreground">
+                            Por favor espera mientras se cargan los certificados.
+                        </DialogDescription>
+                    </DialogContent>
+                </Dialog>
                 {/* Dialog para generar certificados */}
                 <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                     <DialogContent className="max-h-[90vh] max-w-[95vw] lg:max-w-[1400px] border-border/50 bg-card/95 backdrop-blur-xl overflow-hidden flex flex-col">
@@ -140,21 +156,6 @@ export default function PageGenerarDocs() {
                                 <Card className="w-full">
                                     <CardContent className="space-y-4">
                                         {/* Alertas */}
-                                        {downloading && (
-                                            <>
-                                                <DialogHeader>
-                                                    <DialogTitle className="text-center">
-                                                        Descargando certificados...
-                                                    </DialogTitle>
-                                                </DialogHeader>
-                                                <div className="flex justify-center items-center py-8">
-                                                    <Spinner className="h-12 w-12" />
-                                                </div>
-                                                <DialogDescription className="text-center text-muted-foreground">
-                                                    Por favor espera mientras se cargan los certificados.
-                                                </DialogDescription>
-                                            </>
-                                        )}
 
                                         {/* {apiError && (
                                     <Alert variant="destructive">

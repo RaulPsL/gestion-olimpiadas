@@ -21,62 +21,14 @@ export function NavigateMenu({ role }: { role: boolean }) {
             <Link to="/">Inicio</Link>
           </NavigationMenuLink>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link to="/calendario">Calendario de fases</Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link to="/clasificaciones/olimpistas">Todos los olimpistas</Link>
           </NavigationMenuLink>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
             <Link to="/clasificaciones/grupos">Todos los grupos</Link>
           </NavigationMenuLink>
-          {/* {!role && (
-            <NavigationMenuLink>
-              <Link to="/fases">Todas las fases</Link>
-            </NavigationMenuLink>
-          )} */}
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          {!role && (<NavigationMenuTrigger>Menu olimpistas</NavigationMenuTrigger>)}
-          <NavigationMenuContent className="bg-background border border-border shadow-lg">
-            <ul className="grid w-[300px] gap-1 p-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <a
-                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                    href="#"
-                  >
-                    <div className="text-sm font-medium leading-none">Areas de concurso</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                      Mostrara las areas que esten habilitadas para concursar.
-                    </p>
-                  </a>
-                </NavigationMenuLink>
-              </li>
-              <li>
-                <NavigationMenuLink asChild>
-                  <a
-                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                    href="/clasificaciones/areas"
-                  >
-                    <div className="text-sm font-medium leading-none">Calificaciones de todas las areas</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                      Le dirigira a todas las calificaciones los diferentes olimpistas en las diferentes áreas.
-                    </p>
-                  </a>
-                </NavigationMenuLink>
-              </li>
-              <li>
-                <NavigationMenuLink asChild>
-                  <a
-                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                    href="#"
-                  >
-                    <div className="text-sm font-medium leading-none">Como concursar</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                      Mostrara como concursar.
-                    </p>
-                  </a>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>

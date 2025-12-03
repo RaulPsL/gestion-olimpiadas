@@ -75,6 +75,7 @@ class CalificacionesController extends Controller
                         'niveles' => $niveles_area,
                         'estado' => $fase->estado,
                         'fase_id' => $fase->id,
+                        'sigla' => $fase->sigla,
                         'calificaciones' => $calificaciones->sortByDesc('nota')->values()
                     ];
                 }
