@@ -413,206 +413,205 @@ export default function CustomCalendar() {
     return (
         <Carousel className="w-full flex overflow-x-hidden relative group">
             <CarouselContent className="flex w-full items-center">
-                <CarouselItem key={'fases'} className="w-full flex-shrink-0">
-                    <div className="w-full flex-shrink-0 px-2">
-                        <Card className="w-full flex-shrink-0 px-2">
-                            <CardContent className="flex items-center justify-center p-4 space-x-6">
-                                <Card className="shadow-premium border-border/50 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm overflow-hidden max-h-[500px]">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5 opacity-50" />
+                <CarouselItem key={'fases-hoy'} className="w-full flex-shrink-0">
+                    <Card className="shadow-premium border-border/50 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5 opacity-50" />
 
-                                    <CardHeader className="relative z-10 pb-3">
-                                        <CardTitle className="flex items-center gap-2 text-lg font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
-                                            <PlayCircle className="h-5 w-5 text-green-500" />
-                                            Fases de Hoy - {moment().format('dddd, DD MMMM YYYY')}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="relative z-10 max-h-[400px] overflow-y-auto">
-                                        <div className="grid gap-3 md:grid-cols-2">
-                                            {
-                                                eventosHoy.length > 0 ? eventosHoy.map((evento) => {
-                                                    const areaConfig = coloresPorArea[evento.resource?.area || 'FÍSICA'];
-                                                    const AreaIcon = areaConfig?.icon;
-                                                    const isOngoing = currentTime >= evento.start && currentTime <= evento.end;
-                                                    const timeRemaining = isOngoing ? getTimeRemaining(evento.end) : null;
+                        <CardHeader className="relative z-10 pb-3">
+                            <CardTitle className="flex items-center gap-2 text-lg font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                                <PlayCircle className="h-5 w-5 text-green-500" />
+                                Fases de Hoy - {moment().format('dddd, DD MMMM YYYY')}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10 overflow-y-auto">
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {
+                                    eventosHoy.length > 0 ? eventosHoy.map((evento) => {
+                                        const areaConfig = coloresPorArea[evento.resource?.area || 'FÍSICA'];
+                                        const AreaIcon = areaConfig?.icon;
+                                        const isOngoing = currentTime >= evento.start && currentTime <= evento.end;
+                                        const passEvent = currentTime >= evento.end;
+                                        const timeRemaining = isOngoing ? getTimeRemaining(evento.end) : null;
 
-                                                    return (
-                                                        <div
-                                                            key={evento.id}
-                                                            className={`p-3 rounded-lg border-2 transition-all duration-300 ${isOngoing
-                                                                ? 'bg-green-500/10 border-green-500/50 shadow-lg shadow-green-500/20'
-                                                                : 'bg-red-500/10 border-red-500/50 shadow-lg shadow-red-500/20'
-                                                                }`}
-                                                        >
-                                                            <div className="flex items-start justify-between gap-2 mb-2">
-                                                                <div className="flex items-center gap-2">
-                                                                    {AreaIcon && <AreaIcon className="h-5 w-5" style={{ color: areaConfig?.darkBg }} />}
-                                                                    <h3 className="font-bold text-sm capitalize">{evento.title}</h3>
-                                                                </div>
-                                                                <Badge className={`${isOngoing ? "bg-green-500 animate-pulse" : "bg-red-500"} text-white border-0 shadow-sm`}>
-                                                                    {isOngoing ? "En Curso" : "Finalizada"}
-                                                                </Badge>
+                                        return (
+                                            <div
+                                                key={evento.id}
+                                                className={`p-3 rounded-lg border-2 transition-all duration-300 ${isOngoing
+                                                    ? 'bg-green-500/10 border-green-500/50 shadow-lg shadow-green-500/20'
+                                                    : (passEvent ? 
+                                                        'bg-red-500/10 border-red-500/50 shadow-lg shadow-red-500/20' 
+                                                        : 'bg-blue-500/10 border-blue-500/50 shadow-lg shadow-blue-500/20')
+                                                    }`}
+                                            >
+                                                <div className="flex items-start justify-between gap-2 mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        {AreaIcon && <AreaIcon className="h-5 w-5" style={{ color: areaConfig?.darkBg }} />}
+                                                        <h3 className="font-bold text-sm capitalize">{evento.title}</h3>
+                                                    </div>
+                                                    <Badge className={`${isOngoing ? "bg-green-500 animate-pulse" : (passEvent ? "bg-red-500" : "bg-blue-500")} text-white border-0 shadow-sm`}>
+                                                        {isOngoing ? "En Curso" : (passEvent ? "Finalizada" : "Pendiente")}
+                                                    </Badge>
 
-                                                            </div>
+                                                </div>
 
-                                                            <div className="space-y-1.5 text-sm">
-                                                                <div className="flex items-center gap-2 text-muted-foreground">
-                                                                    <Clock className="h-4 w-4" />
-                                                                    <span>{moment(evento.start).format('HH:mm')} - {moment(evento.end).format('HH:mm')}</span>
-                                                                </div>
+                                                <div className="space-y-1.5 text-sm">
+                                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                                        <Clock className="h-4 w-4" />
+                                                        <span>{moment(evento.start).format('HH:mm')} - {moment(evento.end).format('HH:mm')}</span>
+                                                    </div>
 
-                                                                {evento.resource?.location && (
-                                                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                                                        <MapPin className="h-4 w-4" />
-                                                                        <span>{evento.resource.location}</span>
-                                                                    </div>
-                                                                )}
-
-                                                                <div className="flex items-center gap-2 text-muted-foreground">
-                                                                    <Users className="h-4 w-4" />
-                                                                    <span>{evento?.resource?.participants ?? 0} estudiantes</span>
-                                                                </div>
-                                                            </div>
-
-                                                            {isOngoing && timeRemaining && timeRemaining.total > 0 && (
-                                                                <div className="mt-3 p-2 bg-green-500/20 rounded-lg border border-green-500/30">
-                                                                    <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2">Tiempo restante:</p>
-                                                                    <div className="flex items-center justify-center gap-1.5 animate-pulse">
-                                                                        <div className="text-center">
-                                                                            <div className="text-xl font-bold text-green-600 dark:text-green-400">
-                                                                                {String(timeRemaining.hours).padStart(2, '0')}
-                                                                            </div>
-                                                                            <div className="text-xs text-muted-foreground">horas</div>
-                                                                        </div>
-                                                                        <div className="text-xl font-bold text-green-600 dark:text-green-400">:</div>
-                                                                        <div className="text-center">
-                                                                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                                                                {String(timeRemaining.minutes).padStart(2, '0')}
-                                                                            </div>
-                                                                            <div className="text-xs text-muted-foreground">min</div>
-                                                                        </div>
-                                                                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">:</div>
-                                                                        <div className="text-center">
-                                                                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                                                                {String(timeRemaining.seconds).padStart(2, '0')}
-                                                                            </div>
-                                                                            <div className="text-xs text-muted-foreground">seg</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
+                                                    {evento.resource?.location && (
+                                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                                            <MapPin className="h-4 w-4" />
+                                                            <span>{evento.resource.location}</span>
                                                         </div>
-                                                    );
-                                                }) : (
-                                                    <>
-                                                        No se tienen fases aun
-                                                    </>
+                                                    )}
+
+                                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                                        <Users className="h-4 w-4" />
+                                                        <span>{evento?.resource?.participants ?? 0} estudiantes</span>
+                                                    </div>
+                                                </div>
+
+                                                {isOngoing && timeRemaining && timeRemaining.total > 0 && (
+                                                    <div className="mt-3 p-2 bg-green-500/20 rounded-lg border border-green-500/30">
+                                                        <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2">Tiempo restante:</p>
+                                                        <div className="flex items-center justify-center gap-1.5 animate-pulse">
+                                                            <div className="text-center">
+                                                                <div className="text-xl font-bold text-green-600 dark:text-green-400">
+                                                                    {String(timeRemaining.hours).padStart(2, '0')}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">horas</div>
+                                                            </div>
+                                                            <div className="text-xl font-bold text-green-600 dark:text-green-400">:</div>
+                                                            <div className="text-center">
+                                                                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                                                    {String(timeRemaining.minutes).padStart(2, '0')}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">min</div>
+                                                            </div>
+                                                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">:</div>
+                                                            <div className="text-center">
+                                                                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                                                    {String(timeRemaining.seconds).padStart(2, '0')}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">seg</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="shadow-premium border-border/50 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm overflow-hidden max-h-[500px]">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 opacity-50" />
-
-                                    <CardHeader className="relative z-10 pb-3">
-                                        <CardTitle className="flex items-center gap-2 text-lg font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
-                                            <Clock3 className="h-5 w-5 text-blue-500" />
-                                            Fases de Mañana - {moment().add(1, 'day').format('dddd, DD MMMM YYYY')}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="relative z-10 max-h-[400px] overflow-y-auto">
-                                        {eventosSiguiente.length > 0 ?
-                                            <div className="grid gap-3 md:grid-cols-2">
-                                                {eventosSiguiente.map((evento) => {
-                                                    const areaConfig = coloresPorArea[evento.resource?.area || 'FÍSICA'];
-                                                    const AreaIcon = areaConfig?.icon;
-                                                    const timeUntilStart = getTimeUntilStart(evento.start);
-
-                                                    return (
-                                                        <div
-                                                            key={evento.id}
-                                                            className="p-3 rounded-lg border-2 bg-blue-500/5 border-blue-500/30 transition-all duration-300 hover:shadow-lg"
-                                                        >
-                                                            <div className="flex items-start justify-between gap-2 mb-2">
-                                                                <div className="flex items-center gap-2">
-                                                                    {AreaIcon && <AreaIcon className="h-5 w-5" style={{ color: areaConfig?.darkBg }} />}
-                                                                    <h3 className="font-bold text-sm capitalize">{evento.title}</h3>
-                                                                </div>
-                                                                <Badge className="bg-blue-500/20 text-blue-600 border-blue-500/30 font-semibold">
-                                                                    Próxima
-                                                                </Badge>
-                                                            </div>
-
-                                                            <div className="space-y-1.5 text-sm">
-                                                                <div className="flex items-center gap-2 text-muted-foreground">
-                                                                    <Clock className="h-4 w-4" />
-                                                                    <span>{moment(evento.start).format('HH:mm')} - {moment(evento.end).format('HH:mm')}</span>
-                                                                </div>
-
-                                                                {evento.resource?.location && (
-                                                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                                                        <MapPin className="h-4 w-4" />
-                                                                        <span>{evento.resource.location}</span>
-                                                                    </div>
-                                                                )}
-
-                                                                <div className="flex items-center gap-2 text-muted-foreground">
-                                                                    <Users className="h-4 w-4" />
-                                                                    <span>{evento?.resource?.participants ?? 0} estudiantes</span>
-                                                                </div>
-                                                            </div>
-
-                                                            {timeUntilStart.total > 0 && (
-                                                                <div className="mt-3 p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                                                                    <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-2">Comienza en:</p>
-                                                                    <div className="flex items-center justify-center gap-1.5">
-                                                                        {timeUntilStart.days > 0 && (
-                                                                            <>
-                                                                                <div className="text-center">
-                                                                                    <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                                                                                        {String(timeUntilStart.days).padStart(2, '0')}
-                                                                                    </div>
-                                                                                    <div className="text-xs text-muted-foreground">días</div>
-                                                                                </div>
-                                                                                <div className="text-xl font-bold text-blue-600 dark:text-blue-400">:</div>
-                                                                            </>
-                                                                        )}
-                                                                        <div className="text-center">
-                                                                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                                                                {String(timeUntilStart.hours).padStart(2, '0')}
-                                                                            </div>
-                                                                            <div className="text-xs text-muted-foreground">horas</div>
-                                                                        </div>
-                                                                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">:</div>
-                                                                        <div className="text-center">
-                                                                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                                                                {String(timeUntilStart.minutes).padStart(2, '0')}
-                                                                            </div>
-                                                                            <div className="text-xs text-muted-foreground">min</div>
-                                                                        </div>
-                                                                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">:</div>
-                                                                        <div className="text-center">
-                                                                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                                                                {String(timeUntilStart.seconds).padStart(2, '0')}
-                                                                            </div>
-                                                                            <div className="text-xs text-muted-foreground">seg</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
                                             </div>
-                                            : <>
-                                                No se tienen fases aun
-                                            </>
-                                        }
+                                        );
+                                    }) : (
+                                        <>
+                                            No se tienen fases aun
+                                        </>
+                                    )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+                <CarouselItem key={'fase-maña'} className="w-full flex-shrink-0">
+                    <Card className="shadow-premium border-border/50 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 opacity-50" />
 
-                                    </CardContent>
-                                </Card>
-                            </CardContent>
-                        </Card>
-                    </div>
+                        <CardHeader className="relative z-10 pb-3">
+                            <CardTitle className="flex items-center gap-2 text-lg font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                                <Clock3 className="h-5 w-5 text-blue-500" />
+                                Fases de Mañana - {moment().add(1, 'day').format('dddd, DD MMMM YYYY')}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10 overflow-y-auto">
+                            {eventosSiguiente.length > 0 ?
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    {eventosSiguiente.map((evento) => {
+                                        const areaConfig = coloresPorArea[evento.resource?.area || 'FÍSICA'];
+                                        const AreaIcon = areaConfig?.icon;
+                                        const timeUntilStart = getTimeUntilStart(evento.start);
+
+                                        return (
+                                            <div
+                                                key={evento.id}
+                                                className="p-3 rounded-lg border-2 bg-blue-500/5 border-blue-500/30 transition-all duration-300 hover:shadow-lg"
+                                            >
+                                                <div className="flex items-start justify-between gap-2 mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        {AreaIcon && <AreaIcon className="h-5 w-5" style={{ color: areaConfig?.darkBg }} />}
+                                                        <h3 className="font-bold text-sm capitalize">{evento.title}</h3>
+                                                    </div>
+                                                    <Badge className="bg-blue-500/20 text-blue-600 border-blue-500/30 font-semibold">
+                                                        Próxima
+                                                    </Badge>
+                                                </div>
+
+                                                <div className="space-y-1.5 text-sm">
+                                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                                        <Clock className="h-4 w-4" />
+                                                        <span>{moment(evento.start).format('HH:mm')} - {moment(evento.end).format('HH:mm')}</span>
+                                                    </div>
+
+                                                    {evento.resource?.location && (
+                                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                                            <MapPin className="h-4 w-4" />
+                                                            <span>{evento.resource.location}</span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                                        <Users className="h-4 w-4" />
+                                                        <span>{evento?.resource?.participants ?? 0} estudiantes</span>
+                                                    </div>
+                                                </div>
+
+                                                {timeUntilStart.total > 0 && (
+                                                    <div className="mt-3 p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                                                        <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-2">Comienza en:</p>
+                                                        <div className="flex items-center justify-center gap-1.5">
+                                                            {timeUntilStart.days > 0 && (
+                                                                <>
+                                                                    <div className="text-center">
+                                                                        <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                                                                            {String(timeUntilStart.days).padStart(2, '0')}
+                                                                        </div>
+                                                                        <div className="text-xs text-muted-foreground">días</div>
+                                                                    </div>
+                                                                    <div className="text-xl font-bold text-blue-600 dark:text-blue-400">:</div>
+                                                                </>
+                                                            )}
+                                                            <div className="text-center">
+                                                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                                                    {String(timeUntilStart.hours).padStart(2, '0')}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">horas</div>
+                                                            </div>
+                                                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">:</div>
+                                                            <div className="text-center">
+                                                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                                                    {String(timeUntilStart.minutes).padStart(2, '0')}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">min</div>
+                                                            </div>
+                                                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">:</div>
+                                                            <div className="text-center">
+                                                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                                                    {String(timeUntilStart.seconds).padStart(2, '0')}
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground">seg</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                : <>
+                                    No se tienen fases aun
+                                </>
+                            }
+
+                        </CardContent>
+                    </Card>
                 </CarouselItem>
                 <CarouselItem key={'calendario'}>
 

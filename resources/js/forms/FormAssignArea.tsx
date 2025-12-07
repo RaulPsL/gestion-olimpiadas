@@ -8,7 +8,9 @@ import { Combobox, useComboboxField } from "@/components/Combobox";
 import { UsuarioForm } from "./interfaces/Usuario";
 import { createUsuario, getStaticData, updateUsuario } from "@/api/Usuarios";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { DialogClose, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth, UserData } from "@/hooks/use-context";
 import { useFilterAreasUser } from "@/hooks/use-areas-user";
@@ -72,18 +74,94 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
         setValue('email', otherData.email);
     }, [otherData]);
 
+    const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+
     React.useEffect(() => {
+        if (isLoading || apiError !== '') {
+            setDialogOpen(true);
+        }
         if (success) {
             const timer = setTimeout(() => {
+                setDialogOpen(false);
                 setSuccess(false);
             }, 3000);
             return () => clearTimeout(timer);
         }
+    }, [isLoading, dialogOpen]);
 
-    }, [isLoading]);
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+        setApiError('');
+        setIsLoading(false);
+        setSuccess(false);
+    };
 
     return (
         <>
+            <AlertDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                defaultOpen={dialogOpen}>
+                <AlertDialogTrigger asChild />
+
+                <AlertDialogContent>
+                    <AlertDialogTitle className="text-center"/>
+                    {isLoading && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-center">
+                                    Asignando área...
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <div className="flex justify-center items-center py-8">
+                                <Spinner className="h-12 w-12" />
+                            </div>
+                            <AlertDialogDescription className="text-center text-muted-foreground">
+                                Por favor espera mientras se asigna el área.
+                            </AlertDialogDescription>
+                        </>
+                    )}
+
+                    {(apiError !== '') && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-red-500 text-center">
+                                    Ocurrió un error
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Error al asignar</AlertTitle>
+                                <AlertDescription>
+                                    {apiError}
+                                </AlertDescription>
+                            </Alert>
+                            <AlertDialogFooter>
+                                <AlertDialogAction onClick={handleCloseDialog}>
+                                    Entendido
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </>
+                    )}
+
+                    {success && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-green-600 text-center">
+                                    ¡Éxito en la acción!
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <Alert className="border-green-200 bg-green-50">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                <AlertTitle className="text-green-800">Asignación exitosa</AlertTitle>
+                                <AlertDescription className="text-green-700">
+                                    El área se asignó exitosamente al usuario.
+                                </AlertDescription>
+                            </Alert>
+                        </>
+                    )}
+                </AlertDialogContent>
+            </AlertDialog>
             <DialogHeader>
                 <DialogTitle>Asignación de área</DialogTitle>
                 <DialogDescription>
@@ -93,24 +171,7 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
 
             <div>
                 <CardContent className="space-y-4">
-                    {/* Alertas de éxito o error */}
-                    {success && (
-                        <Alert className="border-green-200 bg-green-50">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <AlertDescription className="text-green-800">
-                                ¡Usuario registrado exitosamente!
-                            </AlertDescription>
-                        </Alert>
-                    )}
 
-                    {apiError && (
-                        <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>
-                                {apiError}
-                            </AlertDescription>
-                        </Alert>
-                    )}
 
                     <div>
                         {/* Grid para organizar campos */}
@@ -225,20 +286,26 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
                 <CardFooter className="flex flex-col gap-3">
                     <Button
                         type="button"
-                        onClick={
+                        onClick={() => {
+                            setApiError("");
+                            setSuccess(false);
+                            setDialogOpen(true);
                             handleSubmit(
-                                (data) => updateUsuario(
-                                    otherData.ci,
-                                    data,
-                                    areaField.value as string[],
-                                    nivelField.value as number[],
-                                    setIsLoading,
-                                    setSuccess,
-                                    setApiError,
-                                    () => areaField.reset(),
-                                    () => nivelField.reset(),
-                                )
-                            )}
+                                async (data) => {
+                                    await updateUsuario(
+                                        otherData.ci,
+                                        data,
+                                        areaField.value as string[],
+                                        nivelField.value as number[],
+                                        setIsLoading,
+                                        setSuccess,
+                                        setApiError,
+                                        () => areaField.reset(),
+                                        () => nivelField.reset(),
+                                    );
+                                }
+                            )();
+                        }}
                         className="w-full"
                         disabled={isLoading}
                     >

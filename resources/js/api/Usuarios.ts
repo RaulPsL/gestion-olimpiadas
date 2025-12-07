@@ -36,7 +36,7 @@ export const createUsuario = async (
     setIsLoading(true);
     setApiError("");
     setSuccess(false);
-
+    await new Promise(resolve => setTimeout(resolve, 2000));
     try {
         console.log('Envio de datos del usuario', data);
         const formData = {
@@ -90,6 +90,9 @@ export const updateUsuario = async (
     setSelectedNiveles: any
 ) => {
     setIsLoading(true);
+    setApiError("");
+    setSuccess(false);
+    await new Promise(resolve => setTimeout(resolve, 2000));
     try {
         const response = await axiosPrivate.put(`/usuarios/${ci}`, data);
         data = {

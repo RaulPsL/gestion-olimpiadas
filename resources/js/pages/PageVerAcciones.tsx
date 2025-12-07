@@ -69,6 +69,7 @@ export default function PageVerAcciones() {
                                                                 calificacionesOAcciones?.[key] : []
                                                         }
                                                         fieldSearch={"usuario"}
+                                                        filter={true}
                                                     />
                                                 </CardContent>
                                             </Card>

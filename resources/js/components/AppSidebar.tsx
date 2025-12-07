@@ -22,16 +22,18 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { useAuth } from "@/hooks/use-context";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import React from "react";
 
 export function AppSidebar() {
     const { data } = useAuth();
+    const location = useLocation();
     const datosUsuario = data?.data;
     const rol = data?.rol.nombre;
     const [menu, setMenu] = React.useState<any[]>([]);
     const areas = data?.areas.flatMap((area) => area.sigla);
     const [headerImage, setHeaderImage] = React.useState<string>('');
+    const [openMenus, setOpenMenus] = React.useState<Record<string, boolean>>({});
 
     React.useEffect(() => {
         if (data) {
@@ -74,6 +76,22 @@ export function AppSidebar() {
         }
     }, [datosUsuario]);
 
+    // Actualizar menús abiertos basado en la ruta actual
+    React.useEffect(() => {
+        const newOpenMenus: Record<string, boolean> = {};
+        
+        menu?.forEach((item) => {
+            if (item.submenu) {
+                const hasActiveSubitem = item.submenu.some(
+                    (subitem: any) => location.pathname === subitem.url
+                );
+                newOpenMenus[item.title] = hasActiveSubitem;
+            }
+        });
+        
+        setOpenMenus(newOpenMenus);
+    }, [location.pathname, menu]);
+
     React.useEffect(() => {
         if (data?.rol.sigla === "EVA" && areas && areas?.length > 0) {
             const areaInf = areas.find((area) => area === "INF");
@@ -112,19 +130,16 @@ export function AppSidebar() {
 
     const handleMenuButton = (item: any, isActive: boolean = false) => {
         return (
-            <SidebarMenuButton asChild data-active={isActive}>
+            <SidebarMenuButton asChild isActive={isActive}>
                 {
                     item.submenu ? (
-                        <span
-                            className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
+                        <span className="cursor-pointer">
                             <i className={`${item?.icon ?? ""} w-5 h-5`}></i>
                             <span>{item.title}</span>
                             {item?.submenu && (<ChevronDown className="ml-auto" />)}
                         </span>
                     ) : (
-                        <Link
-                            to={item.url}
-                            className="data-[active=true]:bg-cyan-50 data-[active=true]:text-cyan-900 dark:data-[active=true]:bg-cyan-950 dark:data-[active=true]:text-cyan-100">
+                        <Link to={item.url}>
                             <i className={`${item?.icon ?? ""} w-5 h-5`}></i>
                             <span>{item.title}</span>
                         </Link>
@@ -153,17 +168,32 @@ export function AppSidebar() {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {menu?.map((item) => {
-                                const isActive = window.location.pathname === item.url;
+                                const isActive = location.pathname === item.url;
+                                
+                                // Verificar si algún subitem está activo
+                                const hasActiveSubitem = item.submenu?.some(
+                                    (subitem: any) => location.pathname === subitem.url
+                                );
+                                
                                 if (item.submenu) {
                                     return (
                                         <SidebarMenu key={item.title}>
-                                            <Collapsible defaultOpen={false} className="group/collapsible">
+                                            <Collapsible 
+                                                open={openMenus[item.title] || false}
+                                                onOpenChange={(isOpen) => {
+                                                    setOpenMenus(prev => ({
+                                                        ...prev,
+                                                        [item.title]: isOpen
+                                                    }));
+                                                }}
+                                                className="group/collapsible"
+                                            >
                                                 <SidebarMenuItem key={item.title}>
                                                     <CollapsibleTrigger asChild>
-                                                        {handleMenuButton(item)}
+                                                        {handleMenuButton(item, hasActiveSubitem)}
                                                     </CollapsibleTrigger>
                                                     {item.submenu.map((subitem: any) => {
-                                                        const isSubitemActive = window.location.pathname === subitem.url;
+                                                        const isSubitemActive = location.pathname === subitem.url;
                                                         return <CollapsibleContent key={subitem.title}>
                                                             <SidebarMenuSub>
                                                                 {handleMenuButton(subitem, isSubitemActive)}

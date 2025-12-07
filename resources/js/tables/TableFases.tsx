@@ -57,7 +57,7 @@ export default function TableFases() {
   return (
     <Card>
         <CardContent>
-            <DataTable columns={columns} data={getData} />
+            <DataTable columns={columns} data={getData} filter={true}/>
         </CardContent>
     </Card>
   )

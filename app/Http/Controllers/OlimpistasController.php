@@ -32,7 +32,7 @@ class OlimpistasController extends Controller
                     'nivel',
                     'area:id,nombre'
                 ])->get();
-            $listaFiltrada = collect($fases)->map(function ($fase) {
+            $listaFiltrada = collect($fases)->flatMap(function ($fase) {
                 return collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
                     $tutor = $olimpista->tutores->map(function ($tutor) {
                         return "$tutor->nombre $tutor->apellidos";
@@ -50,13 +50,23 @@ class OlimpistasController extends Controller
                     ];
                 });
             });
-            $nuevaLista = [];
-            foreach ($listaFiltrada as $value) {
-                $nuevaLista = array_merge($nuevaLista, $value->toArray());
-            }
+            $areas = Area::with('niveles')->get();
+            $fases_areas = $listaFiltrada->groupBy('area');
+            $fases_niveles = $fases_areas->map(function ($olimpistas, $key) use ($areas) {
+                return [
+                    'niveles' => $areas->where('nombre', $key)->first()->niveles->map(function ($nivel) {
+                        return [
+                            'id' => $nivel->id,
+                            'label' => $nivel->nombre,
+                            'value' => $nivel->nombre,
+                        ];
+                    }),
+                    'olimpistas' => $olimpistas,
+                ];
+            });
             return response()->json([
                 'message' => "Olimpistas obtenidos exitosamente.",
-                'data' => collect($nuevaLista)->groupBy('area'),
+                'data' => $fases_niveles,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -83,7 +93,7 @@ class OlimpistasController extends Controller
                         $query->whereIn('sigla', $request->areas);
                     })
                     ->get();
-                $listaFiltrada = collect($fases)->map(function ($fase) {
+                $listaFiltrada = collect($fases)->flatMap(function ($fase) {
                     return collect($fase->olimpistas)->map(function ($olimpista) use ($fase) {
                         $tutor = $olimpista->tutores->map(function ($tutor) {
                             return "$tutor->nombre $tutor->apellidos";
@@ -101,13 +111,23 @@ class OlimpistasController extends Controller
                         ];
                     });
                 });
-                $nuevaLista = [];
-                foreach ($listaFiltrada as $value) {
-                    $nuevaLista = array_merge($nuevaLista, $value->toArray());
-                }
+                $areas = Area::with('niveles')->get();
+                $fases_areas = $listaFiltrada->groupBy('area');
+                $fases_niveles = $fases_areas->map(function ($olimpistas, $key) use ($areas) {
+                    return [
+                        'niveles' => $areas->where('nombre', $key)->first()->niveles->map(function ($nivel) {
+                            return [
+                                'id' => $nivel->id,
+                                'label' => $nivel->nombre,
+                                'value' => $nivel->nombre,
+                            ];
+                        }),
+                        'olimpistas' => $olimpistas,
+                    ];
+                });
                 return response()->json([
                     'message' => "Olimpistas obtenidos exitosamente.",
-                    'data' => collect($nuevaLista)->groupBy('area'),
+                    'data' => $fases_niveles,
                 ], 200);
             }
             return response()->json([

@@ -117,7 +117,6 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
       }, 3000);
       return () => clearTimeout(timer);
     }
-    console.log('Datos de calificaciones: ', data);
 
   }, [isLoading, dialogOpen]);
 
@@ -145,8 +144,9 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
       table.getColumn("nivel")?.setFilterValue("");
       setSelectedNivel([]);
     } else {
-      // Si hay un valor seleccionado, aplicar el filtro
-      table.getColumn("nivel")?.setFilterValue(values[0]);
+      // Si hay un valor seleccionado, aplicar el filtro exacto
+      const selectedLabel = filter.find((item: any) => item.value === values[0])?.label;
+      table.getColumn("nivel")?.setFilterValue(selectedLabel || values[0]);
     }
   };
 
@@ -361,10 +361,21 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={ row.original?.estado === "desclasificado" ? "opacity-50 pointer-events-none" : "" }
+                  className={`group border-b border-border/30 transition-all duration-300 ease-out ${
+                    row.original?.estado === "desclasificado" 
+                      ? "opacity-50 pointer-events-none" 
+                      : "hover:bg-gradient-to-r hover:from-primary/5 hover:via-primary/10 hover:to-primary/5 hover:shadow-md hover:scale-[1.01] hover:rounded-lg"
+                  }`}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                  {row.getVisibleCells().map((cell, cellIndex) => (
+                    <TableCell 
+                      key={cell.id}
+                      className={`transition-all duration-300 group-hover:translate-x-1 ${
+                        cellIndex === 0 ? 'group-hover:rounded-l-lg' : ''
+                      } ${
+                        cellIndex === row.getVisibleCells().length - 1 ? 'group-hover:rounded-r-lg' : ''
+                      }`}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

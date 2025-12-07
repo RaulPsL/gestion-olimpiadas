@@ -48,7 +48,7 @@ export const createOlimpista = async (
     setIsLoading(true);
     setApiError("");
     setSuccess(false);
-
+    await new Promise(resolve => setTimeout(resolve, 2000));
     try {
         if (selectedArea.length === 0) {
             setApiError("Debe seleccionar al menos un área de competencia");
@@ -110,7 +110,7 @@ export const createMassiveOlimpistas = async (
     setApiError("");
     setFileError("");
     setSuccess(false);
-
+    await new Promise(resolve => setTimeout(resolve, 2000));
     try {
         if (!selectedFile) {
             setFileError("Debe seleccionar un archivo");

@@ -52,6 +52,7 @@ Route::prefix('fases')->group(function () {
 
 Route::prefix('areas')->group(function () {
     Route::get('/', [App\Http\Controllers\AreasController::class, 'index']);
+    Route::get('/niveles', [App\Http\Controllers\AreasController::class, 'indexNiveles']);
     Route::post('/ver/especifico', [App\Http\Controllers\AreasController::class, 'indexByAreas']);
     Route::post('/', [App\Http\Controllers\AreasController::class, 'store']);
     Route::get('/static', [App\Http\Controllers\AreasController::class, 'indexStaticData']);

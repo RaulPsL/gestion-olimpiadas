@@ -346,7 +346,7 @@ export default function FormMassiveOlimista() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="nombres_tutor">
-                                    Nombre tutor académico <span className="text-red-500">*</span>
+                                    Nombre(s) <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="nombres_tutor"
@@ -367,7 +367,7 @@ export default function FormMassiveOlimista() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="apellidos_tutor_academico">
-                                    Apellidos tutor académico <span className="text-red-500">*</span>
+                                    Apellido(s) <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="apellidos_tutor_academico"
@@ -387,7 +387,7 @@ export default function FormMassiveOlimista() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="celular_tutor">
-                                    Celular tutor académico <span className="text-red-500">*</span>
+                                    Celular <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="celular_tutor"
@@ -407,7 +407,7 @@ export default function FormMassiveOlimista() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="ci_tutor_academico">
-                                    C.I. tutor académico <span className="text-red-500">*</span>
+                                    C.I. <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="ci_tutor_academico"
@@ -423,7 +423,7 @@ export default function FormMassiveOlimista() {
 
                             <div className="space-y-2 md:col-span-2">
                                 <Label htmlFor="email_tutor_academico">
-                                    Email del tutor académico <span className="text-red-500">*</span>
+                                    Email <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="email_tutor_academico"
@@ -449,7 +449,7 @@ export default function FormMassiveOlimista() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="nombre_colegio">
-                                    Nombre del colegio <span className="text-red-500">*</span>
+                                    Nombre <span className="italic text-opacity-50">(solo escriba el nombre del colégio)</span><span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="nombre_colegio"
@@ -469,7 +469,7 @@ export default function FormMassiveOlimista() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="telefono_colegio">
-                                    Teléfono del colegio <span className="text-red-500">*</span>
+                                    Teléfono <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="telefono_colegio"

@@ -58,13 +58,17 @@ export default function PageVerFases() {
                             {
                                 areas.map(
                                     (area: string) => (
-                                    <TabsContent value={area} key={area}>
-                                        <Card>
-                                            <CardContent>
-                                                <DataTable columns={columns} data={fases[area]} />
-                                            </CardContent>
-                                        </Card>
-                                    </TabsContent>
+                                        <TabsContent value={area} key={area}>
+                                            <Card>
+                                                <CardContent>
+                                                    <DataTable
+                                                        columns={columns}
+                                                        data={fases?.[area] !== undefined ? fases[area] : []}
+                                                        filter={true}
+                                                    />
+                                                </CardContent>
+                                            </Card>
+                                        </TabsContent>
                                     )
                                 )
                             }

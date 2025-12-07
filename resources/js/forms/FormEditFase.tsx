@@ -13,23 +13,24 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { updateFase } from "@/api/Fases";
 
-export default function FormEditFase({ otherData }: { otherData: any }) {
+export default function FormEditFase({ 
+    otherData,
+    createFase = false,
+    aditionalData,
+    onEditFase,
+} : { 
+    otherData: any,
+    createFase?: boolean,
+    aditionalData?: any,
+    onEditFase?: (faseEditada: any) => void,
+}) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
-    const [evaluadores, setEvaluadores] = React.useState<any[]>();
-    // const [nivelSelected, setNivelSelected] = React.useState<string>("");
+    const evaluadores = aditionalData?.evaluadores;
 
     // Estado para la fecha compartida
     const [sharedDate, setSharedDate] = React.useState<Date>(new Date());
-
-    React.useEffect(() => {
-        const staticData = async () => {
-            const staticData = await getStaticData();
-            setEvaluadores(staticData.evaluadores);
-        };
-        staticData();
-    }, []);
 
     const {
         register,
@@ -59,17 +60,23 @@ export default function FormEditFase({ otherData }: { otherData: any }) {
     });
 
     const newValidationRules = validationRules(watch);
-    // const evaluadoresField = useComboboxField("usuarios", setValue, true, trigger);
+    const evaluadoresField = useComboboxField("usuarios", setValue, true, trigger);
 
     React.useEffect(() => {
         setValue('area', otherData.area);
-        setValue('cantidad_max_participantes', otherData.cantidad_participantes);
+        setValue('cantidad_max_participantes', otherData.cantidad_max_participantes);
         setValue('nivel', otherData.nivel);
         setValue('fecha_calificacion', new Date(otherData.fecha_calificacion));
         setValue('fecha_fin', new Date(otherData.fecha_fin));
         setValue('fecha_inicio', new Date(otherData.fecha_inicio));
         setValue('tipo_fase', otherData.tipo_fase);
-        // setValue('usuarios', otherData.usuarios);
+        if (createFase) {
+            setValue('usuarios', otherData.usuarios);
+            setValue('cantidad_min_participantes', otherData.cantidad_min_participantes);
+            setValue('cantidad_ganadores', otherData.cantidad_ganadores);
+            // Establecer los evaluadores seleccionados en el combobox
+            evaluadoresField.onChange(otherData.usuarios || []);
+        }
     }, []);
 
 
@@ -159,6 +166,43 @@ export default function FormEditFase({ otherData }: { otherData: any }) {
         }
     };
 
+    const handleClick = () => {
+        if (createFase && onEditFase) {
+            // Si estamos en modo creación, actualizar la lista en el padre
+            handleSubmit((data) => {
+                // Crear objeto con los datos editados
+                const faseEditada = {
+                    ...otherData,
+                    cantidad_ganadores: data.cantidad_ganadores,
+                    cantidad_max_participantes: data.cantidad_max_participantes,
+                    cantidad_min_participantes: data.cantidad_min_participantes,
+                    fecha_inicio: data.fecha_inicio,
+                    fecha_calificacion: data.fecha_calificacion,
+                    fecha_fin: data.fecha_fin,
+                    usuarios: evaluadoresField.value,
+                };
+                
+                // Llamar al callback para actualizar la lista
+                onEditFase(faseEditada);
+                
+                // Mostrar mensaje de éxito
+                setSuccess(true);
+                setTimeout(() => setSuccess(false), 3000);
+            })();
+        } else {
+            // Si no estamos en modo creación, hacer el submit normal
+            handleSubmit(
+                (data) => updateFase(
+                    otherData.fase_id,
+                    data,
+                    setIsLoading,
+                    setSuccess,
+                    setApiError,
+                    reset,
+                )
+            )();
+        }
+    }
     return (
         <Card className="w-full">
             <CardContent className="space-y-4">
@@ -214,10 +258,31 @@ export default function FormEditFase({ otherData }: { otherData: any }) {
                     {/* Evaluadores */}
                     <div className="space-y-2">
                         <Label>Evaluadores</Label>
-                        <Input
-                            id="evaluadores"
-                            disabled
-                        />
+                        {
+                            createFase && (
+                                <>
+                                    <Combobox
+                                        items={evaluadores}
+                                        value={evaluadoresField.value}
+                                        onChange={evaluadoresField.onChange}
+                                        placeholder="Seleccionar evaluadores..."
+                                        searchPlaceholder="Buscar evaluadores..."
+                                        multiple={true}
+                                    />
+                                    {errors.usuarios && (
+                                        <p className="text-sm text-red-500">{errors.usuarios.message}</p>
+                                    )}
+                                </>
+                            )
+                        }
+                        {
+                            !createFase && (
+                                <Input
+                                    id="evaluadores"
+                                    disabled
+                                />
+                            )
+                        }
                     </div>
                 </div>
 
@@ -310,18 +375,7 @@ export default function FormEditFase({ otherData }: { otherData: any }) {
             <CardFooter className="flex flex-col gap-3">
                 <Button
                     type="button"
-                    onClick={handleSubmit(
-                        (data) => updateFase(
-                            otherData.fase_id,
-                            data,
-                            setIsLoading,
-                            setSuccess,
-                            setApiError,
-                            reset,
-                            // evaluadoresField.value as string[],
-                            // () => evaluadoresField.reset()
-                        )
-                    )}
+                    onClick={handleClick}
                     className="w-full"
                     disabled={isLoading}
                 >

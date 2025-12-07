@@ -41,7 +41,9 @@ class FasesController extends Controller
             })->groupBy('area');
             $fasesPorArea = [];
             foreach ($request->areas as $key) {
-                $fasesPorArea[$key] = $fasesFiltradas[$key];
+                if (array_key_exists($key, $fasesFiltradas->toArray())) {
+                    $fasesPorArea[$key] = $fasesFiltradas[$key];
+                }
             }
             return response()->json([
                 'message' => "Fases obtenidas exitosamente.",
@@ -77,7 +79,7 @@ class FasesController extends Controller
                         'state' => $fase->estado,
                     ]
                 ];
-            });
+            })->sortBy('start', SORT_ASC)->values();
             event(new FaseUpdate());
             return response()->json([
                 'message' => "Fases obtenidas exitosamente.",
@@ -108,6 +110,7 @@ class FasesController extends Controller
                     'fase' => "$fase->sigla - $area->nombre",
                     'estado' => $fase->estado,
                     'area' => $fase->area->nombre,
+                    'tipo_fase' => $fase->tipo_fase,
                     'fecha_creacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->created_at)) : "",
                     'fecha_modificacion' => $fase->cierre ? date('d/M/Y H:i', strtotime($fase->cierre->updated_at)) : "",
                     'fecha_fin_fase' => $fase->fecha_fin,
@@ -122,7 +125,9 @@ class FasesController extends Controller
 
             $cierresArea = [];
             foreach ($request->areas as $key) {
-                $cierresArea[$key] = $cierresFiltrados[$key];
+                if (array_key_exists($key, $cierresFiltrados->toArray())) {
+                    $cierresArea[$key] = $cierresFiltrados[$key];
+                }
             }
             return response()->json([
                 'message' => "Cierres de fases obtenidos exitosamente.",

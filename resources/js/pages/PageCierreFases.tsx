@@ -51,7 +51,9 @@ export default function PageCierreFases() {
                             { keys?.map((key) => (
                                 <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
                                     <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                        <TablecierreFases cierres={cierres?.[key]} setUpdate={setUpdate}/>
+                                        <TablecierreFases
+                                            cierres={cierres?.[key]}
+                                            setUpdate={setUpdate}/>
                                     </div>
                                 </TabsContent>
                             ))}

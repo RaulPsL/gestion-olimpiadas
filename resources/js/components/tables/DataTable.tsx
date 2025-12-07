@@ -32,12 +32,16 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[],
   data: TData[],
   fieldSearch?: string,
+  filter?: boolean,
+  nivelesFilter?: any[]
 };
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   fieldSearch,
+  filter,
+  nivelesFilter = [],
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -73,11 +77,14 @@ export function DataTable<TData, TValue>({
 
     // Si selecciona "todos" o no hay selección, limpiar el filtro
     if (values.length === 0 || values.includes("todos")) {
-      table.getColumn("grado_escolar")?.setFilterValue("");
+      table.getColumn("nivel")?.setFilterValue("");
       setSelectedNivel([]);
     } else {
-      // Si hay un valor seleccionado, aplicar el filtro
-      table.getColumn("grado_escolar")?.setFilterValue(values[0]);
+      // Verificar si la columna existe antes de intentar filtrar
+      const nivelColumn = table.getColumn("nivel");
+      if (nivelColumn) {
+        nivelColumn.setFilterValue(values[0]);
+      }
     }
   };
 
@@ -87,77 +94,83 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full max-w-7xl mx-auto space-y-4">
       {/* Barra de búsqueda y filtros mejorada */}
-      <Card className="p-2 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm border-border/50 shadow-lg">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          {fieldSearch && (
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={`Buscar por ${fieldSearch}...`}
-                value={(table.getColumn(fieldSearch)?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>
-                  table.getColumn(fieldSearch)?.setFilterValue(event.target.value)
-                }
-                className="pl-10 bg-background/60 border-border/50 focus:border-primary/50 transition-all"
-              />
+      {
+        filter && (
+          <Card className="p-2 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm border-border/50 shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              {fieldSearch && (
+                <div className="relative flex-1 w-full">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={`Buscar por ${fieldSearch}...`}
+                    value={(table.getColumn(fieldSearch)?.getFilterValue() as string) ?? ""}
+                    onChange={(event) =>
+                      table.getColumn(fieldSearch)?.setFilterValue(event.target.value)
+                    }
+                    className="pl-10 bg-background/60 border-border/50 focus:border-primary/50 transition-all"
+                  />
+                </div>
+              )}
+
+              {/* Combobox para filtrar por nivel */}
+              {nivelesFilter && nivelesFilter.length > 0 && (
+                <Combobox
+                  items={nivelesFilter}
+                  value={selectedNivel}
+                  onChange={handleNivelChange}
+                  placeholder="Filtrar nivel..."
+                  searchPlaceholder="Buscar nivel..."
+                  emptyMessage="No se encontró el nivel."
+                  multiple={false}
+                  className="w-full sm:w-[200px]"
+                />
+              )}
+
+              {/* Botón para limpiar filtros */}
+              {(columnFilters.length > 0 || selectedNivel.length > 0) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="whitespace-nowrap"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Limpiar
+                </Button>
+              )}
             </div>
-          )}
 
-          {/* Combobox para filtrar por nivel */}
-          <Combobox
-            items={nivelesItems}
-            value={selectedNivel}
-            onChange={handleNivelChange}
-            placeholder="Filtrar nivel..."
-            searchPlaceholder="Buscar nivel..."
-            emptyMessage="No se encontró el nivel."
-            multiple={false}
-            className="w-full sm:w-[200px]"
-          />
-
-          {/* Botón para limpiar filtros */}
-          {(columnFilters.length > 0 || selectedNivel.length > 0) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFilters}
-              className="whitespace-nowrap"
-            >
-              <X className="h-4 w-4 mr-1" />
-              Limpiar
-            </Button>
-          )}
-        </div>
-
-        {/* Información de filas */}
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
-          <p className="text-sm text-muted-foreground">
-            Mostrando <span className="font-semibold text-foreground">{table.getRowModel().rows.length}</span> de{" "}
-            <span className="font-semibold text-foreground">{table.getFilteredRowModel().rows.length}</span> resultado(s)
-          </p>
-          {table.getFilteredSelectedRowModel().rows.length > 0 && (
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-primary">{table.getFilteredSelectedRowModel().rows.length}</span> fila(s) seleccionada(s)
-            </p>
-          )}
-        </div>
-      </Card>
+            {/* Información de filas */}
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
+              <p className="text-sm text-muted-foreground">
+                Mostrando <span className="font-semibold text-foreground">{table.getRowModel().rows.length}</span> de{" "}
+                <span className="font-semibold text-foreground">{table.getFilteredRowModel().rows.length}</span> resultado(s)
+              </p>
+              {table.getFilteredSelectedRowModel().rows.length > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-primary">{table.getFilteredSelectedRowModel().rows.length}</span> fila(s) seleccionada(s)
+                </p>
+              )}
+            </div>
+          </Card>
+        )
+      }
 
       {/* Tabla con diseño mejorado */}
-      <Card className="overflow-hidden border-border/50 shadow-lg bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm">
+      <Card className="w-full max-w-7xl mx-auto overflow-hidden border-border/50 shadow-lg bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm">
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="w-full max-w-7xl mx-auto">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow 
+                <TableRow
                   key={headerGroup.id}
                   className="border-b border-border/50 bg-muted/50 hover:bg-muted/50"
                 >
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead 
+                      <TableHead
                         key={header.id}
                         className="text-center font-bold text-foreground/90 py-2 px-2 first:rounded-tl-lg last:rounded-tr-lg"
                       >
@@ -179,12 +192,16 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="border-b border-border/30 hover:bg-muted/30 transition-colors duration-150"
+                    className="group border-b border-border/30 hover:bg-gradient-to-r hover:from-primary/5 hover:via-primary/10 hover:to-primary/5 transition-all duration-300 ease-out hover:shadow-md hover:scale-[1.01] hover:rounded-lg"
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell 
+                    {row.getVisibleCells().map((cell, cellIndex) => (
+                      <TableCell
                         key={cell.id}
-                        className="text-center py-2 px-2"
+                        className={`text-center py-2 px-2 transition-all duration-300 group-hover:translate-x-1 ${
+                          cellIndex === 0 ? 'group-hover:rounded-l-lg' : ''
+                        } ${
+                          cellIndex === row.getVisibleCells().length - 1 ? 'group-hover:rounded-r-lg' : ''
+                        }`}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

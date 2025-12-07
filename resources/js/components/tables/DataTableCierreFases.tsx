@@ -28,11 +28,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { CheckCircle, CircleAlert, CircleX, Clock, NotebookPen, SaveAll } from "lucide-react";
-import { FieldValues, UseFormReset, UseFormSetValue } from "react-hook-form";
+import { CheckCircle, CircleAlert, Clock, Search, X } from "lucide-react";
+import { UseFormSetValue } from "react-hook-form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Spinner } from "../ui/spinner";
+import { Combobox } from "../Combobox";
 import { UserData } from "@/hooks/use-context";
 import { FormCierreFase, FormGetupFase } from "@/forms/interfaces/CierreFaseForm";
 
@@ -76,8 +77,11 @@ export function DataTableCierrresFases<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
     usuario_encargado_id: false,
     usuario_evaluador_id: false,
+    tipo_fase: false,
     fase_id: false,
   });
+  const [selectedEstado, setSelectedEstado] = React.useState<(string | number)[]>([]);
+  const [selectedFase, setSelectedFase] = React.useState<(string | number)[]>([]);
 
   const table = useReactTable({
     data: otherData,
@@ -99,6 +103,18 @@ export function DataTableCierrresFases<TData, TValue>({
 
   const [minutes, setMinutes] = React.useState(15);
 
+  const estadosItems = [
+    { id: 1, value: "en curso", label: "En Curso" },
+    { id: 2, value: "pendiente", label: "Pendiente" },
+    { id: 3, value: "finalizada", label: "Finalizada" },
+  ];
+
+  const fasesItems = [
+    { id: 1, value: "preliminares", label: "Preliminares" },
+    { id: 2, value: "clasificatorias", label: "Clasificatorias" },
+    { id: 3, value: "finales", label: "Finales" },
+  ];
+
   // Calcular la hora resultante
   const calculateResultTime = () => {
     const resultTime = new Date(fechaFin.getTime() + minutes * 60000);
@@ -118,6 +134,34 @@ export function DataTableCierrresFases<TData, TValue>({
       return `${mins} minutos`;
     }
     return '1 hora';
+  };
+
+  const handleEstadoChange = (values: (string | number)[]) => {
+    setSelectedEstado(values);
+    
+    if (values.length === 0 || values.includes("todos")) {
+      table.getColumn("estado")?.setFilterValue("");
+      setSelectedEstado([]);
+    } else {
+      table.getColumn("estado")?.setFilterValue(values[0]);
+    }
+  };
+
+  const handleFaseChange = (values: (string | number)[]) => {
+    setSelectedFase(values);
+    
+    if (values.length === 0 || values.includes("todos")) {
+      table.getColumn("tipo_fase")?.setFilterValue("");
+      setSelectedFase([]);
+    } else {
+      table.getColumn("tipo_fase")?.setFilterValue(values[0]);
+    }
+  };
+
+  const clearFilters = () => {
+    table.resetColumnFilters();
+    setSelectedEstado([]);
+    setSelectedFase([]);
   };
 
   React.useEffect(() => {
@@ -143,6 +187,69 @@ export function DataTableCierrresFases<TData, TValue>({
 
   return (
     <div className="w-full">
+      {/* Barra de filtros */}
+      <div className="mb-4 p-3 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-sm border border-border/50 shadow-lg rounded-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {/* Buscar por encargado */}
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por encargado..."
+              value={(table.getColumn("encargado")?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                table.getColumn("encargado")?.setFilterValue(event.target.value)
+              }
+              className="pl-10 bg-background/60 border-border/50 focus:border-primary/50 transition-all"
+            />
+          </div>
+
+          {/* Filtro por Estado */}
+          <Combobox
+            items={estadosItems}
+            value={selectedEstado}
+            onChange={handleEstadoChange}
+            placeholder="Estado..."
+            searchPlaceholder="Buscar estado..."
+            emptyMessage="No se encontró el estado."
+            multiple={false}
+            className="w-full sm:w-[180px]"
+          />
+
+          {/* Filtro por Fase */}
+          <Combobox
+            items={fasesItems}
+            value={selectedFase}
+            onChange={handleFaseChange}
+            placeholder="Tipo fase..."
+            searchPlaceholder="Buscar fase..."
+            emptyMessage="No se encontró la fase."
+            multiple={false}
+            className="w-full sm:w-[180px]"
+          />
+
+          {/* Botón para limpiar filtros */}
+          {(table.getState().columnFilters.length > 0 || selectedEstado.length > 0 || selectedFase.length > 0) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              className="whitespace-nowrap"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Limpiar
+            </Button>
+          )}
+        </div>
+
+        {/* Información de resultados */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+          <p className="text-sm text-muted-foreground">
+            Mostrando <span className="font-semibold text-foreground">{table.getRowModel().rows.length}</span> de{" "}
+            <span className="font-semibold text-foreground">{table.getFilteredRowModel().rows.length}</span> resultado(s)
+          </p>
+        </div>
+      </div>
+
       <div className="flex items-center py-4">
         <DropdownMenu>
           <DropdownMenuTrigger className="ml-auto" />
@@ -367,9 +474,17 @@ export function DataTableCierrresFases<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="group border-b border-border/30 hover:bg-gradient-to-r hover:from-primary/5 hover:via-primary/10 hover:to-primary/5 transition-all duration-300 ease-out hover:shadow-md hover:scale-[1.01] hover:rounded-lg"
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                  {row.getVisibleCells().map((cell, cellIndex) => (
+                    <TableCell 
+                      key={cell.id}
+                      className={`transition-all duration-300 group-hover:translate-x-1 ${
+                        cellIndex === 0 ? 'group-hover:rounded-l-lg' : ''
+                      } ${
+                        cellIndex === row.getVisibleCells().length - 1 ? 'group-hover:rounded-r-lg' : ''
+                      }`}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

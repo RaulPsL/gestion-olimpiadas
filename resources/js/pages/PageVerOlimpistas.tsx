@@ -28,10 +28,12 @@ export default function PageVerOlimpistas() {
     React.useEffect(() => {
         const staticData = async () => {
             const staticOlimpistas = await getOlimpistasByAreas(areasSigla as string[]);
+            console.log('Datos recibidos del backend:', staticOlimpistas);
             setOlimpistas(staticOlimpistas);
         }
-        console.log(data)
-        staticData();
+        if (areasSigla && areasSigla.length > 0) {
+            staticData();
+        }
     }, [data]);
 
     return (
@@ -66,12 +68,14 @@ export default function PageVerOlimpistas() {
                                                 key={area.toLocaleLowerCase()}
                                                 id={area.toLocaleLowerCase()}
                                             >
-                                                <Card>
-                                                    <CardContent>
+                                                <Card className="w-full max-w-7xl mx-auto">
+                                                    <CardContent className="w-full max-w-7xl mx-auto">
                                                         <DataTable
                                                             columns={columns}
-                                                            data={olimpistas?.[area] !== undefined ? olimpistas[area] : []}
+                                                            data={olimpistas?.[area]?.olimpistas !== undefined ? olimpistas[area]?.olimpistas : []}
+                                                            filter={true}
                                                             fieldSearch="nombre"
+                                                            nivelesFilter={olimpistas?.[area]?.niveles !== undefined ? olimpistas[area]?.niveles : []}
                                                         />
                                                     </CardContent>
                                                 </Card>
@@ -105,6 +109,7 @@ export default function PageVerOlimpistas() {
                                                             columns={columns}
                                                             data={area.olimpistas}
                                                             fieldSearch="nombre"
+                                                            filter={true}
                                                         />
                                                     </CardContent>
                                                 </Card>

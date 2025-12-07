@@ -13,6 +13,8 @@ interface StaticDataUsuarios {
 interface StaticDataAreas {
     areas: any[];
     fases: any[];
+    encargados: any[];
     evaluadores: any[];
     niveles: any[];
+    grados: any[];
 }

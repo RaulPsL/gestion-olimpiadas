@@ -32,6 +32,7 @@ export type CierreFases = {
   fecha_calificacion_fase: string;
   usuario_encargado_id?: string;
   usuario_evaluador_id?: string;
+  tipo_fase: string;
   fase_id: number;
 };
 
@@ -120,6 +121,9 @@ export const createColumnsCierres = (
         </div>
       );
     },
+  },
+  {
+    accessorKey: "tipo_fase",
   },
   {
     accessorKey: "fase",

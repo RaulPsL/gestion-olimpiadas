@@ -501,7 +501,7 @@ export default function FormOlimpista() {
                             <div className={`space-y-4 `}>
                                 <div className="flex flex-row content-between">
                                     <h4 className="text-base font-semibold text-foreground border-b pb-2">
-                                        Datos del Tutor/Apoderado
+                                        Datos del Tutor Academico o Apoderado Familiar
                                     </h4>
                                     <Checkbox
                                         checked={activoFormAcademico}
@@ -517,7 +517,7 @@ export default function FormOlimpista() {
                                     {/* Nombre Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="nombres_tutor">
-                                            Nombre del tutor <span className="text-red-500">*</span>
+                                            Nombre(s) <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="nombres_tutor"
@@ -539,7 +539,7 @@ export default function FormOlimpista() {
                                     {/* Apellidos Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="apellidos_tutor_academico">
-                                            Apellidos del tutor <span className="text-red-500">*</span>
+                                            Apellido(s) <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="apellidos_tutor_academico"
@@ -561,7 +561,7 @@ export default function FormOlimpista() {
                                     {/* Celular Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="celular_tutor">
-                                            Celular del tutor <span className="text-red-500">*</span>
+                                            Celular <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="celular_tutor"
@@ -583,7 +583,7 @@ export default function FormOlimpista() {
                                     {/* CI Tutor */}
                                     <div className="space-y-2">
                                         <Label htmlFor="ci_tutor_academico">
-                                            C.I. del tutor <span className="text-red-500">*</span>
+                                            C.I. <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="ci_tutor_academico"
@@ -600,7 +600,7 @@ export default function FormOlimpista() {
                                     {/* Email Tutor */}
                                     <div className="space-y-2 md:col-span-2">
                                         <Label htmlFor="email_tutor_academico">
-                                            Email del tutor <span className="text-red-500">*</span>
+                                            Email <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="email_tutor_academico"
@@ -625,12 +625,12 @@ export default function FormOlimpista() {
                                     {/* Nombre del Colegio */}
                                     <div className="space-y-2">
                                         <Label htmlFor="nombre_colegio">
-                                            Nombre del colegio <span className="text-red-500">*</span>
+                                            Nombre <span className="italic opacity-75">(solo escribir el nombre del colégio)</span><span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="nombre_colegio"
                                             type="text"
-                                            placeholder="Ej. U.E. Villazón"
+                                            placeholder="Ej. Eduardo Villazón"
                                             {...register("colegio.nombre_colegio", validationRules.nombre_colegio)}
                                             onChange={(e) => {
                                                 textInput.handleChange(e);
@@ -684,7 +684,7 @@ export default function FormOlimpista() {
                                     {/* Teléfono del Colegio */}
                                     <div className="space-y-2">
                                         <Label htmlFor="telefono_colegio">
-                                            Teléfono del colegio <span className="text-red-500">*</span>
+                                            Teléfono <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="telefono_colegio"

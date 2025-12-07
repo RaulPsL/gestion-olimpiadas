@@ -16,7 +16,7 @@ export default function TableOlimpistas() {
   return (
     <Card>
       <CardContent>
-        <DataTable columns={columns} data={olimpistas} />
+        <DataTable columns={columns} data={olimpistas} filter={true}/>
       </CardContent>
     </Card>
   )

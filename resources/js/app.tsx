@@ -17,6 +17,7 @@ import PageCierreFases from './pages/PageCierreFases';
 import PageGenerarDocs from './pages/PageDocument';
 import PageVerUsuarios from './pages/PageVerUsuarios';
 import { PageCalendario } from './pages/PageCalendario';
+import PageCrearArea from './pages/PageCrearArea';
 
 function App() {
     return (
@@ -104,7 +105,7 @@ function App() {
                             <PrivatRoute
                                 rol={['ADM']}
                             >
-                                <PageArea />
+                                <PageCrearArea />
                             </PrivatRoute>
                         }
                     />

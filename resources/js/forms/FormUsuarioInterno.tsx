@@ -9,7 +9,9 @@ import { UsuarioForm } from "./interfaces/Usuario";
 import { createUsuario, getStaticData } from "@/api/Usuarios";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { validationRules } from "./validations/UsuarioValidate";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -60,18 +62,95 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
         }
     }, [areaField]);
 
+    const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+
     React.useEffect(() => {
-        if (success) {
-          const timer = setTimeout(() => {
-            setSuccess(false);
-          }, 3000);
-          return () => clearTimeout(timer);
+        if (isLoading || apiError !== '') {
+            setDialogOpen(true);
         }
-    
-      }, [isLoading]);
+        if (success) {
+            const timer = setTimeout(() => {
+                setDialogOpen(false);
+                setSuccess(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [isLoading, dialogOpen]);
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+        setApiError('');
+        setIsLoading(false);
+        setSuccess(false);
+    };
 
     return (
-        <Card className="w-full max-w-2xl mx-auto">
+        <>
+            <AlertDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                defaultOpen={dialogOpen}>
+                <AlertDialogTrigger asChild />
+
+                <AlertDialogContent>
+                    <AlertDialogTitle className="text-center"/>
+                    {isLoading && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-center">
+                                    Registrando usuario...
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <div className="flex justify-center items-center py-8">
+                                <Spinner className="h-12 w-12" />
+                            </div>
+                            <AlertDialogDescription className="text-center text-muted-foreground">
+                                Por favor espera mientras se registran los datos.
+                            </AlertDialogDescription>
+                        </>
+                    )}
+
+                    {(apiError !== '') && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-red-500 text-center">
+                                    Ocurrió un error
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Error al guardar</AlertTitle>
+                                <AlertDescription>
+                                    {apiError}
+                                </AlertDescription>
+                            </Alert>
+                            <AlertDialogFooter>
+                                <AlertDialogAction onClick={handleCloseDialog}>
+                                    Entendido
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </>
+                    )}
+
+                    {success && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-green-600 text-center">
+                                    ¡Éxito en la acción!
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <Alert className="border-green-200 bg-green-50">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                <AlertTitle className="text-green-800">Registro exitoso</AlertTitle>
+                                <AlertDescription className="text-green-700">
+                                    El usuario se registró exitosamente.
+                                </AlertDescription>
+                            </Alert>
+                        </>
+                    )}
+                </AlertDialogContent>
+            </AlertDialog>
+            <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
                 <CardTitle>Registro de Usuario</CardTitle>
                 <CardDescription>
@@ -81,25 +160,6 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
 
             <div>
                 <CardContent className="space-y-4">
-                    {/* Alertas de éxito o error */}
-                    {success && (
-                        <Alert className="border-green-200 bg-green-50">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <AlertDescription className="text-green-800">
-                                ¡Usuario registrado exitosamente!
-                            </AlertDescription>
-                        </Alert>
-                    )}
-
-                    {apiError && (
-                        <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>
-                                {apiError}
-                            </AlertDescription>
-                        </Alert>
-                    )}
-
                     {/* Grid para organizar campos */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Campo Nombre */}
@@ -250,22 +310,26 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
                 <CardFooter className="flex flex-col gap-3">
                     <Button
                         type="button"
-                        onClick={
+                        onClick={() => {
+                            setApiError("");
+                            setSuccess(false);
+                            setDialogOpen(true);
                             handleSubmit(
-                                (data) => createUsuario(
-                                    data,
-                                    areaField.value as string[],
-                                    // rolesField.value as string[],
-                                    nivelField.value as number[],
-                                    setIsLoading,
-                                    setSuccess,
-                                    setApiError,
-                                    reset,
-                                    () => areaField.reset(),
-                                    // () => rolesField.reset(),
-                                    () => nivelField.reset(),
-                                )
-                            )}
+                                async (data) => {
+                                    await createUsuario(
+                                        data,
+                                        areaField.value as string[],
+                                        nivelField.value as number[],
+                                        setIsLoading,
+                                        setSuccess,
+                                        setApiError,
+                                        reset,
+                                        () => areaField.reset(),
+                                        () => nivelField.reset(),
+                                    );
+                                }
+                            )();
+                        }}
                         className="w-full"
                         disabled={isLoading}
                     >
@@ -288,5 +352,6 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
                 </CardFooter>
             </div>
         </Card>
+        </>
     );
 };

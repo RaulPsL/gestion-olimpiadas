@@ -7,10 +7,11 @@ export function useOnlyLetters() {
   }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight", "Delete"];
+    const allowedKeys = ["Backspace", "Tab", "ArrowLeft", "ArrowRight", "Delete", "Space"];
     if (allowedKeys.includes(e.key)) return;
 
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]$/.test(e.key)) {
+    // Permitir letras (con acentos y ñ) y espacios
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]$/.test(e.key)) {
       e.preventDefault();
     }
   }, []);

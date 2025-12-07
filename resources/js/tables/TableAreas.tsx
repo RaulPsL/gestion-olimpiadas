@@ -27,7 +27,7 @@ const getData: Area[] = [
 export default function TableAreas() {
   return (
     <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={getData} />
+      <DataTable columns={columns} data={getData} filter={true}/>
     </div>
   )
 }

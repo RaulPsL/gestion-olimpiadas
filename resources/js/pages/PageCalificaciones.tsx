@@ -32,7 +32,12 @@ export default function PageCalificaciones({ esGrupo } : { esGrupo: boolean}) {
     React.useEffect(() => {
         console.log('Calificaciones', calificaciones);
         if (calificaciones) {
-            setKeys(Object.keys(calificaciones));
+            // Solo establecer keys si NO tiene la propiedad areasCalificacionUsuario
+            if (!('areasCalificacionUsuario' in calificaciones)) {
+                setKeys(Object.keys(calificaciones));
+            } else {
+                setKeys([]);
+            }
         }
     }, [calificaciones, update]);
 
@@ -47,22 +52,50 @@ export default function PageCalificaciones({ esGrupo } : { esGrupo: boolean}) {
                         <Label className="text-2xl">Calificaciones por area</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue={areasCalificacionUsuario?.[0]}>
-                            <TabsList>
-                                {areasCalificacionUsuario?.map((key) => (
-                                    <TabsTrigger value={key} key={key}>{`${key}-${calificaciones[key]?.sigla}`}</TabsTrigger>
+                        {calificaciones && !('areasCalificacionUsuario' in calificaciones) && keys && keys.length > 0 ? (
+                            <Tabs defaultValue={areasCalificacionUsuario?.[0]}>
+                                <TabsList>
+                                    {areasCalificacionUsuario?.map((key) => (
+                                        <TabsTrigger value={key} key={key}>{`${key}-${calificaciones?.[key] ? calificaciones?.[key]?.sigla : ""}`}</TabsTrigger>
+                                    ))}
+                                </TabsList>
+                                {keys?.map((key) => (
+                                    <TabsContent value={key} key={key}>
+                                        <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                            {calificaciones?.[key]?.calificaciones && calificaciones[key].calificaciones.length > 0 ? (
+                                                esGrupo ? 
+                                                    <TableCalificacionesGrupo
+                                                        calificaciones={calificaciones[key]}
+                                                        setUpdate={setUpdate}
+                                                    /> : 
+                                                    <TableCalificaciones
+                                                        calificaciones={calificaciones[key]}
+                                                        setUpdate={setUpdate}
+                                                    />
+                                            ) : (
+                                                <div className="flex w-full justify-center items-center p-8">
+                                                    <div className="text-center space-y-2">
+                                                        <p className="text-lg font-semibold text-muted-foreground">No hay calificaciones disponibles</p>
+                                                        <p className="text-sm text-muted-foreground">Aún no se han registrado calificaciones para esta área</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </TabsContent>
                                 ))}
-                            </TabsList>
-                            {keys?.map((key) => (
-                                <TabsContent value={key} key={key}>
-                                    <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                        {
-                                            esGrupo ? <TableCalificacionesGrupo calificaciones={calificaciones[key]} setUpdate={setUpdate}/> : <TableCalificaciones calificaciones={calificaciones[key]} setUpdate={setUpdate}/>
-                                        }
-                                    </div>
-                                </TabsContent>
-                            ))}
-                        </Tabs>
+                            </Tabs>
+                        ) : calificaciones && 'areasCalificacionUsuario' in calificaciones ? (
+                            <div className="flex w-full justify-center items-center p-8">
+                                <div className="text-center space-y-2">
+                                    <p className="text-lg font-semibold text-muted-foreground">No tienes áreas asignadas</p>
+                                    <p className="text-sm text-muted-foreground">Contacta con el administrador para que te asigne áreas de calificación</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex w-full justify-center items-center p-8">
+                                <p className="text-muted-foreground">Cargando calificaciones...</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </SidebarInset>

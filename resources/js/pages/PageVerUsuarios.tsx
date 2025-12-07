@@ -61,6 +61,7 @@ export default function PageVerUsuarios() {
                                                     columns={columnsInterno}
                                                     data={rolUsuario?.[key]}
                                                     fieldSearch="nombre"
+                                                    filter={true}
                                                 />
                                             </CardContent>
                                         </Card>

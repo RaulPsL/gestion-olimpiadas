@@ -59,7 +59,7 @@ export default function PageClasificaciones({ esGrupo }: { esGrupo: boolean }) {
                                                         <CardContent className="w-full">
                                                             <DataTable
                                                                 columns={columnsClasificaciones}
-                                                                data={clasificaciones?.[key]?.[estadoOlimpista]}
+                                                                data={clasificaciones?.[key] !== undefined ? clasificaciones?.[key]?.[estadoOlimpista] : []}
                                                                 fieldSearch="nombre"
                                                             />
                                                         </CardContent>

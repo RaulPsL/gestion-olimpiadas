@@ -11,6 +11,7 @@ export type Olimpista = {
   tutor_academico: string;
   fase: string;
   area: string;
+  nivel?: string;
 };
 
 // Colores por área
@@ -52,6 +53,34 @@ export const columns: ColumnDef<Olimpista>[] = [
         <span className="capitalize">{row.getValue("nombre")}</span>
       </div>
     ),
+  },
+  {
+    accessorKey: "nivel",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="w-full justify-center font-bold hover:bg-transparent"
+        >
+          <Layers className="mr-2 h-4 w-4" />
+          Nivel
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const nivel = row.getValue("nivel") as string;
+      if (!nivel) return <div className="text-center text-muted-foreground">-</div>;
+      
+      return (
+        <div className="text-center">
+          <Badge variant="secondary" className="capitalize bg-violet-500/10 text-violet-700 border-violet-500/30">
+            {nivel}
+          </Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "ci",

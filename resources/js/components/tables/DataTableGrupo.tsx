@@ -58,9 +58,17 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="group border-b border-border/30 hover:bg-gradient-to-r hover:from-primary/5 hover:via-primary/10 hover:to-primary/5 transition-all duration-300 ease-out hover:shadow-md hover:scale-[1.01] hover:rounded-lg"
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                {row.getVisibleCells().map((cell, cellIndex) => (
+                  <TableCell 
+                    key={cell.id}
+                    className={`transition-all duration-300 group-hover:translate-x-1 ${
+                      cellIndex === 0 ? 'group-hover:rounded-l-lg' : ''
+                    } ${
+                      cellIndex === row.getVisibleCells().length - 1 ? 'group-hover:rounded-r-lg' : ''
+                    }`}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

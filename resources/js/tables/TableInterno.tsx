@@ -22,7 +22,7 @@ const getData: Interno[] = [
 export default function TableInternos() {
   return (
     <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={getData} />
+      <DataTable columns={columns} data={getData} filter={true} />
     </div>
   )
 }

@@ -12,5 +12,4 @@ export interface FaseForm {
     nivel: string;
     usuarios: string[];
     flash?: boolean;
-    cantidad_fases?: number;
 }
