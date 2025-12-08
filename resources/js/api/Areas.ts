@@ -1,10 +1,33 @@
 import { FaseForm } from "@/forms/interfaces/Fase";
-import { axiosPrivate } from "./api";
+import { axiosPrivate, axiosPublic } from "./api";
 import { AreaForm } from "@/forms/interfaces/Area";
+export const getAllAreas = async () => {
+    try {
+        const { data } = await axiosPublic.post("/areas");
+        console.log(data.data);
+        return data.data;
+    } catch (error: any) {
+        console.error("Error al obtener las areas:", error);
+
+        if (error.response?.status === 422) {
+            const backendErrors = error.response.data.errors;
+            if (backendErrors) {
+                const errorMessages = Object.values(backendErrors).flat();
+                console.log(errorMessages.join(", "));
+            } else {
+                console.log(error.response.data.message || "Error de validación");
+            }
+        } else if (error.response?.status === 500) {
+            console.log("Error interno del servidor. Intente nuevamente.");
+        } else {
+            console.log("Error de conexión. Verifique su internet.");
+        }
+    }
+};
+
 
 export const getAreas = async (siglaAreas: string[]) => {
     try {
-        console.log('Token: ', localStorage.getItem('token'));
         const { data } = await axiosPrivate.post("/areas/ver/especifico", {
             areas: siglaAreas
         });

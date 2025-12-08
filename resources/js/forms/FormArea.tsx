@@ -57,6 +57,8 @@ export default function FormArea() {
     const [press, setPress] = React.useState<boolean>(false);
     const [indiceEdicion, setIndiceEdicion] = React.useState<number | null>(null);
 
+    const [descripcionLength, setDescripcionLength] = React.useState(0);
+
     // Estado para el nuevo nivel en el diálogo
     const [nuevoNivel, setNuevoNivel] = React.useState<Nivel>({
         nombre: '',
@@ -77,18 +79,24 @@ export default function FormArea() {
 
 
     React.useEffect(() => {
-        if (isLoading || apiError !== '') {
+        console.log('Estado actual:', { isLoading, apiError, success, dialogOpen });
+
+        // Abrir el diálogo cuando hay loading, error o éxito
+        if (isLoading || apiError !== '' || success) {
             setDialogOpen(true);
         }
+
+        // Si es exitoso, cerrar después de 3 segundos
         if (success) {
+            console.log('Éxito detectado! Cerrando en 3 segundos...');
             const timer = setTimeout(() => {
+                console.log('Cerrando diálogo...');
                 setDialogOpen(false);
                 setSuccess(false);
             }, 3000);
             return () => clearTimeout(timer);
         }
-
-    }, [isLoading, dialogOpen]);
+    }, [isLoading, apiError, success]);
 
     // Función para resetear todo el formulario
     const resetearFormulario = () => {
@@ -98,7 +106,6 @@ export default function FormArea() {
         setValue('niveles', []);
         setNivelesAgregados([]);
         setApiError("");
-        setSuccess(false);
     };
 
     const agregarNivel = () => {
@@ -187,7 +194,7 @@ export default function FormArea() {
         setDialogOpen(false);
         setApiError('');
         setIsLoading(false);
-        setSuccess(false)
+        setSuccess(false);
     };
 
     const columnsWithActions = React.useMemo(
@@ -207,7 +214,6 @@ export default function FormArea() {
                 <AlertDialogTrigger asChild />
 
                 <AlertDialogContent>
-                    <AlertDialogTitle className="text-center"/>
                     {isLoading && (
                         <>
                             <AlertDialogHeader>
@@ -224,7 +230,7 @@ export default function FormArea() {
                         </>
                     )}
 
-                    {(apiError !== '') && (
+                    {apiError !== '' && (
                         <>
                             <AlertDialogHeader>
                                 <AlertDialogTitle className="text-red-500 text-center">
@@ -257,7 +263,7 @@ export default function FormArea() {
                                 <CheckCircle className="h-4 w-4 text-green-600" />
                                 <AlertTitle className="text-green-800">Registro de área correcto</AlertTitle>
                                 <AlertDescription className="text-green-700">
-                                    Eñl área y los niveles se registraron exitosamente.
+                                    El área y los niveles se registraron exitosamente.
                                 </AlertDescription>
                             </Alert>
                         </>
@@ -282,7 +288,19 @@ export default function FormArea() {
                                 <Input
                                     id="nombre"
                                     {...register('nombre', {
-                                        required: 'El nombre es requerido',
+                                        required: 'El nombre del área es requerido',
+                                        minLength: {
+                                            value: 5,
+                                            message: 'El nombre debe tener al menos 5 caracteres'
+                                        },
+                                        maxLength: {
+                                            value: 25,
+                                            message: 'El nombre no puede exceder los 25 caracteres'
+                                        },
+                                        pattern: {
+                                            value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/,
+                                            message: 'El nombre solo puede contener letras, espacios y guiones'
+                                        }
                                     })}
                                     placeholder="Ej: ASTRONOMÍA - ASTROFÍSICA"
                                     className={errors.nombre ? 'border-destructive' : ''}
@@ -302,9 +320,25 @@ export default function FormArea() {
                                     id="sigla"
                                     {...register('sigla', {
                                         required: 'La sigla es requerida',
+                                        minLength: {
+                                            value: 3,
+                                            message: 'La sigla debe ser 3 caracteres máximo.'
+                                        },
+                                        maxLength: {
+                                            value: 3,
+                                            message: 'La sigla debe ser 3 caracteres máximo.'
+                                        },
+                                        pattern: {
+                                            value: /^[A-ZÑ]+$/,
+                                            message: 'La sigla solo puede contener letras mayúsculas sin espacios'
+                                        }
                                     })}
-                                    placeholder="Ej: ASTRO"
+                                    placeholder="Ej: AST"
                                     className={errors.sigla ? 'border-destructive' : ''}
+                                    onChange={(e) => {
+                                        e.target.value = e.target.value.toUpperCase();
+                                        register('sigla').onChange(e);
+                                    }}
                                 />
                                 {errors.sigla && (
                                     <p className="text-sm text-destructive">
@@ -315,14 +349,42 @@ export default function FormArea() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="descripcion">Descripción</Label>
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="descripcion">Descripción <span className="text-destructive">*</span></Label>
+                                <span className={`text-xs ${descripcionLength > 200 ? 'text-red-500' :
+                                    descripcionLength > 180 ? 'text-yellow-500' :
+                                        'text-muted-foreground'
+                                    }`}>
+                                    {descripcionLength}/200 caracteres
+                                </span>
+                            </div>
                             <Textarea
                                 id="descripcion"
-                                {...register('descripcion')}
+                                {...register('descripcion', {
+                                    required: 'La descripción es requerida',
+                                    maxLength: {
+                                        value: 200,
+                                        message: 'La descripción no puede exceder los 200 caracteres'
+                                    },
+                                    pattern: {
+                                        value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s.,;:()¿?¡!\-]*$/,
+                                        message: 'La descripción contiene caracteres no permitidos'
+                                    }
+                                })}
                                 placeholder="Descripción del área..."
                                 rows={3}
-                                className="resize-none"
+                                className={`resize-none ${errors.descripcion ? 'border-destructive' : ''}`}
+                                onChange={(e) => {
+                                    setDescripcionLength(e.target.value.length);
+                                    register('descripcion').onChange(e);
+                                }}
+                                maxLength={200}
                             />
+                            {errors.descripcion && (
+                                <p className="text-sm text-destructive">
+                                    {errors.descripcion.message}
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -330,7 +392,7 @@ export default function FormArea() {
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border p-4">
                             <div className="space-y-2">
-                                <Label>Evaluadores</Label>
+                                <Label>Evaluadores <span className="text-destructive">*</span></Label>
                                 <Combobox
                                     items={evaluadores}
                                     value={evaluadoresField.value}
@@ -339,12 +401,14 @@ export default function FormArea() {
                                     searchPlaceholder="Buscar evaluadores..."
                                     multiple={true}
                                 />
-                                {errors.evaluadores && (
-                                    <p className="text-sm text-red-500">{errors.evaluadores.message}</p>
+                                {evaluadoresField.value.length === 0 && (
+                                    <p className="text-sm text-muted-foreground">
+                                        Selecciona al menos un evaluador
+                                    </p>
                                 )}
                             </div>
                             <div className="space-y-2">
-                                <Label>Encargados de área</Label>
+                                <Label>Encargados de área <span className="text-destructive">*</span></Label>
                                 <Combobox
                                     items={encargados}
                                     value={encargadosField.value}
@@ -353,172 +417,177 @@ export default function FormArea() {
                                     searchPlaceholder="Buscar encargados..."
                                     multiple={true}
                                 />
-                                {errors.encargados && (
-                                    <p className="text-sm text-red-500">{errors.encargados.message}</p>
+                                {encargadosField.value.length === 0 && (
+                                    <p className="text-sm text-muted-foreground">
+                                        Selecciona al menos un encargado
+                                    </p>
                                 )}
                             </div>
+                            {errors.evaluadores && (
+                                <p className="text-sm text-red-500">{errors.evaluadores.message}</p>
+                            )}
                         </div>
+                    </div>
 
-                        <div className="space-y-4 rounded-lg border p-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="font-semibold mb-1">Niveles y Grados</h3>
-                                    <p className="text-sm text-muted-foreground">Configura los niveles educativos</p>
-                                </div>
-                                <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                                    <DialogTrigger asChild>
-                                        <Button
-                                            type="button"
-                                            onClick={abrirDialogoNuevo}
-                                            variant="outline"
-                                            size="sm"
-                                        >
-                                            <Plus className="w-4 h-4 mr-2" />
-                                            Agregar
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="max-w-[95vw] w-full max-h-[90vh] h-fit flex flex-col">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-lg">
-                                                {modoEdicion ? 'Editar Nivel' : 'Agregar Nivel'}
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        <DialogDescription className="text-sm text-muted-foreground">
-                                            {modoEdicion ? 'Edita la información del nivel' : 'Completa la información del nuevo nivel'}
-                                        </DialogDescription>
-                                        <Card>
-                                            <CardContent className="pt-6">
-                                                <div className="space-y-4">
-                                                    <div className="space-y-2">
-                                                        <Label className="text-sm font-medium">
-                                                            Nombre del Nivel <span className="text-destructive">*</span>
-                                                        </Label>
-                                                        {
-                                                            press ? (
-                                                                <div className='flex flex-row space-x-4'>
-                                                                    <Input
-                                                                        value={nuevoNivel.nombre}
-                                                                        onChange={(e) =>
-                                                                            setNuevoNivel({ ...nuevoNivel, nombre: e.target.value })
-                                                                        }
-                                                                        placeholder="Ej: 3ro Primaria"
-                                                                    />
-                                                                    <Button
-                                                                        variant={'ghost'}
-                                                                        onClick={() => setPress(prev => !prev)}
-                                                                    >
-                                                                        Volver
-                                                                    </Button>
-                                                                </div>
-                                                            ) : (
-                                                                <div className='flex flex-row space-x-4'>
-                                                                    <Combobox
-                                                                        items={nivelesBackend}
-                                                                        value={nuevoNivel.nombre ? [nuevoNivel.nombre] : []}
-                                                                        onChange={(selectedValues) => {
-                                                                            const nivelId = selectedValues[0] || '';
-                                                                            const nivelEncontrado = nivelesBackend.find((nivel) => nivel.value === nivelId);
-
-                                                                            if (nivelEncontrado) {
-                                                                                // Extraer IDs de grados
-                                                                                const gradosIds = nivelEncontrado.grados?.map((grado: any) => grado.value) || [];
-                                                                                // Extraer info completa de grados
-                                                                                const gradosCompletos = nivelEncontrado.grados?.map((grado: any) => ({
-                                                                                    id: grado.value,
-                                                                                    label: grado.label
-                                                                                })) || [];
-
-                                                                                setNuevoNivel({
-                                                                                    ...nuevoNivel,
-                                                                                    nombre: nivelEncontrado.label, // Guardar el LABEL, no el ID
-                                                                                    grados: gradosIds, // IDs de los grados
-                                                                                    gradosInfo: gradosCompletos, // Info completa de los grados
-                                                                                });
-                                                                            }
-                                                                        }}
-                                                                        placeholder='Seleccionar el nivel...'
-                                                                        searchPlaceholder='Buscar el nivel...'
-                                                                        multiple={false}
-                                                                        className='w-full'
-                                                                    />
-                                                                    <Button
-                                                                        variant={'ghost'}
-                                                                        onClick={() => setPress(prev => !prev)}
-                                                                    >
-                                                                        Nuevo nivel
-                                                                    </Button>
-                                                                </div>
-                                                            )
-                                                        }
-                                                    </div>
-
-                                                    <div className="space-y-2">
-                                                        <Label className="text-sm font-medium">
-                                                            Grados asociados <span className="text-destructive">*</span>
-                                                        </Label>
-                                                        <Combobox
-                                                            items={grados}
-                                                            value={nuevoNivel.grados}
-                                                            onChange={(selectedIds) => {
-                                                                // Encontrar la información completa de los grados seleccionados
-                                                                const gradosCompletos = grados.filter(grado =>
-                                                                    selectedIds.includes(grado.value)
-                                                                ).map(grado => ({
-                                                                    id: grado.value,
-                                                                    label: grado.label
-                                                                }));
-
-                                                                setNuevoNivel({
-                                                                    ...nuevoNivel,
-                                                                    grados: selectedIds, // IDs
-                                                                    gradosInfo: gradosCompletos // Info completa
-                                                                });
-                                                            }}
-                                                            placeholder='Seleccionar grados...'
-                                                            searchPlaceholder='Buscar grados...'
-                                                            multiple={true}
-                                                            className='w-full'
-                                                        />
-                                                        {nuevoNivel.grados.length === 0 && (
-                                                            <p className="text-xs text-muted-foreground">
-                                                                Selecciona al menos un grado
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="flex justify-end gap-2 pt-4">
-                                                        <Button
-                                                            type="button"
-                                                            variant="outline"
-                                                            onClick={() => {
-                                                                setNuevoNivel({ nombre: '', grados: [], gradosInfo: [] });
-                                                                setPress(false);
-                                                                setOpenDialog(false);
-                                                            }}
-                                                        >
-                                                            Cancelar
-                                                        </Button>
-                                                        <Button
-                                                            type="button"
-                                                            onClick={agregarNivel}
-                                                        >
-                                                            <Plus className="w-4 h-4 mr-2" />
-                                                            {modoEdicion ? 'Guardar Cambios' : 'Agregar Nivel'}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </DialogContent>
-                                </Dialog>
+                    <div className="space-y-4 rounded-lg border p-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="font-semibold mb-1">Niveles y Grados <span className="text-destructive">*</span></h3>
+                                <p className="text-sm text-muted-foreground">Configura los niveles educativos</p>
                             </div>
+                            <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        onClick={abrirDialogoNuevo}
+                                        variant="outline"
+                                        size="sm"
+                                    >
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        Agregar
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-[95vw] w-full max-h-[90vh] h-fit flex flex-col">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-lg">
+                                            {modoEdicion ? 'Editar Nivel' : 'Agregar Nivel'}
+                                        </DialogTitle>
+                                    </DialogHeader>
+                                    <DialogDescription className="text-sm text-muted-foreground">
+                                        {modoEdicion ? 'Edita la información del nivel' : 'Completa la información del nuevo nivel'}
+                                    </DialogDescription>
+                                    <Card>
+                                        <CardContent className="pt-6">
+                                            <div className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">
+                                                        Nombre del Nivel <span className="text-destructive">*</span>
+                                                    </Label>
+                                                    {
+                                                        press ? (
+                                                            <div className='flex flex-row space-x-4'>
+                                                                <Input
+                                                                    value={nuevoNivel.nombre}
+                                                                    onChange={(e) =>
+                                                                        setNuevoNivel({ ...nuevoNivel, nombre: e.target.value })
+                                                                    }
+                                                                    placeholder="Ej: 3ro Primaria"
+                                                                />
+                                                                <Button
+                                                                    variant={'ghost'}
+                                                                    onClick={() => setPress(prev => !prev)}
+                                                                >
+                                                                    Volver
+                                                                </Button>
+                                                            </div>
+                                                        ) : (
+                                                            <div className='flex flex-row space-x-4'>
+                                                                <Combobox
+                                                                    items={nivelesBackend}
+                                                                    value={nuevoNivel.nombre ? [nuevoNivel.nombre] : []}
+                                                                    onChange={(selectedValues) => {
+                                                                        const nivelId = selectedValues[0] || '';
+                                                                        const nivelEncontrado = nivelesBackend.find((nivel) => nivel.value === nivelId);
 
-                            <DataTable
-                                columns={columnsWithActions}
-                                data={nivelesAgregados ?? []}
-                                filter={false}
-                            />
+                                                                        if (nivelEncontrado) {
+                                                                            // Extraer IDs de grados
+                                                                            const gradosIds = nivelEncontrado.grados?.map((grado: any) => grado.value) || [];
+                                                                            // Extraer info completa de grados
+                                                                            const gradosCompletos = nivelEncontrado.grados?.map((grado: any) => ({
+                                                                                id: grado.value,
+                                                                                label: grado.label
+                                                                            })) || [];
+
+                                                                            setNuevoNivel({
+                                                                                ...nuevoNivel,
+                                                                                nombre: nivelEncontrado.label, // Guardar el LABEL, no el ID
+                                                                                grados: gradosIds, // IDs de los grados
+                                                                                gradosInfo: gradosCompletos, // Info completa de los grados
+                                                                            });
+                                                                        }
+                                                                    }}
+                                                                    placeholder='Seleccionar el nivel...'
+                                                                    searchPlaceholder='Buscar el nivel...'
+                                                                    multiple={false}
+                                                                    className='w-full'
+                                                                />
+                                                                <Button
+                                                                    variant={'ghost'}
+                                                                    onClick={() => setPress(prev => !prev)}
+                                                                >
+                                                                    Nuevo nivel
+                                                                </Button>
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium">
+                                                        Grados asociados <span className="text-destructive">*</span>
+                                                    </Label>
+                                                    <Combobox
+                                                        items={grados}
+                                                        value={nuevoNivel.grados}
+                                                        onChange={(selectedIds) => {
+                                                            // Encontrar la información completa de los grados seleccionados
+                                                            const gradosCompletos = grados.filter(grado =>
+                                                                selectedIds.includes(grado.value)
+                                                            ).map(grado => ({
+                                                                id: grado.value,
+                                                                label: grado.label
+                                                            }));
+
+                                                            setNuevoNivel({
+                                                                ...nuevoNivel,
+                                                                grados: selectedIds, // IDs
+                                                                gradosInfo: gradosCompletos // Info completa
+                                                            });
+                                                        }}
+                                                        placeholder='Seleccionar grados...'
+                                                        searchPlaceholder='Buscar grados...'
+                                                        multiple={true}
+                                                        className='w-full'
+                                                    />
+                                                    {nuevoNivel.grados.length === 0 && (
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Selecciona al menos un grado
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex justify-end gap-2 pt-4">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            setNuevoNivel({ nombre: '', grados: [], gradosInfo: [] });
+                                                            setPress(false);
+                                                            setOpenDialog(false);
+                                                        }}
+                                                    >
+                                                        Cancelar
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        onClick={agregarNivel}
+                                                    >
+                                                        <Plus className="w-4 h-4 mr-2" />
+                                                        {modoEdicion ? 'Guardar Cambios' : 'Agregar Nivel'}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </DialogContent>
+                            </Dialog>
                         </div>
+
+                        <DataTable
+                            columns={columnsWithActions}
+                            data={nivelesAgregados ?? []}
+                            filter={false}
+                        />
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-3">
@@ -527,19 +596,14 @@ export default function FormArea() {
                         className="w-full"
                         disabled={isLoading}
                         onClick={() => {
-                            setApiError("");
-                            setSuccess(false);
-                            setDialogOpen(true);
                             handleSubmit(
-                                async (data) => {
-                                    await createArea(
-                                        data,
-                                        resetearFormulario,
-                                        setIsLoading,
-                                        setSuccess,
-                                        setApiError
-                                    );
-                                }
+                                (data) => createArea(
+                                    data,
+                                    resetearFormulario,
+                                    setIsLoading,
+                                    setSuccess,
+                                    setApiError
+                                )
                             )();
                         }}
                     >
@@ -554,7 +618,7 @@ export default function FormArea() {
                         Cancelar
                     </Button>
                 </CardFooter>
-            </Card>
+            </Card >
         </>
     );
 }
