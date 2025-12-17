@@ -28,7 +28,6 @@ export default function PageVerOlimpistas() {
     React.useEffect(() => {
         const staticData = async () => {
             const staticOlimpistas = await getOlimpistasByAreas(areasSigla as string[]);
-            console.log('Datos recibidos del backend:', staticOlimpistas);
             setOlimpistas(staticOlimpistas);
         }
         if (areasSigla && areasSigla.length > 0) {

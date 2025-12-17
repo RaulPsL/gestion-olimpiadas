@@ -72,6 +72,20 @@ export function AppSidebar() {
                         return menu;
                     })
                 ));
+            } else {
+                setMenu(prev => (
+                    prev.map(menu => {
+                        if (menu.submenu) {
+                            return {
+                                ...menu,
+                                submenu: menu.submenu.filter(
+                                    (submenu: any) => submenu.title !== 'Inscribir olimpistas'
+                                )
+                            };
+                        }
+                        return menu;
+                    })
+                ));
             }
         }
     }, [datosUsuario]);

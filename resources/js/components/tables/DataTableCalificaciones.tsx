@@ -314,7 +314,8 @@ export function DataTableCalificaciones<TData, TValue, TFormValues extends Field
                 setOpenToEdition(true)
                 handleToggleEdicion(true)
               }}
-              // disabled={fin < currentDate && calificacion < fin}
+              variant={`${fin < currentDate && calificacion < fin ? "ghost" : "secondary"}`}
+              disabled={fin < currentDate && calificacion < fin}
             >
               <NotebookPen className="mr-2 h-4 w-4" />
               Calificar

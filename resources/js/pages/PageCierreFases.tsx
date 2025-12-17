@@ -10,6 +10,13 @@ import { useAuth } from "@/hooks/use-context";
 import { getCierres } from "@/api/Fases";
 import TablecierreFases from "@/tables/TableCierreFases";
 
+const defaultAreas = [
+    {
+        nombre: '',
+        cierres: [],
+    }
+];
+
 export default function PageCierreFases() {
     const [cierres, setCierres] = React.useState<any>();
     const [update, setUpdate] = React.useState<boolean>(false);
@@ -20,17 +27,19 @@ export default function PageCierreFases() {
     React.useEffect(() => {
         const staticData = async () => {
             const response = await getCierres(areasUsuario as string[]);
-                setCierres(response);
-            };
-        staticData();
+            setCierres(response);
+        };
+        if (areasUsuario && areasUsuario?.length > 0) {
+            staticData();
+        }
     }, [update]);
-    
+
     React.useEffect(() => {
         if (cierres) {
             setKeys(Object.keys(cierres));
         }
     }, [cierres, update]);
-    
+
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -42,23 +51,54 @@ export default function PageCierreFases() {
                         <Label className="text-2xl">Confirmación de cierres</Label>
                     </div>
                     <div className="flex w-full flex-col gap-6">
-                        <Tabs defaultValue={ String(areasUsuario?.[0]).toLocaleLowerCase() }>
-                            <TabsList>
-                                { areasUsuario?.map((key) => (
-                                    <TabsTrigger value={String(key).toLocaleLowerCase()} key={key}>{key}</TabsTrigger>
-                                ))}
-                            </TabsList>
-                            { keys?.map((key) => (
-                                <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
-                                    <div className="flex w-full flex-row gap-6 p-4 justify-center">
-                                        <TablecierreFases
-                                            cierres={cierres?.[key]}
-                                            setUpdate={setUpdate}/>
-                                    </div>
-                                </TabsContent>
-                            ))}
+                        {
+                            areasUsuario && areasUsuario?.length > 0 ? (
+                                <Tabs defaultValue={String(areasUsuario?.[0]).toLocaleLowerCase()}>
+                                    <TabsList>
+                                        {areasUsuario?.map((key) => (
+                                            <TabsTrigger
+                                                value={String(key).toLocaleLowerCase()}
+                                                key={key}
+                                            >
+                                                {key}
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
+                                    {
+                                        areasUsuario?.map((key) => (
+                                            <TabsContent
+                                                value={String(key).toLocaleLowerCase()}
+                                                key={key}
+                                            >
+                                                <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                                    <TablecierreFases
+                                                        cierres={cierres?.[key] ?? []}
+                                                        setUpdate={setUpdate} />
+                                                </div>
+                                            </TabsContent>
+                                        ))}
 
-                        </Tabs>
+                                </Tabs>
+                            ) : (
+                                <Tabs defaultValue={String(areasUsuario?.[0]).toLocaleLowerCase()}>
+                                    <TabsList>
+                                        {areasUsuario?.map((key) => (
+                                            <TabsTrigger value={String(key).toLocaleLowerCase()} key={key}>{key}</TabsTrigger>
+                                        ))}
+                                    </TabsList>
+                                    {keys?.map((key) => (
+                                        <TabsContent value={String(key).toLocaleLowerCase()} key={key}>
+                                            <div className="flex w-full flex-row gap-6 p-4 justify-center">
+                                                <TablecierreFases
+                                                    cierres={cierres?.[key] ?? []}
+                                                    setUpdate={setUpdate} />
+                                            </div>
+                                        </TabsContent>
+                                    ))}
+
+                                </Tabs>
+                            )
+                        }
                     </div>
                 </div>
             </SidebarInset>

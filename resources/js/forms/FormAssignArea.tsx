@@ -20,11 +20,6 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
     const [apiError, setApiError] = React.useState<string>("");
     const [success, setSuccess] = React.useState<boolean>(false);
 
-    const [areas, setAreas] = React.useState<any[]>([]);
-    const [niveles, setNiveles] = React.useState<any[]>([]);
-    const { data } = useAuth();
-    const [areasFiltradas, setAreasFiltradas] = React.useState<any[]>([]);
-
     const {
         register,
         handleSubmit,
@@ -44,26 +39,6 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
             nivel: 0,
         }
     });
-
-    React.useEffect(() => {
-        const staticData = async () => {
-            const staticData = await getStaticData();
-            setAreas(staticData.areas);
-        };
-        staticData();
-    }, []);
-
-    // Filtrar las areas segun las areas del usuario (SOLO UNA VEZ)
-    useFilterAreasUser(areas, data as UserData, areasFiltradas, setAreasFiltradas);
-
-    const areaField = useComboboxField("areas", setValue, false, trigger);
-    const nivelField = useComboboxField("nivel", setValue, false, trigger);
-
-    React.useEffect(() => {
-        if (areaField.value.length > 0) {
-            setNiveles(areas.find((area) => area.value === areaField.value[0]).niveles);
-        }
-    }, [areaField]);
 
     React.useEffect(() => {
         const nombre_apellidos = otherData.nombre.split(' ');
@@ -171,8 +146,6 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
 
             <div>
                 <CardContent className="space-y-4">
-
-
                     <div>
                         {/* Grid para organizar campos */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -185,7 +158,7 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
                                     id="nombre"
                                     type="text"
                                     className="w-full"
-                                    value={otherData.nombre}
+                                    defaultValue={otherData.nombre}
                                     {...register('nombre', otherData.nombre.split(' ')[0])}
                                 />
                             </div>
@@ -217,7 +190,7 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
                                 <Input
                                     id="celular"
                                     type="tel"
-                                    value={otherData.celular}
+                                    defaultValue={otherData.celular}
                                     {...register('celular', otherData.celular)}
                                 />
                             </div>
@@ -234,38 +207,6 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
                                     {...register('email', otherData.email)}
                                 />
                             </div>
-
-                            {/* Campo Áreas */}
-                            <div className="space-y-2">
-                                <Label htmlFor="areas">
-                                    Áreas
-                                </Label>
-                                <Combobox
-                                    items={areasFiltradas}
-                                    value={areaField.value}
-                                    onChange={areaField.onChange}
-                                    placeholder="Seleccionar área..."
-                                    searchPlaceholder="Buscar área..."
-                                    multiple={true}
-                                />
-                            </div>
-
-                            {/* Campo Niveles */}
-                            <div className="space-y-2">
-                                <Label htmlFor="areas">
-                                    Niveles
-                                </Label>
-                                <Combobox
-                                    items={niveles}
-                                    value={nivelField.value}
-                                    onChange={nivelField.onChange}
-                                    placeholder="Seleccionar nivel..."
-                                    searchPlaceholder="Buscar nivel..."
-                                    multiple={true}
-                                />
-                            </div>
-
-
                         </div>
 
                         {/* Campo áreas */}
@@ -283,7 +224,7 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
                     </div>
                 </CardContent>
 
-                <CardFooter className="flex flex-col gap-3">
+                <CardFooter className="flex flex-col gap-3 py-4">
                     <Button
                         type="button"
                         onClick={() => {
@@ -295,13 +236,9 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
                                     await updateUsuario(
                                         otherData.ci,
                                         data,
-                                        areaField.value as string[],
-                                        nivelField.value as number[],
                                         setIsLoading,
                                         setSuccess,
                                         setApiError,
-                                        () => areaField.reset(),
-                                        () => nivelField.reset(),
                                     );
                                 }
                             )();
@@ -309,7 +246,7 @@ export default function FormAssignArea({ otherData }: { otherData: any }) {
                         className="w-full"
                         disabled={isLoading}
                     >
-                        {isLoading ? "Asignando..." : "Asignar área"}
+                        {isLoading ? "Guardando cambios..." : "Editar usuario"}
                     </Button>
                     <Button
                         variant={'destructive'}

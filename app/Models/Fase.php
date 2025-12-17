@@ -51,6 +51,7 @@ class Fase extends Model
      */
     protected $casts = [
         'fecha_inicio' => 'datetime',
+        'fecha_calificacion' => 'datetime',
         'fecha_fin' => 'datetime',
         'estado' => EstadoFase::class,
         'tipo_fase' => TipoFase::class,

@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import FormUsuarioInterno from "@/forms/FormUsuarioInterno";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/components/Header";
-import Footer from "@/components/layout/Footer";
 import { AppSidebar } from "@/components/AppSidebar";
 
 export default function PageInterno({ tipoUsuario }: { tipoUsuario: string }) {

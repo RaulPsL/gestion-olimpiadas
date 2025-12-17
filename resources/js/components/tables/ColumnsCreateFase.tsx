@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import FormEditFase from "@/forms/FormEditFase";
 import { Button } from "../ui/button";
 import { Edit, Users, Calendar, Flag, Layers } from "lucide-react";
-import { useFormatDate } from "@/hooks/use-format-date";
 
 export type Fase = {
     tipo_fase: string,
@@ -12,9 +11,9 @@ export type Fase = {
     cantidad_min_participantes: number;
     cantidad_max_participantes: number;
     cantidad_ganadores: number;
-    fecha_inicio: Date;
-    fecha_calificacion: Date;
-    fecha_fin: Date;
+    fecha_inicio: string;
+    fecha_calificacion: string;
+    fecha_fin: string;
     nivel: string | number;
     usuarios: (string | number)[];
     descripcion: string;
@@ -99,13 +98,34 @@ export const createColumnsCreateFase = (
                 Fecha Inicio
             </div>
         ),
-        cell: ({ row }) => (
-            <div className="text-center">
-                <Badge variant="outline" className="font-mono bg-muted/50 border-border/50">
-                    {useFormatDate(row.original.fecha_inicio.toLocaleDateString())}
-                </Badge>
-            </div>
-        ),
+        cell: ({ row }) => {
+            const fechaStr = row.original.fecha_inicio;
+            let fechaFormateada = "Fecha inválida";
+            
+            try {
+                // Convertir el string a Date para formatearlo
+                const fecha = new Date(fechaStr);
+                if (!isNaN(fecha.getTime())) {
+                    fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al formatear fecha_inicio:', error);
+            }
+            
+            return (
+                <div className="text-center">
+                    <Badge variant="outline" className="font-mono bg-muted/50 border-border/50">
+                        {fechaFormateada}
+                    </Badge>
+                </div>
+            );
+        },
     },
     {
         accessorKey: "fecha_fin",
@@ -115,13 +135,34 @@ export const createColumnsCreateFase = (
                 Fecha Fin
             </div>
         ),
-        cell: ({ row }) => (
-            <div className="text-center">
-                <Badge variant="outline" className="font-mono bg-muted/50 border-border/50">
-                    {useFormatDate(row.original.fecha_fin.toLocaleDateString())}
-                </Badge>
-            </div>
-        ),
+        cell: ({ row }) => {
+            const fechaStr = row.original.fecha_fin;
+            let fechaFormateada = "Fecha inválida";
+            
+            try {
+                // Convertir el string a Date para formatearlo
+                const fecha = new Date(fechaStr);
+                if (!isNaN(fecha.getTime())) {
+                    fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al formatear fecha_fin:', error);
+            }
+            
+            return (
+                <div className="text-center">
+                    <Badge variant="outline" className="font-mono bg-muted/50 border-border/50">
+                        {fechaFormateada}
+                    </Badge>
+                </div>
+            );
+        },
     },
     {
         accessorKey: "editar_fase",

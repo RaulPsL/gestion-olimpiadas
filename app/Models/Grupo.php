@@ -17,6 +17,7 @@ class Grupo extends Model
     protected $fillable = [
         'nombre',
         'tutor_id',
+        'colegio_id',
     ];
 
     /**

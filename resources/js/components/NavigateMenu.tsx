@@ -24,10 +24,7 @@ export function NavigateMenu({ role }: { role: boolean }) {
             <Link to="/calendario">Calendario de fases</Link>
           </NavigationMenuLink>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/clasificaciones/olimpistas">Todos los olimpistas</Link>
-          </NavigationMenuLink>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/clasificaciones/grupos">Todos los grupos</Link>
+            <Link to="/clasificaciones">Ver todas las clasificaciones por áreas</Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>

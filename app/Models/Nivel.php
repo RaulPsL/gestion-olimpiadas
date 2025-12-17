@@ -35,7 +35,7 @@ class Nivel extends Model
         return $this->belongsToMany(Grado::class, 'niveles_grados');
     }
 
-    public function area() {
+    public function areas() {
         return $this->belongsToMany(Area::class, 'niveles_areas');
     }
 }

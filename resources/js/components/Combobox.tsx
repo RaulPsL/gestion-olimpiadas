@@ -30,9 +30,10 @@ export function Combobox({
   emptyMessage = "No se encontraron resultados.",
   className = "",
   onSelected,
-  closeOnSelect = true, // Nueva prop para controlar el cierre
+  closeOnSelect = true,
 }: ComboboxProps & { closeOnSelect?: boolean }) {
   const [open, setOpen] = React.useState(false);
+  
   const getLabelByValue = (searchValue: string | number): string => {
     const item = items.find(item => item.value === searchValue);
     return item?.label || String(searchValue);
@@ -53,7 +54,7 @@ export function Combobox({
       const newValue = value.includes(selectedValue) ? [] : [selectedValue];
       onChange?.(newValue);
       onSelected?.(selectedValue);
-      setOpen(false); // En modo simple siempre cerramos
+      setOpen(false);
     }
   };
 
@@ -87,13 +88,12 @@ export function Combobox({
     return (
       <div className="flex flex-wrap gap-1 mt-2">
         {value.map((selectedValue) => {
-          const item = items.find(item => item.value === selectedValue);
           return (
             <div
               key={selectedValue}
               className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-sm text-xs"
             >
-              <span>{item?.label || String(selectedValue)}</span>
+              <span>{getLabelByValue(selectedValue)}</span>
               <button
                 type="button"
                 onClick={(e) => removeItem(selectedValue, e)}
@@ -142,7 +142,7 @@ export function Combobox({
                   return (
                     <CommandItem
                       key={item.value}
-                      value={String(item.value)}
+                      value={String(item.label)}
                       onSelect={() => handleSelect(item.value)}
                     >
                       {item.label}

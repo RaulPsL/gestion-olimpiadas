@@ -19,6 +19,7 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
     const [success, setSuccess] = React.useState<boolean>(false);
 
     const [areas, setAreas] = React.useState<any[]>([]);
+    const [roles, setRoles] = React.useState<any[]>([]);
     const [niveles, setNiveles] = React.useState<any[]>([]);
 
     const {
@@ -39,7 +40,7 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
             celular: "",
             email: "",
             areas: [],
-            rol: tipoUsuario !== "Evaluador" ? "EDA" : "EVA",
+            rol: "",
             nivel: 0,
         }
     });
@@ -48,13 +49,22 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
         const staticData = async () => {
             const staticData = await getStaticData();
             setAreas(staticData.areas);
+            setRoles(staticData.roles);
         };
         staticData();
     }, []);
 
+    React.useEffect(() => {
+        setValue('rol', 'EVA');
+        if (tipoUsuario !== "Evaluador") {
+            setValue('rol', 'EDA');
+        }
+    }, [tipoUsuario])
+
+
     // const rolesField = useComboboxField("rol", setValue, false, trigger);
     const areaField = useComboboxField("areas", setValue, false, trigger);
-    const nivelField = useComboboxField("nivel", setValue, false, trigger);
+    const rolField = useComboboxField("rol", setValue, false, trigger);
 
     React.useEffect(() => {
         if (areaField.value.length > 0) {
@@ -93,7 +103,7 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
                 <AlertDialogTrigger asChild />
 
                 <AlertDialogContent>
-                    <AlertDialogTitle className="text-center"/>
+                    <AlertDialogTitle className="text-center" />
                     {isLoading && (
                         <>
                             <AlertDialogHeader>
@@ -151,150 +161,26 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
                 </AlertDialogContent>
             </AlertDialog>
             <Card className="w-full max-w-2xl mx-auto">
-            <CardHeader>
-                <CardTitle>Registro de Usuario</CardTitle>
-                <CardDescription>
-                    Complete todos los campos para crear una nueva cuenta de usuario
-                </CardDescription>
-            </CardHeader>
+                <CardHeader>
+                    <CardTitle>Registro de Usuario</CardTitle>
+                    <CardDescription>
+                        Complete todos los campos para crear una nueva cuenta de usuario
+                    </CardDescription>
+                </CardHeader>
 
-            <div>
-                <CardContent className="space-y-4">
-                    {/* Grid para organizar campos */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Campo Nombre */}
-                        <div className="space-y-2">
-                            <Label htmlFor="nombre">
-                                Nombres <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="nombre"
-                                type="text"
-                                placeholder="Juan Carlos"
-                                {...register("nombre", validationRules.nombres)}
-                                className={errors.nombre ? "border-red-500" : ""}
-                            />
-                            {errors.nombre && (
-                                <p className="text-sm text-red-500">{errors.nombre.message}</p>
-                            )}
-                        </div>
-
-                        {/* Campo Apellido Paterno */}
-                        <div className="space-y-2">
-                            <Label htmlFor="apellido_paterno">
-                                Apellido Paterno <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="apellido_paterno"
-                                type="text"
-                                placeholder="García"
-                                {...register("apellido_paterno", validationRules.apellido_paterno)}
-                                className={errors.apellido_paterno ? "border-red-500" : ""}
-                            />
-                            {errors.apellido_paterno && (
-                                <p className="text-sm text-red-500">{errors.apellido_paterno.message}</p>
-                            )}
-                        </div>
-
-                        {/* Campo Apellido Materno */}
-                        <div className="space-y-2">
-                            <Label htmlFor="apellido_materno">
-                                Apellido Materno <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="apellido_materno"
-                                type="text"
-                                placeholder="López"
-                                {...register("apellido_materno", validationRules.apellido_materno)}
-                                className={errors.apellido_materno ? "border-red-500" : ""}
-                            />
-                            {errors.apellido_materno && (
-                                <p className="text-sm text-red-500">{errors.apellido_materno.message}</p>
-                            )}
-                        </div>
-
-                        {/* Campo CI */}
-                        <div className="space-y-2">
-                            <Label htmlFor="ci">
-                                Cédula de Identidad <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="ci"
-                                type="string"
-                                placeholder="12345678"
-                                {...register("ci", validationRules.ci)}
-                                className={errors.ci ? "border-red-500" : ""}
-                            />
-                            {errors.ci && (
-                                <p className="text-sm text-red-500">{errors.ci.message}</p>
-                            )}
-                        </div>
-
-                        {/* Campo Celular */}
-                        <div className="space-y-2">
-                            <Label htmlFor="celular">
-                                Celular <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="celular"
-                                type="tel"
-                                placeholder="70123456"
-                                {...register("celular", validationRules.celular)}
-                                className={errors.celular ? "border-red-500" : ""}
-                            />
-                            {errors.celular && (
-                                <p className="text-sm text-red-500">{errors.celular.message}</p>
-                            )}
-                        </div>
-
-                        {/* Campo Email */}
-                        <div className="space-y-2">
-                            <Label htmlFor="email">
-                                Email <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="usuario@example.com"
-                                {...register("email", validationRules.email)}
-                                className={errors.email ? "border-red-500" : ""}
-                            />
-                            {errors.email && (
-                                <p className="text-sm text-red-500">{errors.email.message}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Campo Áreas */}
-                        <div className="space-y-2">
-                            <Label htmlFor="areas">
-                                Áreas <span className="text-red-500">*</span>
-                            </Label>
-                            <Combobox
-                                items={areas}
-                                value={areaField.value}
-                                onChange={areaField.onChange}
-                                placeholder="Seleccionar área..."
-                                searchPlaceholder="Buscar área..."
-                                multiple={false}
-                            />
-                            {errors.areas && (
-                                <p className="text-sm text-red-500">{errors.areas.message}</p>
-                            )}
-                        </div>
-
-                        {/* Campo Roles */}
-                        {(tipoUsuario === 'Evaluador') && (
+                <div>
+                    <CardContent className="space-y-4">
+                        {/* Grid para organizar campos */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Campo Roles */}
                             <div className="space-y-2">
                                 <Label htmlFor="fases">
-                                    Nivel <span className="text-red-500">*</span>
+                                    Rol usuario <span className="text-red-500">*</span>
                                 </Label>
                                 <Combobox
-                                    disabled={!(areaField?.value.length > 0)}
-                                    items={niveles}
-                                    value={nivelField.value}
-                                    onChange={nivelField.onChange}
+                                    items={roles}
+                                    value={rolField.value}
+                                    onChange={rolField.onChange}
                                     placeholder="Seleccionar tipo fase..."
                                     searchPlaceholder="Buscar tipo fase..."
                                     multiple={false}
@@ -303,55 +189,175 @@ export default function FormUsuario({ tipoUsuario }: { tipoUsuario: string }) {
                                     <p className="text-sm text-red-500">Debe seleccionar al menos un tipo de fase</p>
                                 )}
                             </div>
-                        )}
-                    </div>
-                </CardContent>
+                            {/* Campo Nombre */}
+                            <div className="space-y-2">
+                                <Label htmlFor="nombre">
+                                    Nombres <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="nombre"
+                                    type="text"
+                                    placeholder="Juan Carlos"
+                                    {...register("nombre", validationRules.nombres)}
+                                    className={errors.nombre ? "border-red-500" : ""}
+                                />
+                                {errors.nombre && (
+                                    <p className="text-sm text-red-500">{errors.nombre.message}</p>
+                                )}
+                            </div>
 
-                <CardFooter className="flex flex-col gap-3">
-                    <Button
-                        type="button"
-                        onClick={() => {
-                            setApiError("");
-                            setSuccess(false);
-                            setDialogOpen(true);
-                            handleSubmit(
-                                async (data) => {
-                                    await createUsuario(
-                                        data,
-                                        areaField.value as string[],
-                                        nivelField.value as number[],
-                                        setIsLoading,
-                                        setSuccess,
-                                        setApiError,
-                                        reset,
-                                        () => areaField.reset(),
-                                        () => nivelField.reset(),
-                                    );
-                                }
-                            )();
-                        }}
-                        className="w-full"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? "Registrando..." : "Registrar Usuario"}
-                    </Button>
+                            {/* Campo Apellido Paterno */}
+                            <div className="space-y-2">
+                                <Label htmlFor="apellido_paterno">
+                                    Apellido Paterno <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="apellido_paterno"
+                                    type="text"
+                                    placeholder="García"
+                                    {...register("apellido_paterno", validationRules.apellido_paterno)}
+                                    className={errors.apellido_paterno ? "border-red-500" : ""}
+                                />
+                                {errors.apellido_paterno && (
+                                    <p className="text-sm text-red-500">{errors.apellido_paterno.message}</p>
+                                )}
+                            </div>
 
-                    {!success && (
+                            {/* Campo Apellido Materno */}
+                            <div className="space-y-2">
+                                <Label htmlFor="apellido_materno">
+                                    Apellido Materno <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="apellido_materno"
+                                    type="text"
+                                    placeholder="López"
+                                    {...register("apellido_materno", validationRules.apellido_materno)}
+                                    className={errors.apellido_materno ? "border-red-500" : ""}
+                                />
+                                {errors.apellido_materno && (
+                                    <p className="text-sm text-red-500">{errors.apellido_materno.message}</p>
+                                )}
+                            </div>
+
+                            {/* Campo CI */}
+                            <div className="space-y-2">
+                                <Label htmlFor="ci">
+                                    Cédula de Identidad <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="ci"
+                                    type="string"
+                                    placeholder="12345678"
+                                    {...register("ci", validationRules.ci)}
+                                    className={errors.ci ? "border-red-500" : ""}
+                                />
+                                {errors.ci && (
+                                    <p className="text-sm text-red-500">{errors.ci.message}</p>
+                                )}
+                            </div>
+
+                            {/* Campo Celular */}
+                            <div className="space-y-2">
+                                <Label htmlFor="celular">
+                                    Celular <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="celular"
+                                    type="tel"
+                                    placeholder="70123456"
+                                    {...register("celular", validationRules.celular)}
+                                    className={errors.celular ? "border-red-500" : ""}
+                                />
+                                {errors.celular && (
+                                    <p className="text-sm text-red-500">{errors.celular.message}</p>
+                                )}
+                            </div>
+
+                            {/* Campo Email */}
+                            <div className="space-y-2">
+                                <Label htmlFor="email">
+                                    Email <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="usuario@example.com"
+                                    {...register("email", validationRules.email)}
+                                    className={errors.email ? "border-red-500" : ""}
+                                />
+                                {errors.email && (
+                                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Campo Áreas */}
+                            <div className="space-y-2">
+                                <Label htmlFor="areas">
+                                    Áreas <span className="text-red-500">*</span>
+                                </Label>
+                                <Combobox
+                                    items={areas}
+                                    value={areaField.value}
+                                    onChange={areaField.onChange}
+                                    placeholder="Seleccionar área..."
+                                    searchPlaceholder="Buscar área..."
+                                    multiple={false}
+                                />
+                                {errors.areas && (
+                                    <p className="text-sm text-red-500">{errors.areas.message}</p>
+                                )}
+                            </div>
+                        </div>
+                    </CardContent>
+
+                    <CardFooter className="flex flex-col gap-3">
                         <Button
                             type="button"
-                            variant="outline"
-                            className="w-full"
                             onClick={() => {
-                                reset();
                                 setApiError("");
+                                setSuccess(false);
+                                setDialogOpen(true);
+                                handleSubmit(
+                                    async (data) => {
+                                        await createUsuario(
+                                            data,
+                                            areaField.value as string[],
+                                            rolField.value as number[],
+                                            setIsLoading,
+                                            setSuccess,
+                                            setApiError,
+                                            reset,
+                                            () => areaField.reset(),
+                                            () => rolField.reset(),
+                                        );
+                                    }
+                                )();
                             }}
+                            className="w-full"
+                            disabled={isLoading}
                         >
-                            Limpiar Formulario
+                            {isLoading ? "Registrando..." : "Registrar Usuario"}
                         </Button>
-                    )}
-                </CardFooter>
-            </div>
-        </Card>
+
+                        {!success && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => {
+                                    reset();
+                                    setApiError("");
+                                }}
+                            >
+                                Limpiar Formulario
+                            </Button>
+                        )}
+                    </CardFooter>
+                </div>
+            </Card>
         </>
     );
 };

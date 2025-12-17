@@ -27,8 +27,12 @@ export const validationRules = (
             required: "La cantidad de fases es obligatoria",
             min: {
                 value: 3,
-                message: "Debe ser al menos 3"
+                message: "Debe ser al menos 3 fases"
             },
+            max: {
+                value: 5,
+                message: "No puede se más de 5 fases."
+            }
         },
         cantidad_max_participantes: {
             required: "La cantidad máxima es obligatoria",
@@ -50,13 +54,13 @@ export const validationRules = (
         },
         fecha_inicio: {
             required: "La fecha de inicio es obligatoria",
-            validate: (value: Date) => {
+            validate: (value: string) => {
                 return new Date() < new Date(value) || "No puede ser menor a la fecha actual.";
             }
         },
         fecha_fin: {
             required: "La fecha de fin es obligatoria",
-            validate: (value: Date) => {
+            validate: (value: string) => {
                 const min = watch("fecha_inicio");
                 if (new Date() > new Date(value)) return "No puede ser menor a la fecha actual.";
                 if (new Date(value) <= new Date(min)) return "No debe ser menor o igual a la fecha inicio.";
@@ -64,7 +68,7 @@ export const validationRules = (
         },
         fecha_calificacion: {
             required: "La fecha de calificacion es obligatoria",
-            validate: (value: Date) => {
+            validate: (value: string) => {
                 const min = watch("fecha_inicio");
                 const max = watch("fecha_fin");
                 if (new Date() > new Date(value)) return "No puede ser menor a la fecha actual.";

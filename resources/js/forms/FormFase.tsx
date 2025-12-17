@@ -11,7 +11,7 @@ import { validationRules } from "./validations/FaseValidate";
 import { getStaticData, updateArea } from "@/api/Areas";
 import { axiosPrivate } from "@/api/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, CircleAlert } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth, UserData } from "@/hooks/use-context";
 import { useFilterAreasUser } from "@/hooks/use-areas-user";
@@ -19,6 +19,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/tables/DataTable";
 import { createColumnsCreateFase, Fase } from "@/components/tables/ColumnsCreateFase";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function FormFase() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -38,6 +40,7 @@ export default function FormFase() {
     const [cantidadFases, setCantidadFases] = React.useState<number>(3);
     const [tablaFases, setTablaFases] = React.useState<Fase[]>([]);
     const [puedeAvanzar, setPuedeAvanzar] = React.useState<boolean>(false);
+    const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
     const { data } = useAuth();
 
@@ -72,9 +75,9 @@ export default function FormFase() {
             cantidad_max_participantes: 20,
             cantidad_min_participantes: 10,
             cantidad_ganadores: 0,
-            fecha_inicio: new Date(),
-            fecha_calificacion: new Date(Date.now() + 60 * 60 * 1000),
-            fecha_fin: new Date(Date.now() + 120 * 60 * 1000),
+            fecha_inicio: (new Date()).toISOString(),
+            fecha_calificacion: (new Date(Date.now() + 60 * 60 * 1000)).toISOString(),
+            fecha_fin: (new Date(Date.now() + 120 * 60 * 1000)).toISOString(),
             area: "",
             nivel: "",
             usuarios: [],
@@ -104,9 +107,9 @@ export default function FormFase() {
             nivelesField.value.map(
                 (nivel) => {
                     let i = 1;
-                    let fechaCalificacion = getValues('fecha_calificacion');
-                    let fechaInicio = getValues('fecha_inicio');
-                    let fechaFin = getValues('fecha_fin');
+                    let fechaCalificacion = new Date(getValues('fecha_calificacion'));
+                    let fechaInicio = new Date(getValues('fecha_inicio'));
+                    let fechaFin = new Date(getValues('fecha_fin'));
                     while (i <= cantidadFases) {
                         let tipoFase = "preliminares";
                         if (i > 1) {
@@ -122,9 +125,9 @@ export default function FormFase() {
                             cantidad_ganadores: 0,
                             cantidad_max_participantes: getValues('cantidad_max_participantes'),
                             cantidad_min_participantes: getValues('cantidad_min_participantes'),
-                            fecha_calificacion: fechaCalificacion ?? new Date(),
-                            fecha_inicio: fechaInicio ?? new Date(),
-                            fecha_fin: fechaFin ?? new Date(),
+                            fecha_calificacion: fechaCalificacion.toISOString() ?? new Date(),
+                            fecha_inicio: fechaInicio.toISOString() ?? new Date(),
+                            fecha_fin: fechaFin.toISOString() ?? new Date(),
                             usuarios: evaluadoresField.value,
                             tipo_fase: tipoFase,
                         });
@@ -210,7 +213,7 @@ export default function FormFase() {
             // Buscar en areasFiltradas primero, luego en areas como fallback
             const areasSource = areasFiltradas.length > 0 ? areasFiltradas : (areas || []);
             const areaSeleccionada = areasSource.find((area) => area.value === areaField.value[0]);
-            
+
             if (areaSeleccionada) {
                 setNiveles(areaSeleccionada.niveles || []);
                 setEvaluadores(areaSeleccionada.evaluadores || []);
@@ -226,7 +229,7 @@ export default function FormFase() {
 
     React.useEffect(() => {
         if (faseFlash === true) {
-            const fechaInicio = new Date(Date.now() + 30 * 60 * 1000)
+            const fechaInicio = new Date(Date.now() + 30 * 60 * 1000).toISOString()
             setFases(prev => prev?.filter((tipoFase) => tipoFase.value === 'clasificatorias'));
             setValue('cantidad_min_participantes', 10);
             setValue('cantidad_max_participantes', 100);
@@ -241,6 +244,35 @@ export default function FormFase() {
     // Filtrar las áreas según el usuario (hook SIEMPRE debe ejecutarse)
     useFilterAreasUser(areas || [], data as UserData, areasFiltradas, setAreasFiltradas);
 
+    // Manejar el diálogo de respuesta
+    React.useEffect(() => {
+        // Abrir el diálogo cuando hay loading, error o éxito
+        if (isLoading || apiError !== '' || success) {
+            setDialogOpen(true);
+        } else {
+            setDialogOpen(false);
+        }
+    }, [isLoading, apiError, success]);
+
+    const handleCloseDialog = () => {
+        // Si fue exitoso, limpiar el formulario
+        if (success) {
+            tipoFaseField.reset();
+            nivelesField.reset();
+            areaField.reset();
+            evaluadoresField.reset();
+            reset();
+            setSiguiente(false);
+            setTablaFases([]);
+            setSuccess(false);
+        }
+
+        // Limpiar estados del diálogo
+        setApiError('');
+        setIsLoading(false);
+        setDialogOpen(false);
+    };
+
     const formatTime = (dateTime: Date) => {
         const hours = dateTime.getHours().toString().padStart(2, '0');
         const mins = dateTime.getMinutes().toString().padStart(2, '0');
@@ -248,16 +280,33 @@ export default function FormFase() {
         return `${hours}:${mins}`;
     };
 
+    // Función para convertir Date a string ISO (compatible con MySQL DATETIME)
+    const dateToString = (fecha: Date): string => {
+        const year = fecha.getFullYear();
+        const month = (fecha.getMonth() + 1).toString().padStart(2, '0');
+        const day = fecha.getDate().toString().padStart(2, '0');
+        const hours = fecha.getHours().toString().padStart(2, '0');
+        const minutes = fecha.getMinutes().toString().padStart(2, '0');
+        const seconds = fecha.getSeconds().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    // Función para convertir string a Date
+    const stringToDate = (fechaStr: string): Date => {
+        return new Date(fechaStr);
+    };
+
     React.useEffect(() => {
         if (minutes > 0) {
-            const fechaInicio = getValues('fecha_inicio');
+            const fechaInicio = new Date(getValues('fecha_inicio'));
             const fecha_calificacion = new Date(fechaInicio.getTime() + minutes * 60 * 30000);
             const fecha_fin = new Date(fechaInicio.getTime() + minutes * 60 * 60000);
 
             setFechaCallificacion(formatTime(fecha_calificacion));
             setFechaFin(formatTime(fecha_fin));
-            setValue('fecha_calificacion', fecha_calificacion);
-            setValue('fecha_fin', fecha_fin);
+            setValue('fecha_calificacion', fecha_calificacion.toISOString());
+            setValue('fecha_fin', fecha_fin.toISOString());
         }
     }, [minutes, getValues('fecha_inicio')]);
 
@@ -267,7 +316,7 @@ export default function FormFase() {
     ) => {
         if (!newDate) return;
 
-        const oldDate = getValues(field);
+        const oldDate = new Date(getValues(field));
 
         // Detectar qué cambió exactamente
         const fechaCambio = oldDate.toDateString() !== newDate.toDateString();
@@ -276,7 +325,7 @@ export default function FormFase() {
             oldDate.getSeconds() !== newDate.getSeconds();
 
         // Actualizar el campo que cambió
-        setValue(field, newDate);
+        setValue(field, newDate.toISOString());
         trigger(field);
 
         // SINCRONIZACIÓN PARA FECHA_INICIO
@@ -285,8 +334,8 @@ export default function FormFase() {
                 // Si cambió la fecha, actualizar sharedDate y sincronizar la fecha en todos los campos
                 setSharedDate(newDate);
 
-                const fechaCalificacion = getValues('fecha_calificacion');
-                const fechaFin = getValues('fecha_fin');
+                const fechaCalificacion = new Date(getValues('fecha_calificacion'));
+                const fechaFin = new Date(getValues('fecha_fin'));
 
                 // Mantener las horas pero actualizar la fecha
                 const newCalif = new Date(newDate);
@@ -303,16 +352,16 @@ export default function FormFase() {
                     fechaFin.getSeconds()
                 );
 
-                setValue('fecha_calificacion', newCalif);
-                setValue('fecha_fin', newFin);
+                setValue('fecha_calificacion', newCalif.toISOString());
+                setValue('fecha_fin', newFin.toISOString());
                 trigger('fecha_calificacion');
                 trigger('fecha_fin');
             }
 
             if (horaCambio) {
                 // Si cambió la hora de inicio, sincronizar las horas manteniendo las diferencias
-                const fechaCalificacion = getValues('fecha_calificacion');
-                const fechaFin = getValues('fecha_fin');
+                const fechaCalificacion = new Date(getValues('fecha_calificacion'));
+                const fechaFin = new Date(getValues('fecha_fin'));
 
                 // Calcular diferencias de tiempo originales
                 const diffCalif = fechaCalificacion.getTime() - oldDate.getTime();
@@ -322,8 +371,8 @@ export default function FormFase() {
                 const newCalif = new Date(newDate.getTime() + diffCalif);
                 const newFin = new Date(newDate.getTime() + diffFin);
 
-                setValue('fecha_calificacion', newCalif);
-                setValue('fecha_fin', newFin);
+                setValue('fecha_calificacion', newCalif.toISOString());
+                setValue('fecha_fin', newFin.toISOString());
                 trigger('fecha_calificacion');
                 trigger('fecha_fin');
             }
@@ -341,305 +390,370 @@ export default function FormFase() {
                     newDate.getMinutes(),
                     newDate.getSeconds()
                 );
-                setValue(field, syncedDate);
+                setValue(field, syncedDate.toISOString());
                 trigger(field);
             }
         }
     };
 
     return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle className="flex flex-row justify-between">
-                    <p>Registro de Fase</p>
-                    {
-                        !siguiente && (
-                            <div className="flex flex-row space-x-5 items-center">
-                                <Badge className="text-center font-mono text-sm bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30">
-                                    {'Si quiere crear una sola fase presiona aquí ->'}
-                                </Badge>
-                                <Checkbox
-                                    checked={faseFlash}
-                                    onCheckedChange={(checked) => {
-                                        setFaseFlash(checked === true);
-                                        register('cantidad_ganadores');
-                                    }}
-                                />
-                            </div>
-                        )
-                    }
-                </CardTitle>
-                <CardDescription>
-                    {`Complete los datos para crear ${faseFlash ? 'una nueva fase' : 'nuevas fases'} de competencia para el área y ${faseFlash ? 'nivel' : 'niveles'}.`}
-                </CardDescription>
-            </CardHeader>
+        <>
+            <AlertDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}>
 
-            {
-                !siguiente && (
-                    <CardContent className="space-y-4">
-                        {/* Alertas */}
-                        {success && (
-                            <Alert className="border-green-200 bg-green-50">
-                                <CheckCircle className="h-4 w-4 text-green-600" />
-                                <AlertDescription className="text-green-800">
-                                    ¡Fase(s) creada exitosamente!
+                <AlertDialogContent>
+                    {isLoading && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-center">
+                                    {faseFlash ? 'Registrando fase...' : 'Registrando fases...'}
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <div className="flex justify-center items-center py-8">
+                                <Spinner className="h-12 w-12" />
+                            </div>
+                            <AlertDialogDescription className="text-center text-muted-foreground">
+                                Por favor espera mientras se procesan los datos.
+                            </AlertDialogDescription>
+                        </>
+                    )}
+
+                    {apiError !== '' && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-red-500 text-center">
+                                    Ocurrió un error
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <Alert variant="destructive">
+                                <CircleAlert className="h-4 w-4" />
+                                <AlertDescription>
+                                    {apiError}
                                 </AlertDescription>
                             </Alert>
-                        )}
+                            <AlertDialogFooter>
+                                <AlertDialogAction onClick={handleCloseDialog}>
+                                    Entendido
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </>
+                    )}
 
-                        {apiError && (
-                            <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertDescription>{apiError}</AlertDescription>
+                    {success && (
+                        <>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-green-600 text-center">
+                                    ¡Éxito en la acción!
+                                </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <Alert className="border-green-200 bg-green-50">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                <AlertDescription className="text-green-700">
+                                    {faseFlash ? 'La fase se registró exitosamente.' : 'Las fases se registraron exitosamente.'}
+                                </AlertDescription>
                             </Alert>
-                        )}
+                            <AlertDialogFooter>
+                                <AlertDialogAction onClick={handleCloseDialog}>
+                                    Cerrar
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </>
+                    )}
+                </AlertDialogContent>
+            </AlertDialog>
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 rounded-lg p-4 border">
-                            <div className="space-y-2">
-                                <Label>Área de Competencia <span className="text-red-500">*</span></Label>
-                                <Combobox
-                                    items={areasFiltradas}
-                                    value={areaField.value}
-                                    onChange={areaField.onChange}
-                                    placeholder="Seleccionar área..."
-                                    searchPlaceholder="Buscar área..."
-                                    multiple={false}
-                                />
-                                {errors.area && (
-                                    <p className="text-sm text-red-500">{errors.area.message}</p>
-                                )}
-                            </div>
-
-                            {/* Nivel de competencia */}
-                            <div className="space-y-2">
-                                <Label>Nivel de competencia <span className="text-red-500">*</span></Label>
-                                <Combobox
-                                    items={niveles}
-                                    value={nivelesField.value}
-                                    onChange={nivelesField.onChange}
-                                    placeholder="Seleccionar nivel..."
-                                    searchPlaceholder="Buscar nivel..."
-                                    disabled={areaField.value.length === 0}
-                                    multiple={true}
-                                />
-                                {errors.area && (
-                                    <p className="text-sm text-red-500">{errors.area.message}</p>
-                                )}
-                            </div>
-
-                            {/* Campo Tipo de Fase */}
-                            {
-                                faseFlash ? (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="tipo_fase">
-                                            Tipo de Fase <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Combobox
-                                            items={fases}
-                                            value={tipoFaseField.value}
-                                            onChange={tipoFaseField.onChange}
-                                            placeholder="Seleccionar tipo de fase..."
-                                            searchPlaceholder="Buscar tipo de fase..."
-                                            multiple={false}
-                                        />
-                                        {errors.tipo_fase && (
-                                            <p className="text-sm text-red-500">{errors.tipo_fase.message}</p>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cantidad_fases">
-                                            Cantidad de fases <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            id="cantidad_fases"
-                                            type="number"
-                                            placeholder="10"
-                                            onChange={(e) => setCantidadFases(Number(e.target.value))}
-                                        // className={errors.cantidad_fases ? "border-red-500" : ""}
-                                        />
-                                        {/* {errors.cantidad_fases && (
-                                    <p className="text-sm text-red-500">{errors.cantidad_fases.message}</p>
-                                )} */}
-                                    </div>
-                                )
-                            }
-
-                            {/* Evaluadores */}
-                            <div className="space-y-2">
-                                <Label>Evaluadores</Label>
-                                <Combobox
-                                    items={evaluadores}
-                                    value={evaluadoresField.value}
-                                    onChange={evaluadoresField.onChange}
-                                    placeholder="Seleccionar evaluadores..."
-                                    searchPlaceholder="Buscar evaluadores..."
-                                    disabled={areaField.value.length === 0}
-                                    multiple={true}
-                                />
-                                {errors.usuarios && (
-                                    <p className="text-sm text-red-500">{errors.usuarios.message}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Campo Descripción */}
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle className="flex flex-row justify-between">
+                        <p>Registro de Fase</p>
                         {
-                            !faseFlash && (
-                                <div className="space-y-2 rounded-lg p-4 border">
-                                    <Label htmlFor="descripcion">
-                                        Descripción <span className="text-red-500">*</span>
-                                    </Label>
-                                    <Textarea
-                                        id="descripcion"
-                                        placeholder="Descripción detallada de la fase..."
-                                        {...register("descripcion", newValidationRules.descripcion)}
-                                        className={errors.descripcion ? "border-red-500" : ""}
-                                        rows={3}
+                            !siguiente && (
+                                <div className="flex flex-row space-x-5 items-center">
+                                    <Badge className="text-center font-mono text-sm bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30">
+                                        {'Si quiere crear una sola fase presiona aquí ->'}
+                                    </Badge>
+                                    <Checkbox
+                                        checked={faseFlash}
+                                        onCheckedChange={(checked) => {
+                                            setFaseFlash(checked === true);
+                                            register('cantidad_ganadores');
+                                        }}
                                     />
-                                    {errors.descripcion && (
-                                        <p className="text-sm text-red-500">{errors.descripcion.message}</p>
+                                </div>
+                            )
+                        }
+                    </CardTitle>
+                    <CardDescription>
+                        {`Complete los datos para crear ${faseFlash ? 'una nueva fase' : 'nuevas fases'} de competencia para el área y ${faseFlash ? 'nivel' : 'niveles'}.`}
+                    </CardDescription>
+                </CardHeader>
+
+                {
+                    !siguiente && (
+                        <CardContent className="space-y-4">
+                            {/* Alertas */}
+                            {success && (
+                                <Alert className="border-green-200 bg-green-50">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <AlertDescription className="text-green-800">
+                                        ¡Fase(s) creada exitosamente!
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+
+                            {apiError && (
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertDescription>{apiError}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 rounded-lg p-4 border">
+                                <div className="space-y-2">
+                                    <Label>Área de Competencia <span className="text-red-500">*</span></Label>
+                                    <Combobox
+                                        items={areasFiltradas}
+                                        value={areaField.value}
+                                        onChange={areaField.onChange}
+                                        placeholder="Seleccionar área..."
+                                        searchPlaceholder="Buscar área..."
+                                        multiple={false}
+                                    />
+                                    {errors.area && (
+                                        <p className="text-sm text-red-500">{errors.area.message}</p>
                                     )}
                                 </div>
-                            )
-                        }
 
-                        {
-                            !faseFlash && (
-                                <div className={`grid grid-cols-1 md:grid-cols-${tipoFaseField.value[0] === 'finales' ? '3' : '2'} gap-4 rounded-lg p-4 border`}>
-                                    {/* Cantidad Mínima */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cantidad_min_participantes">
-                                            Cantidad Mínima Participantes<span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            id="cantidad_min_participantes"
-                                            type="number"
-                                            placeholder="10"
-                                            disabled={!faseFlash}
-                                            {...register("cantidad_min_participantes", {
-                                                ...newValidationRules.cantidad_min_participantes,
-                                                valueAsNumber: true
-                                            })}
-                                            className={errors.cantidad_min_participantes ? "border-red-500" : ""}
-                                        />
-                                        {errors.cantidad_min_participantes && (
-                                            <p className="text-sm text-red-500">{errors.cantidad_min_participantes.message}</p>
-                                        )}
-                                    </div>
-
-                                    {/* Cantidad Máxima */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cantidad_max_participantes">
-                                            Cantidad Máxima Participantes<span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            id="cantidad_max_participantes"
-                                            type="number"
-                                            placeholder="20"
-                                            {...register("cantidad_max_participantes", {
-                                                ...newValidationRules.cantidad_max_participantes,
-                                                valueAsNumber: true
-                                            })}
-                                            className={errors.cantidad_max_participantes ? "border-red-500" : ""}
-                                        />
-                                        {errors.cantidad_max_participantes && (
-                                            <p className="text-sm text-red-500">{errors.cantidad_max_participantes.message}</p>
-                                        )}
-                                    </div>
-
-                                    {/* cantidad de ganadores */}
-                                    {
-                                        tipoFaseField.value[0] === 'finales' && (
-                                            <div className="space-y-2">
-                                                <Label htmlFor="cantidad_ganadores">
-                                                    Cantidad de ganadores <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="cantidad_ganadores"
-                                                    type="number"
-                                                    placeholder="10"
-                                                    {...register("cantidad_ganadores", {
-                                                        ...newValidationRules.cantidad_ganadores,
-                                                        valueAsNumber: true
-                                                    })}
-                                                    className={errors.cantidad_ganadores ? "border-red-500" : ""}
-                                                />
-                                                {errors.cantidad_ganadores && (
-                                                    <p className="text-sm text-red-500">{errors.cantidad_ganadores.message}</p>
-                                                )}
-                                            </div>
-                                        )
-                                    }
+                                {/* Nivel de competencia */}
+                                <div className="space-y-2">
+                                    <Label>Nivel de competencia <span className="text-red-500">*</span></Label>
+                                    <Combobox
+                                        items={niveles}
+                                        value={nivelesField.value}
+                                        onChange={nivelesField.onChange}
+                                        placeholder="Seleccionar nivel..."
+                                        searchPlaceholder="Buscar nivel..."
+                                        disabled={areaField.value.length === 0}
+                                        multiple={true}
+                                    />
+                                    {errors.area && (
+                                        <p className="text-sm text-red-500">{errors.area.message}</p>
+                                    )}
                                 </div>
-                            )
-                        }
 
-                        {/* Fechas Sincronizadas */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2 rounded-lg p-4 border">
-                                <Label>Fecha y hora inicio del concurso <span className="text-red-500">*</span></Label>
-                                <DateTimePicker
-                                    titleDate=""
-                                    titleTime=""
-                                    value={getValues('fecha_inicio')}
-                                    disabledCalendar={faseFlash}
-                                    disabledDate={[
-                                        { before: new Date() },
-                                        { dayOfWeek: [0] },
-                                    ]}
-                                    onChange={(date) => {
-                                        if (date) {
-                                            handleDateChange(date, 'fecha_inicio');
-                                        }
-                                    }}
-                                />
-                                {errors.fecha_inicio && (
-                                    <p className="text-sm text-red-500">{errors.fecha_inicio.message}</p>
-                                )}
+                                {/* Campo Tipo de Fase */}
+                                {
+                                    faseFlash ? (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="tipo_fase">
+                                                Tipo de Fase <span className="text-red-500">*</span>
+                                            </Label>
+                                            <Combobox
+                                                items={fases}
+                                                value={tipoFaseField.value}
+                                                onChange={tipoFaseField.onChange}
+                                                placeholder="Seleccionar tipo de fase..."
+                                                searchPlaceholder="Buscar tipo de fase..."
+                                                multiple={false}
+                                            />
+                                            {errors.tipo_fase && (
+                                                <p className="text-sm text-red-500">{errors.tipo_fase.message}</p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="cantidad_fases">
+                                                Cantidad de fases <span className="text-red-500">*</span>
+                                            </Label>
+                                            <Input
+                                                id="cantidad_fases"
+                                                type="number"
+                                                placeholder="10"
+                                                onChange={(e) => setCantidadFases(Number(e.target.value))}
+                                            // className={errors.cantidad_fases ? "border-red-500" : ""}
+                                            />
+                                            {/* {errors.cantidad_fases && (
+                                                <p className="text-sm text-red-500">{errors.cantidad_fases.message}</p>
+                                            )} */}
+                                        </div>
+                                    )
+                                }
+
+                                {/* Evaluadores */}
+                                <div className="space-y-2">
+                                    <Label>Evaluadores</Label>
+                                    <Combobox
+                                        items={evaluadores}
+                                        value={evaluadoresField.value}
+                                        onChange={evaluadoresField.onChange}
+                                        placeholder="Seleccionar evaluadores..."
+                                        searchPlaceholder="Buscar evaluadores..."
+                                        disabled={areaField.value.length === 0}
+                                        multiple={true}
+                                    />
+                                    {errors.usuarios && (
+                                        <p className="text-sm text-red-500">{errors.usuarios.message}</p>
+                                    )}
+                                </div>
                             </div>
+
+                            {/* Campo Descripción */}
                             {
-                                faseFlash && (
-                                    <div className="space-y-2 col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                        <div className="space-y-2 rounded-lg p-4 border">
-                                            <Label>Hora de Calificacion <span className="text-red-500">*</span></Label>
-                                            <DateTimePicker
-                                                titleDate=""
-                                                titleTime=""
-                                                disabledCalendar
-                                                value={getValues('fecha_calificacion')}
-                                                onChange={(date) => {
-                                                    if (date) {
-                                                        handleDateChange(date, 'fecha_calificacion');
-                                                    }
-                                                }}
-                                            />
-                                            {errors.fecha_calificacion && (
-                                                <p className="text-sm text-red-500">{errors.fecha_calificacion.message}</p>
-                                            )}
-                                        </div>
-                                        <div className="space-y-2 rounded-lg p-4 border">
-                                            <Label>Hora Fin <span className="text-red-500">*</span></Label>
-                                            <DateTimePicker
-                                                titleDate=""
-                                                titleTime=""
-                                                disabledCalendar
-                                                value={getValues('fecha_fin')}
-                                                onChange={(date) => {
-                                                    if (date) {
-                                                        handleDateChange(date, 'fecha_fin');
-                                                    }
-                                                }}
-                                            />
-                                            {errors.fecha_fin && (
-                                                <p className="text-sm text-red-500">{errors.fecha_fin.message}</p>
-                                            )}
-                                        </div>
+                                !faseFlash && (
+                                    <div className="space-y-2 rounded-lg p-4 border">
+                                        <Label htmlFor="descripcion">
+                                            Descripción <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Textarea
+                                            id="descripcion"
+                                            placeholder="Descripción detallada de la fase..."
+                                            {...register("descripcion", newValidationRules.descripcion)}
+                                            className={errors.descripcion ? "border-red-500" : ""}
+                                            rows={3}
+                                        />
+                                        {errors.descripcion && (
+                                            <p className="text-sm text-red-500">{errors.descripcion.message}</p>
+                                        )}
                                     </div>
                                 )
                             }
+
                             {
                                 !faseFlash && (
+                                    <div className={`grid grid-cols-1 md:grid-cols-${tipoFaseField.value[0] === 'finales' ? '3' : '2'} gap-4 rounded-lg p-4 border`}>
+                                        {/* Cantidad Mínima */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="cantidad_min_participantes">
+                                                Cantidad Mínima Participantes<span className="text-red-500">*</span>
+                                            </Label>
+                                            <Input
+                                                id="cantidad_min_participantes"
+                                                type="number"
+                                                placeholder="10"
+                                                disabled={!faseFlash}
+                                                {...register("cantidad_min_participantes", {
+                                                    ...newValidationRules.cantidad_min_participantes,
+                                                    valueAsNumber: true
+                                                })}
+                                                className={errors.cantidad_min_participantes ? "border-red-500" : ""}
+                                            />
+                                            {errors.cantidad_min_participantes && (
+                                                <p className="text-sm text-red-500">{errors.cantidad_min_participantes.message}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Cantidad Máxima */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="cantidad_max_participantes">
+                                                Cantidad Máxima Participantes<span className="text-red-500">*</span>
+                                            </Label>
+                                            <Input
+                                                id="cantidad_max_participantes"
+                                                type="number"
+                                                placeholder="20"
+                                                {...register("cantidad_max_participantes", {
+                                                    ...newValidationRules.cantidad_max_participantes,
+                                                    valueAsNumber: true
+                                                })}
+                                                className={errors.cantidad_max_participantes ? "border-red-500" : ""}
+                                            />
+                                            {errors.cantidad_max_participantes && (
+                                                <p className="text-sm text-red-500">{errors.cantidad_max_participantes.message}</p>
+                                            )}
+                                        </div>
+
+                                        {/* cantidad de ganadores */}
+                                        {
+                                            tipoFaseField.value[0] === 'finales' && (
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="cantidad_ganadores">
+                                                        Cantidad de ganadores <span className="text-red-500">*</span>
+                                                    </Label>
+                                                    <Input
+                                                        id="cantidad_ganadores"
+                                                        type="number"
+                                                        placeholder="10"
+                                                        {...register("cantidad_ganadores", {
+                                                            ...newValidationRules.cantidad_ganadores,
+                                                            valueAsNumber: true
+                                                        })}
+                                                        className={errors.cantidad_ganadores ? "border-red-500" : ""}
+                                                    />
+                                                    {errors.cantidad_ganadores && (
+                                                        <p className="text-sm text-red-500">{errors.cantidad_ganadores.message}</p>
+                                                    )}
+                                                </div>
+                                            )
+                                        }
+                                    </div>
+                                )
+                            }
+
+                            {/* Fechas Sincronizadas */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2 rounded-lg p-4 border">
+                                    <Label>Fecha y hora inicio del concurso <span className="text-red-500">*</span></Label>
+                                    <DateTimePicker
+                                        titleDate=""
+                                        titleTime=""
+                                        value={new Date(getValues('fecha_inicio'))}
+                                        disabledCalendar={faseFlash}
+                                        disabledDate={[
+                                            { before: new Date() },
+                                            { dayOfWeek: [0] },
+                                        ]}
+                                        onChange={(date) => {
+                                            if (date) {
+                                                handleDateChange(date, 'fecha_inicio');
+                                            }
+                                        }}
+                                    />
+                                    {errors.fecha_inicio && (
+                                        <p className="text-sm text-red-500">{errors.fecha_inicio.message}</p>
+                                    )}
+                                </div>
+                                {
+                                    faseFlash && (
+                                        <div className="space-y-2 col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                            <div className="space-y-2 rounded-lg p-4 border">
+                                                <Label>Hora de Calificacion <span className="text-red-500">*</span></Label>
+                                                <DateTimePicker
+                                                    titleDate=""
+                                                    titleTime=""
+                                                    disabledCalendar
+                                                    value={new Date(getValues('fecha_calificacion'))}
+                                                    onChange={(date) => {
+                                                        if (date) {
+                                                            handleDateChange(date, 'fecha_calificacion');
+                                                        }
+                                                    }}
+                                                />
+                                                {errors.fecha_calificacion && (
+                                                    <p className="text-sm text-red-500">{errors.fecha_calificacion.message}</p>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2 rounded-lg p-4 border">
+                                                <Label>Hora Fin <span className="text-red-500">*</span></Label>
+                                                <DateTimePicker
+                                                    titleDate=""
+                                                    titleTime=""
+                                                    disabledCalendar
+                                                    value={new Date(getValues('fecha_fin'))}
+                                                    onChange={(date) => {
+                                                        if (date) {
+                                                            handleDateChange(date, 'fecha_fin');
+                                                        }
+                                                    }}
+                                                />
+                                                {errors.fecha_fin && (
+                                                    <p className="text-sm text-red-500">{errors.fecha_fin.message}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                }
+                                {
                                     <div className="space-y-2 col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                                         <div className="space-y-2 rounded-lg p-4 border">
                                             <Label className="block text-sm font-medium text-white mb-3">
@@ -679,153 +793,153 @@ export default function FormFase() {
                                             </div>
                                         </div>
                                     </div>
-                                )
-                            }
-                        </div>
-                    </CardContent>
-                )
-            }
-
-            {
-                siguiente && (
-                    <CardContent>
-                        <DataTable
-                            data={tablaFases}
-                            columns={columnsCreateFase}
-                        />
-                    </CardContent>
-                )
-            }
-
-            <CardFooter className="flex flex-col gap-3">
-                {!siguiente ? (
-                    <>
-                        <Button
-                            type="button"
-                            onClick={() => {
-                                if (faseFlash) {
-                                    // Si es fase flash, enviar directamente
-                                    handleSubmit(
-                                        (data) => updateArea(
-                                            data,
-                                            reset,
-                                            setIsLoading,
-                                            setSuccess,
-                                            setApiError,
-                                            areaField.value[0] as string || "",
-                                            evaluadoresField.value as string[],
-                                            () => areaField.reset(),
-                                            () => evaluadoresField.reset()
-                                        )
-                                    )();
-                                } else {
-                                    // Si no es fase flash, generar tabla y avanzar
-                                    generarTablaFases();
-                                    setSiguiente(true);
                                 }
-                            }}
-                            className="w-full"
-                            disabled={isLoading || !puedeAvanzar}
-                        >
-                            {faseFlash
-                                ? (isLoading ? "Creando Fase..." : "Crear Fase")
-                                : "Siguiente"}
-                        </Button>
+                            </div>
+                        </CardContent>
+                    )
+                }
 
-                        {!success && (
+                {
+                    siguiente && (
+                        <CardContent>
+                            <DataTable
+                                data={tablaFases}
+                                columns={columnsCreateFase}
+                            />
+                        </CardContent>
+                    )
+                }
+
+                <CardFooter className="flex flex-col gap-3">
+                    {!siguiente ? (
+                        <>
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    if (faseFlash) {
+                                        // Si es fase flash, enviar directamente
+                                        handleSubmit(
+                                            (data) => updateArea(
+                                                data,
+                                                reset,
+                                                setIsLoading,
+                                                setSuccess,
+                                                setApiError,
+                                                areaField.value[0] as string || "",
+                                                evaluadoresField.value as string[],
+                                                () => areaField.reset(),
+                                                () => evaluadoresField.reset()
+                                            )
+                                        )();
+                                    } else {
+                                        // Si no es fase flash, generar tabla y avanzar
+                                        generarTablaFases();
+                                        setSiguiente(true);
+                                    }
+                                }}
+                                className="w-full"
+                                disabled={isLoading || !puedeAvanzar}
+                            >
+                                {faseFlash
+                                    ? (isLoading ? "Creando Fase..." : "Crear Fase")
+                                    : "Siguiente"}
+                            </Button>
+
+                            {!success && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() => {
+                                        tipoFaseField.reset();
+                                        nivelesField.reset();
+                                        areaField.reset();
+                                        evaluadoresField.reset();
+                                        reset();
+                                        setApiError("");
+                                        setSiguiente(false);
+                                        setTablaFases([]);
+                                    }}
+                                >
+                                    Limpiar Formulario
+                                </Button>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                type="button"
+                                onClick={async () => {
+                                    if (tablaFases.length === 0) return;
+
+                                    setIsLoading(true);
+                                    setApiError("");
+                                    setSuccess(false);
+
+                                    try {
+                                        console.log("Enviando fases:", tablaFases);
+
+                                        const result = await axiosPrivate.put(`/areas/${areaField.value[0]}`, {
+                                            fases: tablaFases
+                                        });
+
+                                        console.log("Respuesta del servidor:", result);
+
+                                        if (result.status === 201) {
+                                            setSuccess(true);
+
+                                            // Resetear formulario después de 2 segundos
+                                            setTimeout(() => {
+                                                reset();
+                                                areaField.reset();
+                                                evaluadoresField.reset();
+                                                nivelesField.reset();
+                                                tipoFaseField.reset();
+                                                setSiguiente(false);
+                                                setTablaFases([]);
+                                                setSuccess(false);
+                                            }, 2000);
+                                        }
+                                    } catch (error: any) {
+                                        console.error("Error al crear las fases:", error);
+
+                                        if (error.response?.status === 422) {
+                                            const backendErrors = error.response.data.errors;
+                                            if (backendErrors) {
+                                                const errorMessages = Object.values(backendErrors).flat();
+                                                setApiError(errorMessages.join(", "));
+                                            } else {
+                                                setApiError(error.response.data.message || "Error de validación");
+                                            }
+                                        } else {
+                                            setApiError("Error al crear las fases. Intente nuevamente.");
+                                        }
+                                    } finally {
+                                        setIsLoading(false);
+                                    }
+                                }}
+                                className="w-full"
+                                disabled={isLoading || tablaFases.length === 0}
+                            >
+                                {isLoading ? "Creando Fases..." : "Crear Todas las Fases"}
+                            </Button>
+
                             <Button
                                 type="button"
                                 variant="outline"
                                 className="w-full"
                                 onClick={() => {
-                                    tipoFaseField.reset();
-                                    nivelesField.reset();
-                                    areaField.reset();
-                                    evaluadoresField.reset();
-                                    reset();
-                                    setApiError("");
                                     setSiguiente(false);
                                     setTablaFases([]);
                                 }}
+                                disabled={isLoading}
                             >
-                                Limpiar Formulario
+                                Volver Atrás
                             </Button>
-                        )}
-                    </>
-                ) : (
-                    <>
-                        <Button
-                            type="button"
-                            onClick={async () => {
-                                if (tablaFases.length === 0) return;
-                                
-                                setIsLoading(true);
-                                setApiError("");
-                                setSuccess(false);
-                                
-                                try {
-                                    console.log("Enviando fases:", tablaFases);
-                                    
-                                    const result = await axiosPrivate.put(`/areas/${areaField.value[0]}`, {
-                                        fases: tablaFases
-                                    });
-
-                                    console.log("Respuesta del servidor:", result);
-
-                                    if (result.status === 201) {
-                                        setSuccess(true);
-                                        
-                                        // Resetear formulario después de 2 segundos
-                                        setTimeout(() => {
-                                            reset();
-                                            areaField.reset();
-                                            evaluadoresField.reset();
-                                            nivelesField.reset();
-                                            tipoFaseField.reset();
-                                            setSiguiente(false);
-                                            setTablaFases([]);
-                                            setSuccess(false);
-                                        }, 2000);
-                                    }
-                                } catch (error: any) {
-                                    console.error("Error al crear las fases:", error);
-                                    
-                                    if (error.response?.status === 422) {
-                                        const backendErrors = error.response.data.errors;
-                                        if (backendErrors) {
-                                            const errorMessages = Object.values(backendErrors).flat();
-                                            setApiError(errorMessages.join(", "));
-                                        } else {
-                                            setApiError(error.response.data.message || "Error de validación");
-                                        }
-                                    } else {
-                                        setApiError("Error al crear las fases. Intente nuevamente.");
-                                    }
-                                } finally {
-                                    setIsLoading(false);
-                                }
-                            }}
-                            className="w-full"
-                            disabled={isLoading || tablaFases.length === 0}
-                        >
-                            {isLoading ? "Creando Fases..." : "Crear Todas las Fases"}
-                        </Button>
-
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="w-full"
-                            onClick={() => {
-                                setSiguiente(false);
-                                setTablaFases([]);
-                            }}
-                            disabled={isLoading}
-                        >
-                            Volver Atrás
-                        </Button>
-                    </>
-                )}
-            </CardFooter>
-        </Card>
+                        </>
+                    )}
+                </CardFooter>
+            </Card>
+        </>
     );
 }

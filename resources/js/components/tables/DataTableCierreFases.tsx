@@ -268,14 +268,14 @@ export function DataTableCierrresFases<TData, TValue>({
                     <>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-center">
-                          Guardando cierre...
+                          Procesando operación...
                         </AlertDialogTitle>
                       </AlertDialogHeader>
                       <div className="flex justify-center items-center py-8">
                         <Spinner className="h-12 w-12" />
                       </div>
                       <AlertDialogDescription className="text-center text-muted-foreground">
-                        Por favor espera mientras se guardan los cambios
+                        Por favor espere mientras se completa la operación. Este proceso puede tomar unos momentos.
                       </AlertDialogDescription>
                     </>
                   )}
@@ -284,19 +284,19 @@ export function DataTableCierrresFases<TData, TValue>({
                     <>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-red-500 text-center">
-                          Ocurrió un error
+                          Error al procesar la solicitud
                         </AlertDialogTitle>
                       </AlertDialogHeader>
                       <Alert variant="destructive">
                         <CircleAlert className="h-4 w-4" />
-                        <AlertTitle>Error al guardar</AlertTitle>
+                        <AlertTitle>No se pudo completar la operación</AlertTitle>
                         <AlertDescription>
                           {apiError}
                         </AlertDescription>
                       </Alert>
                       <AlertDialogFooter>
                         <AlertDialogAction onClick={handleCloseDialog}>
-                          Entendido
+                          Aceptar
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </>
@@ -306,17 +306,17 @@ export function DataTableCierrresFases<TData, TValue>({
                     <>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-green-600 text-center">
-                          ¡Éxito en la accion!
+                          ¡Operación exitosa!
                         </AlertDialogTitle>
                       </AlertDialogHeader>
                       <Alert className="border-green-200 bg-green-50">
                         <CheckCircle className="h-4 w-4 text-green-600" />
-                        <AlertTitle className="text-green-800">Guardado exitoso</AlertTitle>
+                        <AlertTitle className="text-green-800">Cambios guardados correctamente</AlertTitle>
                         <AlertDescription className="text-green-700">
                           {
                             user.rol.sigla === 'EVA' || user.rol.sigla === 'EDA' ?
-                              "Las calificaciones se guardaron correctamente" :
-                              "La fecha de modificación calificaciones se actualizo correctamente."
+                              "Las calificaciones de la fase han sido registradas exitosamente en el sistema." :
+                              "La fecha límite para modificar calificaciones ha sido extendida correctamente."
                           }
                         </AlertDescription>
                       </Alert>
@@ -328,23 +328,25 @@ export function DataTableCierrresFases<TData, TValue>({
                       <>
                         <AlertDialogHeader>
                           <AlertDialogTitle className="text-center">
-                            ¿Está seguro de realizar el cierre?
+                            Confirmar cierre de fase
                           </AlertDialogTitle>
-                          <AlertDialogDescription />
+                          <AlertDialogDescription className="text-center">
+                            Está a punto de cerrar esta fase y guardar las calificaciones
+                          </AlertDialogDescription>
                         </AlertDialogHeader>
-                        <Alert variant="destructive">
-                          <CircleAlert className="h-4 w-4" />
-                          <AlertTitle>Atención</AlertTitle>
-                          <AlertDescription>
-                            Esta acción solo se puede realizar antes de que la fecha de cierre de la fase haya terminado.
+                        <Alert className="border-amber-200 bg-amber-50">
+                          <CircleAlert className="h-4 w-4 text-amber-600" />
+                          <AlertTitle className="text-amber-900">Importante</AlertTitle>
+                          <AlertDescription className="text-amber-800">
+                            El cierre de fase solo puede realizarse antes de que expire la fecha límite establecida. Una vez guardado, las calificaciones quedarán registradas en el sistema.
                           </AlertDescription>
                         </Alert>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>No</AlertDialogCancel>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={handleSubmit}
                           >
-                            Sí, guardar
+                            Confirmar cierre
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </>
@@ -352,17 +354,19 @@ export function DataTableCierrresFases<TData, TValue>({
                       <>
                         <AlertDialogHeader>
                           <AlertDialogTitle className="text-center">
-                            ¿Está seguro de cambiar la fecha?
+                            Extender tiempo de modificación
                           </AlertDialogTitle>
-                          <AlertDialogDescription />
+                          <AlertDialogDescription className="text-center">
+                            Está a punto de ampliar el plazo para modificar calificaciones
+                          </AlertDialogDescription>
                         </AlertDialogHeader>
 
-                        <Alert variant="destructive">
-                          <CircleAlert className="h-4 w-4" />
-                          <AlertTitle>Atención</AlertTitle>
-                          <AlertDescription>
-                            <li>Solo se puede agregar hasta una hora.</li>
-                            <li>Esta acción no cambiará los proximos eventos de otras áreas.</li>
+                        <Alert className="border-blue-200 bg-blue-50">
+                          <CircleAlert className="h-4 w-4 text-blue-600" />
+                          <AlertTitle className="text-blue-900">Consideraciones importantes</AlertTitle>
+                          <AlertDescription className="text-blue-800">
+                            <li>El tiempo adicional máximo permitido es de una hora (60 minutos).</li>
+                            <li>Esta extensión solo afecta a esta fase específica y no modifica los horarios de otras áreas o eventos programados.</li>
                           </AlertDescription>
                         </Alert>
 
@@ -414,11 +418,11 @@ export function DataTableCierrresFases<TData, TValue>({
                         </div>
 
                         <AlertDialogFooter>
-                          <AlertDialogCancel>No</AlertDialogCancel>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={handleSubmit}
                           >
-                            Sí, guardar
+                            Confirmar extensión
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </>

@@ -24,7 +24,7 @@ export const getReport = async () => {
     return data.data;
 };
 
-export const getStaticData = async ():Promise<StaticDataOlimpistas> => {
+export const getStaticData = async (): Promise<StaticDataOlimpistas> => {
     const { data } = await axiosPrivate.get("/olimpistas/static");
     return {
         areas: data.data.areas,
@@ -66,12 +66,12 @@ export const createOlimpista = async (
         console.log("Enviando datos:", formData);
 
         const result = await axiosPrivate.post("/olimpistas", formData);
-        
+
         console.log("Respuesta del servidor:", result.data);
         setSuccess(true);
         reset();
         setSelectedArea([]);
-        
+
     } catch (error: any) {
         console.error("Error al crear olimpista:", error);
 
@@ -83,8 +83,8 @@ export const createOlimpista = async (
             } else {
                 setApiError(error.response.data.message || "Error de validación");
             }
-        } else if (error.response?.status === 200) {
-            setApiError("El olimpista ya está registrado con ese CI");
+        } else if (error.response?.status === 409) {
+            setApiError(`El olimpista ya está registrado con el CI: ${data.ci}`);
         } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
         } else {
@@ -104,7 +104,8 @@ export const createMassiveOlimpistas = async (
     reset: () => void,
     selectedFile: File,
     setFileError: React.Dispatch<React.SetStateAction<string>>,
-    setImportResult: React.Dispatch<React.SetStateAction<number | null>>
+    setImportResult: React.Dispatch<React.SetStateAction<number | null>>,
+    setResponseData?: React.Dispatch<React.SetStateAction<any>>
 ) => {
     setIsLoading(true);
     setApiError("");
@@ -121,7 +122,10 @@ export const createMassiveOlimpistas = async (
         const formData = new FormData();
 
         formData.append('archivo', selectedFile);
-
+        if (grupo) {
+            formData.append('nivel', data.nivel?.toString() || '');
+            formData.append('nombre_grupo', data.nombre_grupo || '');
+        }
         if (data.tutor_academico) {
             formData.append('tutor[nombre_tutor]', data.tutor_academico.nombres_tutor_academico);
             formData.append('tutor[apellidos_tutor]', data.tutor_academico.apellidos_tutor_academico);
@@ -138,9 +142,10 @@ export const createMassiveOlimpistas = async (
             formData.append('colegio[area]', data.colegio.area.toString());
         }
 
-        console.log("Enviando FormData...", data);
+        console.log(data);
+        console.log("Enviando FormData...", Object.keys(formData).map((key) => formData.get(key)));
 
-        const result = await axiosPrivate.post(`${grupo ? "/grupos" : "/olimpistas/file" }`, formData, {
+        const result = await axiosPrivate.post(`${grupo ? "/grupos" : "/olimpistas/file"}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -148,10 +153,15 @@ export const createMassiveOlimpistas = async (
 
         setImportResult(result.data);
         console.log("Respuesta del servidor:", result.data);
-        
+
+        // Guardar los datos de respuesta si se proporciona el setter
+        if (setResponseData && result.data.data) {
+            setResponseData(result.data.data);
+        }
+
         setSuccess(true);
         reset();
-        
+
     } catch (error: any) {
         console.error("Error al crear olimpistas masivos:", error);
 
@@ -167,6 +177,8 @@ export const createMassiveOlimpistas = async (
             setApiError(error.response.data.message || "Datos incorrectos en el archivo");
         } else if (error.response?.status === 413) {
             setApiError("El archivo es demasiado grande");
+        } else if (error.response?.status === 409) {
+            setApiError(error.response.data.message || "El grupo ya existe");
         } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
         } else if (error.code === 'ECONNABORTED') {

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Area;
 use App\Models\Colegio;
+use App\Models\Fase;
 use App\Models\Grado;
 use App\Models\Grupo;
+use App\Models\Nivel;
 use App\Models\Olimpista;
 use App\Models\Tutor;
 use Illuminate\Http\Request;
@@ -52,50 +54,68 @@ class GrupoController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'archivo' => 'required|file|mimes:xlsx,xls,csv',
-            'nombre_grupo' => 'required|string',
-            'colegio' => 'required',
-            'colegio.nombre_colegio' => 'required|string',
-            'colegio.direccion_colegio' => 'required|string',
-            'colegio.telefono_colegio' => 'required|integer',
-            'colegio.provincia_id' => 'required|string',
-            'colegio.area' => 'required',
-            'tutor_academico' => 'required',
-            'tutor_academico.nombre_tutor_academico' => 'required|string',
-            'tutor_academico.apellidos_tutor_academico' => 'required|string',
-            'tutor_academico.celular_tutor_academico' => 'required|integer',
-            'tutor_academico.email_tutor_academico' => 'required|string',
-            'tutor_academico.ci_tutor_academico' => 'required|integer',
-        ]);
-
-        $grupoExistente = Grupo::where('nombre', $request->nombre_grupo)->get();
-        if ($grupoExistente) {
-            return response()->json([
-                'message' => 'Ya existe un grupo con ese nombre.',
-            ], 500);
-        }
-
-        $tutor = Tutor::where('ci', $request->tutor['ci_tutor'])->first();
-        if (!$tutor) {
-            $tutor = Tutor::create([
-                'nombre' => $request->tutor['nombre_tutor'],
-                'apellidos' => $request->tutor['apellidos_tutor'],
-                'celular' => $request->tutor['celular_tutor'],
-                'email' => $request->tutor['email_tutor'],
-                'ci' => $request->tutor['ci_tutor']
-            ]);
-        }
-
-        $nuevoGrupo = Grupo::create([
-            'nombre' => $request->nombre_grupo,
-            'tutor_id' => $tutor->id,
-        ]);
-        $path = $request->file('archivo')->getRealPath();
-        $extension = $request->file('archivo')->getClientOriginalExtension();
-        $datos = [];
-
+        $dataReturn = [
+            'olimpistas_registrados' => 0,
+            'olimpistas_no_registrados' => [],
+            'fases_no_existentes' => [],
+        ];
         try {
+            $request->validate([
+                'archivo' => 'required|file|mimes:xlsx,xls,csv',
+                'nombre_grupo' => 'required|string',
+                'nivel' => 'required|integer',
+                'colegio' => 'required',
+                'colegio.nombre_colegio' => 'required|string',
+                'colegio.telefono_colegio' => 'required|integer',
+                'colegio.provincia_id' => 'required',
+                'colegio.area' => 'required|string',
+                'tutor' => 'required',
+                'tutor.nombre_tutor' => 'required|string',
+                'tutor.apellidos_tutor' => 'required|string',
+                'tutor.celular_tutor' => 'required|integer',
+                'tutor.email_tutor' => 'required|string',
+                'tutor.ci_tutor' => 'required|integer',
+            ]);
+
+            $grupoExistente = Grupo::where('nombre', $request->nombre_grupo)->first();
+            if ($grupoExistente) {
+                return response()->json([
+                    'message' => 'Ya existe un grupo con ese nombre.',
+                ], 409);
+            }
+
+            $colegio = Colegio::where('nombre', $request->colegio['nombre_colegio'])->first();
+
+            if (!$colegio) {
+                $colegio = Colegio::create([
+                    'nombre' => $request->colegio['nombre_colegio'],
+                    'direccion' => $request->colegio['direccion_colegio'],
+                    'telefono' => $request->colegio['telefono_colegio'],
+                    'provincia_id' => $request->colegio['provincia_id'],
+                ]);
+            }
+
+            $tutor = Tutor::where('ci', $request->tutor['ci_tutor'])->first();
+            if (!$tutor) {
+                $tutor = Tutor::create([
+                    'nombre' => $request->tutor['nombre_tutor'],
+                    'apellidos' => $request->tutor['apellidos_tutor'],
+                    'celular' => $request->tutor['celular_tutor'],
+                    'email' => $request->tutor['email_tutor'],
+                    'ci' => $request->tutor['ci_tutor']
+                ]);
+            }
+
+            $nuevoGrupo = Grupo::create([
+                'nombre' => $request->nombre_grupo,
+                'tutor_id' => $tutor->id,
+                'colegio_id' => $colegio->id,
+            ]);
+
+            $path = $request->file('archivo')->getRealPath();
+            $extension = $request->file('archivo')->getClientOriginalExtension();
+            $datos = [];
+
             // Leer CSV
             if ($extension === 'csv') {
                 if (($handle = fopen($path, 'r')) !== false) {
@@ -131,25 +151,50 @@ class GrupoController extends Controller
             }
 
             $insertData = [];
-
-            $colegio = Colegio::where('nombre', $request->colegio['nombre_colegio'])->first();
-            $grado_id = Grado::where('nombre', $request->colegio['grado_escolar'])->get();
-            if (!$colegio) {
-                $colegio = Colegio::create([
-                    'nombre' => $request->colegio['nombre_colegio'],
-                    'direccion' => $request->colegio['direccion_colegio'],
-                    'telefono' => $request->colegio['telefono_colegio'],
-                    'provincia_id' => $request->colegio['provincia_id'],
-                ]);
-            }
+            $fase = null;
+            $nivel = null;
+            $area = Area::with('niveles.grados')->where('sigla', $request->colegio['area'])->first();
+            $nivel = Nivel::with('grados')->where('id', $request->nivel)->first();
+            $grados = $nivel->grados->map(function ($grado) {
+                return $grado->nombre;
+            })->toArray();
 
             foreach ($datos as $dato) {
 
                 if (empty($dato['nombres'] ?? null) || empty($dato['ci'] ?? null)) {
                     continue;
                 }
-
                 $olimpista = Olimpista::where('ci', $dato['ci'])->first();
+                $grado = Grado::where('nombre', $dato['grado_escolar'])->first();
+
+                if (!$grado) {
+                    continue;
+                }
+
+                if ($area) {
+                    if ($nivel) {
+                        $fase = Fase::with('nivel')
+                            ->where('area_id', $area->id)
+                            ->where('nivel_id', $nivel->id)
+                            ->where('tipo_fase', 'preliminares')
+                            ->first();
+                        if (!$fase) {
+                            $dataReturn['fases_no_existentes'][] = $nivel->nombre;
+                        }
+                    }
+                }
+
+                if ($grado && !in_array($grado->nombre, $grados)) {
+                    $nombre = $dato['nombres'] . " " . $dato['apellido_paterno'] . " " . $dato['apellido_materno'];
+                    $dataReturn['olimpistas_no_registrados'][] = [
+                        'nombres' => $nombre,
+                        'ci' => $dato['ci'],
+                        'grado' => $dato['grado_escolar'],
+                        'motivo' => "El grado escolar del olimista no esta disponible para esta área."
+                    ];
+                    continue;
+                }
+
                 if (!$olimpista) {
                     $olimpista = Olimpista::create([
                         'nombres' => $dato['nombres'],
@@ -158,34 +203,36 @@ class GrupoController extends Controller
                         'ci' => $dato['ci'],
                         'email' => $dato['email'],
                         'celular' => $dato['celular'],
-                        'grado_id' => $grado_id[0]->id,
+                        'fecha_nacimiento' => date('Y-m-d', strtotime($dato['fecha_nacimiento'])),
+                        'grado_id' => $grado->id,
                         'colegio_id' => $colegio->id,
                     ]);
                     $insertData[] = $olimpista;
+                } else {
+                    $nombre = $dato['nombres'] . " " . $dato['apellido_paterno'] . " " . $dato['apellido_materno'];
+                    $dataReturn['olimpistas_no_registrados'][] = [
+                        'nombres' => $nombre,
+                        'ci' => $dato['ci'],
+                        'grado' => $dato['grado_escolar'],
+                        'motivo' => "Ya existe el olimpista."
+                    ];
                 }
-
-                $olimpista->tutores_academicos()->attach($tutor->id);
-
                 $olimpista->grupos()->attach($nuevoGrupo->id);
 
-                if (!empty($request->colegio['areas'] ?? null)) {
-                    $areas = Area::whereIn('sigla', $dato['areas'])->with('fases')->get();
-                    $fases = $areas->map(fn($area) => $area->primeraFase()?->id)->filter()->toArray();
+                $olimpista->tutores()->syncWithoutDetaching([$tutor->id]);
 
-                    if ($areas->isNotEmpty()) {
-                        $olimpista->areas()->syncWithoutDetaching($areas->pluck('id')->toArray());
-                    }
-                    if (!empty($fases)) {
-                        foreach ($fases as $faseId) {
-                            $olimpista->fases()->syncWithoutDetaching([$faseId => ['puntaje' => 0.00, 'comentarios' => '']]);
-                        }
-                    }
+                if ($area) {
+                    $olimpista->areas()->syncWithoutDetaching([$area->id]);
+                }
+                if (!empty($fase)) {
+                    $olimpista->fases()->syncWithoutDetaching([$fase->id => ['puntaje' => 0.00, 'comentarios' => '']]);
                 }
             }
 
+            $dataReturn['olimpistas_registrados'] = count($insertData);
             return response()->json([
                 'message' => 'Olimpistas importados masivamente correctamente.',
-                'total' => count($insertData),
+                'data' => $dataReturn,
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([

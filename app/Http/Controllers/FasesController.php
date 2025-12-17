@@ -38,7 +38,7 @@ class FasesController extends Controller
                     'estado' => $fase->estado,
                     'nivel' => $fase->nivel->nombre,
                 ];
-            })->groupBy('area');
+            })->sortBy('fecha_inicio')->values()->groupBy('area');
             $fasesPorArea = [];
             foreach ($request->areas as $key) {
                 if (array_key_exists($key, $fasesFiltradas->toArray())) {
@@ -121,7 +121,7 @@ class FasesController extends Controller
                 ];
 
                 return $nuevo_cierre;
-            })->groupBy('area');
+            })->sortBy('fecha_calificacion_fase')->values()->groupBy('area');
 
             $cierresArea = [];
             foreach ($request->areas as $key) {

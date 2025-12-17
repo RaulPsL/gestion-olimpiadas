@@ -23,15 +23,16 @@ class LogController extends Controller
                 $usuario = $calificacion->usuario;
                 $rol = $usuario->roles->first();
                 $fase = $calificacion->calificacion->fase;
+                $olimpista = $calificacion->olimpista;
                 return [
                     "usuario" => "$usuario->nombre $usuario->apellido",
                     "rol_usuario" => $rol->nombre,
-                    "ci_olimpista" => $calificacion->olimpista->ci,
+                    "ci_olimpista" => "$olimpista->nombre $olimpista->apellido_paterno $olimpista->apellido_materno",
                     "fase" => $fase->sigla,
                     "area" => $fase->area->nombre,
                     "accion" => $calificacion->accion,
-                    "fecha_creacion" => date('d/M/Y H:i', strtotime($calificacion->create_at)),
-                    "fecha_modificacion" => date('d/M/Y H:i', strtotime($calificacion->update_at)),
+                    "fecha_creacion" => date('d/M/Y H:i', strtotime($calificacion->created_at)),
+                    "fecha_modificacion" => date('d/M/Y H:i', strtotime($calificacion->updated_at)),
                     "nota" => $calificacion->calificacion->puntaje,
                 ];
             })->groupBy('area');

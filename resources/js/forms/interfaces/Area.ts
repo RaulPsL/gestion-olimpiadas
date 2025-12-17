@@ -9,7 +9,5 @@ export interface AreaForm {
     sigla: string;
     descripcion: string;
     niveles: Nivel[];
-    evaluadores: string[];
-    encargados: string[];
     grados?: any[];
 }

@@ -12,7 +12,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class FaseUpdate
+class FaseUpdate implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,16 +36,31 @@ class FaseUpdate
         ];
     }
 
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
+        return 'my-event';
+    }
+
+    public function broadcastWith(): array
+    {
+        // Actualizar estados de fases automáticamente
         $fases = Fase::all()->filter(function ($fase) {
             return $fase->fecha_inicio >= Carbon::today() && 
             $fase->fecha_fin <= Carbon::today()->endOfDay();
         })->groupBy('nivel_id');
 
-        $primeras_fases = $fases->map(function ($nivel_fases) { return $nivel_fases->first();});
+        $primeras_fases = $fases->map(function ($nivel_fases) { 
+            return $nivel_fases->first();
+        });
 
-        $primeras_fases->each(function ($fase) { $fase->update(['estado' => 'en curso']); });
-        return 'my-event';
+        $primeras_fases->each(function ($fase) { 
+            $fase->update(['estado' => 'en curso']); 
+        });
+
+        return [
+            'message' => 'Fases actualizadas',
+            'timestamp' => now()->toIso8601String(),
+            'updated_count' => $primeras_fases->count()
+        ];
     }
 }

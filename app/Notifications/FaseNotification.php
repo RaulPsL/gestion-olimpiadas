@@ -11,12 +11,13 @@ class FaseNotification extends Notification
 {
     use Queueable;
 
+    protected $data;
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($usuario)
     {
-        //
+        $this->data = $usuario;
     }
 
     /**
@@ -24,7 +25,7 @@ class FaseNotification extends Notification
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via($notifiable): array
     {
         return ['mail'];
     }
@@ -32,12 +33,25 @@ class FaseNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable): MailMessage
     {
+        $usuario = $this->data['usuario'];
+        $password = $this->data['password'];
+        $rol = $usuario->roles->first()->nombre;
+        $nombre = "$usuario->nombre $usuario->apellido";
+        $areas = implode(',', $usuario->areas->map(function ($area) {
+            return $area->nombre;
+        })->toArray());
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject('Mensaje de O!SanSi')
+            ->greeting("Buenos días $nombre.")
+            ->line('Bienvenido a las olimiadas cientificas de la Universidad Mayor de San Simon')
+            ->line("Usted ha sido asignado como $rol, en las siguientes areas: $areas")
+            ->action('Puedes ver tus áreas asignadas al ingresar a esta direccion', url('/login'))
+            ->line('mediante sus creadenciales:')
+            ->line("ci: $usuario->ci")
+            ->line("password: $password")
+            ->line('¡Gracias por sus servicios en las olimpiadas!');
     }
 
     /**

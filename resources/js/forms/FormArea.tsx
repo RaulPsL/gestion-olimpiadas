@@ -33,14 +33,9 @@ export default function FormArea() {
             sigla: '',
             descripcion: '',
             niveles: [],
-            evaluadores: [],
-            encargados: [],
             grados: [],
         },
     });
-
-    const evaluadoresField = useComboboxField('evaluadores', setValue, true, trigger);
-    const encargadosField = useComboboxField('encargados', setValue, true, trigger);
 
     const [isLoading, setIsLoading] = React.useState(false);
     const [apiError, setApiError] = React.useState<string>("");
@@ -56,6 +51,7 @@ export default function FormArea() {
     const [modoEdicion, setModoEdicion] = React.useState<boolean>(false);
     const [press, setPress] = React.useState<boolean>(false);
     const [indiceEdicion, setIndiceEdicion] = React.useState<number | null>(null);
+    const [errorNivelDuplicado, setErrorNivelDuplicado] = React.useState<string>("");
 
     const [descripcionLength, setDescripcionLength] = React.useState(0);
 
@@ -101,8 +97,6 @@ export default function FormArea() {
     // Función para resetear todo el formulario
     const resetearFormulario = () => {
         reset();
-        setValue('evaluadores', []);
-        setValue('encargados', []);
         setValue('niveles', []);
         setNivelesAgregados([]);
         setApiError("");
@@ -115,14 +109,37 @@ export default function FormArea() {
             : String(nuevoNivel.nombre || '');
 
         if (!nombreNivel.trim()) {
-            alert('Por favor ingresa un nombre para el nivel');
+            setErrorNivelDuplicado('Por favor ingresa un nombre para el nivel');
             return;
         }
 
         if (nuevoNivel.grados.length === 0) {
-            alert('Por favor selecciona al menos un grado');
+            setErrorNivelDuplicado('Por favor selecciona al menos un grado para este nivel');
             return;
         }
+
+        // Validar que no exista un nivel con el mismo nombre (excepto si estamos editando)
+        const nombreNivelNormalizado = nombreNivel.trim().toLowerCase();
+        const nivelDuplicado = nivelesAgregados.findIndex((nivel, idx) => {
+            const nombreExistente = typeof nivel.nombre === 'string' 
+                ? nivel.nombre.trim().toLowerCase() 
+                : String(nivel.nombre || '').trim().toLowerCase();
+            
+            // Si estamos en modo edición, permitir el mismo nombre solo si es el mismo índice
+            if (modoEdicion && indiceEdicion !== null) {
+                return idx !== indiceEdicion && nombreExistente === nombreNivelNormalizado;
+            }
+            
+            return nombreExistente === nombreNivelNormalizado;
+        });
+
+        if (nivelDuplicado !== -1) {
+            setErrorNivelDuplicado(`Ya existe un nivel con el nombre "${nombreNivel}". Por favor elige otro nombre.`);
+            return;
+        }
+
+        // Limpiar el error si todo está bien
+        setErrorNivelDuplicado("");
 
         // Preparar nivel con IDs para el formulario y info completa para la tabla
         const nivelParaGuardar = {
@@ -161,6 +178,7 @@ export default function FormArea() {
         setIndiceEdicion(null);
         setOpenDialog(false);
         setPress(false);
+        setErrorNivelDuplicado("");
     };
 
     const eliminarNivel = (index: number) => {
@@ -187,6 +205,7 @@ export default function FormArea() {
         setModoEdicion(false);
         setIndiceEdicion(null);
         setPress(false);
+        setErrorNivelDuplicado("");
         setOpenDialog(true);
     };
 
@@ -302,7 +321,7 @@ export default function FormArea() {
                                             message: 'El nombre solo puede contener letras, espacios y guiones'
                                         }
                                     })}
-                                    placeholder="Ej: ASTRONOMÍA - ASTROFÍSICA"
+                                    placeholder="Ej: ASTRONOMÍA"
                                     className={errors.nombre ? 'border-destructive' : ''}
                                 />
                                 {errors.nombre && (
@@ -388,47 +407,6 @@ export default function FormArea() {
                         </div>
                     </div>
 
-                    {/* Sección: Layout de dos columnas */}
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border p-4">
-                            <div className="space-y-2">
-                                <Label>Evaluadores <span className="text-destructive">*</span></Label>
-                                <Combobox
-                                    items={evaluadores}
-                                    value={evaluadoresField.value}
-                                    onChange={evaluadoresField.onChange}
-                                    placeholder="Seleccionar evaluadores..."
-                                    searchPlaceholder="Buscar evaluadores..."
-                                    multiple={true}
-                                />
-                                {evaluadoresField.value.length === 0 && (
-                                    <p className="text-sm text-muted-foreground">
-                                        Selecciona al menos un evaluador
-                                    </p>
-                                )}
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Encargados de área <span className="text-destructive">*</span></Label>
-                                <Combobox
-                                    items={encargados}
-                                    value={encargadosField.value}
-                                    onChange={encargadosField.onChange}
-                                    placeholder="Seleccionar encargados..."
-                                    searchPlaceholder="Buscar encargados..."
-                                    multiple={true}
-                                />
-                                {encargadosField.value.length === 0 && (
-                                    <p className="text-sm text-muted-foreground">
-                                        Selecciona al menos un encargado
-                                    </p>
-                                )}
-                            </div>
-                            {errors.evaluadores && (
-                                <p className="text-sm text-red-500">{errors.evaluadores.message}</p>
-                            )}
-                        </div>
-                    </div>
-
                     <div className="space-y-4 rounded-lg border p-4">
                         <div className="flex items-center justify-between">
                             <div>
@@ -459,6 +437,15 @@ export default function FormArea() {
                                     <Card>
                                         <CardContent className="pt-6">
                                             <div className="space-y-4">
+                                                {errorNivelDuplicado && (
+                                                    <Alert variant="destructive">
+                                                        <CircleAlert className="h-4 w-4" />
+                                                        <AlertTitle>Error en el formulario</AlertTitle>
+                                                        <AlertDescription>
+                                                            {errorNivelDuplicado}
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                )}
                                                 <div className="space-y-2">
                                                     <Label className="text-sm font-medium">
                                                         Nombre del Nivel <span className="text-destructive">*</span>
@@ -468,9 +455,10 @@ export default function FormArea() {
                                                             <div className='flex flex-row space-x-4'>
                                                                 <Input
                                                                     value={nuevoNivel.nombre}
-                                                                    onChange={(e) =>
-                                                                        setNuevoNivel({ ...nuevoNivel, nombre: e.target.value })
-                                                                    }
+                                                                    onChange={(e) => {
+                                                                        setNuevoNivel({ ...nuevoNivel, nombre: e.target.value });
+                                                                        setErrorNivelDuplicado("");
+                                                                    }}
                                                                     placeholder="Ej: 3ro Primaria"
                                                                 />
                                                                 <Button
@@ -484,9 +472,13 @@ export default function FormArea() {
                                                             <div className='flex flex-row space-x-4'>
                                                                 <Combobox
                                                                     items={nivelesBackend}
-                                                                    value={nuevoNivel.nombre ? [nuevoNivel.nombre] : []}
+                                                                    value={nuevoNivel.nombre ? 
+                                                                        [nivelesBackend.find(n => n.label === nuevoNivel.nombre)?.value || nuevoNivel.nombre] 
+                                                                        : []}
                                                                     onChange={(selectedValues) => {
-                                                                        const nivelId = selectedValues[0] || '';
+                                                                        const nivelId = selectedValues[0];
+                                                                        if (!nivelId) return;
+                                                                        
                                                                         const nivelEncontrado = nivelesBackend.find((nivel) => nivel.value === nivelId);
 
                                                                         if (nivelEncontrado) {
@@ -500,10 +492,11 @@ export default function FormArea() {
 
                                                                             setNuevoNivel({
                                                                                 ...nuevoNivel,
-                                                                                nombre: nivelEncontrado.label, // Guardar el LABEL, no el ID
-                                                                                grados: gradosIds, // IDs de los grados
-                                                                                gradosInfo: gradosCompletos, // Info completa de los grados
+                                                                                nombre: nivelEncontrado.label,
+                                                                                grados: gradosIds,
+                                                                                gradosInfo: gradosCompletos,
                                                                             });
+                                                                            setErrorNivelDuplicado("");
                                                                         }
                                                                     }}
                                                                     placeholder='Seleccionar el nivel...'
@@ -543,6 +536,7 @@ export default function FormArea() {
                                                                 grados: selectedIds, // IDs
                                                                 gradosInfo: gradosCompletos // Info completa
                                                             });
+                                                            setErrorNivelDuplicado("");
                                                         }}
                                                         placeholder='Seleccionar grados...'
                                                         searchPlaceholder='Buscar grados...'

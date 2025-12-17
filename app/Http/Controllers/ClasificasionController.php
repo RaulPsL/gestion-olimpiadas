@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\actions\FiltersAction;
+use App\Models\Area;
 use App\Models\Fase;
 
 class ClasificasionController extends Controller
@@ -13,45 +14,39 @@ class ClasificasionController extends Controller
     public function indexArea()
     {
         try {
-            $fases = Fase::with([
-                'area',
-                'olimpistas.colegio',
-                'olimpistas.grado'
+            $olimpistas = Area::with([
+                'fases.olimpistas.colegio',
+                'fases.olimpistas.grado'
             ])
-                // ->where('tipo_fase', 'finales')
-                ->get();
-            $fasesFiltradas = $fases->map(function ($fase) {
-                $olimpistas = collect($fase->olimpistas);
-                $area_fase = $fase->area->sigla;
-                if (!in_array($area_fase, ['INF', 'ROB']) && !empty($olimpistas)) {
-                    return $olimpistas->map(function ($olimpista) use ($fase) {
-                        if ($olimpista->estado != "activo") {
-                            return [
-                                'fase' => $fase->sigla,
-                                'area' => $fase->area->nombre,
-                                'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
-                                'ci' => $olimpista->ci,
-                                'estado' => $olimpista->estado,
-                                'grado_escolar' => $olimpista->grado->nombre,
-                                'nota' => $olimpista->pivot->puntaje,
-                                'comentarios' => $olimpista->pivot->comentarios
-                            ];
-                        }
-                    })->filter();
-                }
-            })->filter();
-
-            $preOlimpistas = [];
-            foreach ($fasesFiltradas as $value) {
-                $preOlimpistas = array_merge($preOlimpistas, $value->toArray());
-            }
-            $olimpistasOrdenados = collect($preOlimpistas)->sortByDesc('nota')->groupBy('area');
-            $olimpistas = [];
-            foreach ($olimpistasOrdenados as $key => $value) {
-                $nuevo_objeto = collect($value)->groupBy('estado');
-                unset($nuevo_objeto['activo']);
-                $olimpistas[$key] = $nuevo_objeto;
-            }
+                ->whereNotIn('sigla', ['INF', 'ROB'])
+                ->get()
+                ->map(
+                    function ($area) {
+                        return [
+                            'nombre' => $area->nombre,
+                            'descripcion' => $area->descripcion,
+                            'sigla' => $area->sigla,
+                            'clasificaciones' => $area->fases->flatMap(
+                                function ($fase) use ($area) {
+                                    return $fase->olimpistas->map(
+                                        function ($olimpista) use ($fase, $area) {
+                                            return [
+                                                'fase' => $fase->sigla,
+                                                'area' => $area->nombre,
+                                                'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+                                                'ci' => $olimpista->ci,
+                                                'estado' => $olimpista->estado,
+                                                'grado_escolar' => $olimpista->grado->nombre,
+                                                'nota' => $olimpista->pivot->puntaje,
+                                                'comentarios' => $olimpista->pivot->comentarios
+                                            ];
+                                        }
+                                    );
+                                }
+                            )->sortByDesc('nota')->values()->groupBy('estado')
+                        ];
+                    }
+                );
             return response()->json([
                 'message' => "Finalistas obtenidos exitosamente.",
                 'data' => $olimpistas,
@@ -67,48 +62,42 @@ class ClasificasionController extends Controller
     public function indexAreaGrupo()
     {
         try {
-            $fases = Fase::with([
-                'area',
-                'grupos.colegio',
-                'grupos.olimpistas.grado'
+            $grupos = Area::with([
+                'fases.grupos.colegio',
+                'fases.grupos.olimpistas.grado',
             ])
-            ->get();
-            $fasesFiltradas = $fases->map(function ($fase) {
-                $grupos = collect($fase->grupos);
-                $area_fase = $fase->area->sigla;
-                if (in_array($area_fase, ['INF', 'ROB']) && !empty($grupos)) {
-                    return $grupos->map(function ($grupo) use ($fase) {
-                        $integrantes = $grupo->olimpistas->map(function ($olimpista) {
-                            return [
-                                'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
-                                'ci' => $olimpista->ci,
-                                'estado' => $olimpista->estado,
-                                'grado_escolar' => $olimpista->grado->nombre,
-                            ];
-                        });
-                        return [
-                            'fase' => $fase->sigla,
-                            'area' => $fase->area->nombre,
-                            'nombre' => "$grupo->nombre",
-                            'estado' => $grupo->estado,
-                            'nota' => $grupo->pivot->puntaje,
-                            'integrantes' => $integrantes,
-                        ];
-                    })->filter();
-                }
-            })->filter();
-
-            $preGrupos = [];
-            foreach ($fasesFiltradas as $value) {
-                $preGrupos = array_merge($preGrupos, $value->toArray());
-            }
-            $gruposOrdenados = collect($preGrupos)->sortByDesc('nota')->groupBy('area');
-            $grupos = [];
-            foreach ($gruposOrdenados as $key => $value) {
-                $nuevo_objeto = collect($value)->groupBy('estado');
-                unset($nuevo_objeto['activo']);
-                $grupos[$key] = $nuevo_objeto;
-            }
+                ->whereIn('sigla', ['INF', 'ROB'])
+                ->get()
+                ->map(function ($area) {
+                    return [
+                        'nombre' => $area->nombre,
+                        'descripcion' => $area->descripcion,
+                        'sigla' => $area->sigla,
+                        'clasificaciones' => $area->fases->flatMap(function ($fase) use ($area) {
+                            return $fase->grupos->map(
+                                function ($grupo) use ($fase, $area) {
+                                    return [
+                                        'fase' => $fase->sigla,
+                                        'area' => $area->nombre,
+                                        'nombre' => $grupo->nombre,
+                                        'colegio' => $grupo->colegio->nombre,
+                                        'estado' => $grupo->estado,
+                                        'nota' => $grupo->pivot->puntaje,
+                                        'comentarios' => $grupo->pivot->comentarios,
+                                        'integrantes' => $grupo->olimpistas->map(function ($olimpista) {
+                                            return [
+                                                'nombre' => "$olimpista->nombres $olimpista->apellido_paterno $olimpista->apellido_materno",
+                                                'ci' => $olimpista->ci,
+                                                'estado' => $olimpista->estado,
+                                                'grado_escolar' => $olimpista->grado->nombre,
+                                            ];
+                                        })
+                                    ];
+                                }
+                            );
+                        })->sortByDesc('nota')->values()->groupBy('estado')
+                    ];
+                });
             return response()->json([
                 'message' => "Clasificaciones obtenidas exitosamente.",
                 'data' => $grupos,

@@ -99,7 +99,7 @@ export default function useStaticData(
                                 title: "Generar excel",
                                 action: () => generarExcelMultiplesHojas(olimpistas, 'olimpistas'),
                             }
-                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/olimpistas' className="text-white">Ver las clasificaciones</Link>,
                 },
                 {
                     title: 'Concursantes clasificados',
@@ -126,7 +126,7 @@ export default function useStaticData(
                                 title: "Generar excel",
                                 action: () => generarExcel(olimpistas.clasificado, 'clasificados'),
                             }
-                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/olimpistas' className="text-white">Ver las clasificaciones</Link>,
                 },
                 {
                     title: 'Concursantes no clasificados',
@@ -153,7 +153,7 @@ export default function useStaticData(
                                 title: "Generar excel",
                                 action: () => generarExcel(olimpistas['no clasificado'], 'no_clasificados'),
                             }
-                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/olimpistas' className="text-white">Ver las clasificaciones</Link>,
                 },
                 {
                     title: 'Concursantes desclasificados',
@@ -180,7 +180,7 @@ export default function useStaticData(
                                 title: "Generar excel",
                                 action: () => generarExcel(olimpistas.desclasificado, 'desclasificados'),
                             }
-                        ] : <Link to='/clasificaciones/areas' className="text-white">Ver las clasificaciones</Link>,
+                        ] : <Link to='/clasificaciones/olimpistas' className="text-white">Ver las clasificaciones</Link>,
                 },
             ]
 

@@ -6,6 +6,8 @@ import PageHome from './pages/PageHome';
 import PageLogin from './pages/PageLogin';
 import PageCalificaciones from './pages/PageCalificaciones';
 import PageClasificaciones from './pages/PageClasificaciones';
+import PageListaAreas from './pages/PageListaAreas';
+import PageClasificacionesArea from './pages/PageClasificacionesArea';
 import { AuthProvider } from './hooks/use-context';
 import { PrivatRoute } from './hooks/use-private-route';
 import PageVerOlimpistas from './pages/PageVerOlimpistas';
@@ -26,8 +28,8 @@ function App() {
                 <Routes>
                     <Route path="/" element={<PageHome />} />
                     <Route path="/login" element={<PageLogin />} />
-                    <Route path="/clasificaciones/olimpistas" element={ <PageClasificaciones esGrupo={false} /> } />
-                    <Route path="/clasificaciones/grupos" element={ <PageClasificaciones esGrupo={true} /> } />
+                    <Route path="/clasificaciones" element={ <PageListaAreas /> } />
+                    <Route path="/clasificaciones/:siglaArea" element={ <PageClasificaciones /> } />
                     <Route path="/calendario" element={ <PageCalendario /> } />
                     <Route
                         path="/olimpistas/registrar olimpista(s)"
@@ -115,7 +117,7 @@ function App() {
                             <PrivatRoute
                                 rol={['ADM']}
                             >
-                                <PageInterno tipoUsuario='Encargado'/>
+                                <PageInterno tipoUsuario={'Encargado'}/>
                             </PrivatRoute>
                         }
                     />
@@ -125,7 +127,7 @@ function App() {
                             <PrivatRoute
                                 rol={['ADM']}
                             >
-                                <PageInterno tipoUsuario='Evaluador'/>
+                                <PageInterno tipoUsuario={'Evaluador'}/>
                             </PrivatRoute>
                         }
                     />

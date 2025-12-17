@@ -62,7 +62,7 @@ export function SectionAccountingOlimpistas({ datos }:{ datos?: any[] }) {
             
             <div className="relative z-10 flex flex-col gap-2 w-full px-4">
               {
-                dato && dato?.options.length > 0 ? (
+                dato && dato?.options.length > 0 && (
                   <>
                     {
                       dato.options.map((option: any, idx: any) => (
@@ -75,17 +75,6 @@ export function SectionAccountingOlimpistas({ datos }:{ datos?: any[] }) {
                           { option.title }
                         </Button>
                       ))
-                    }
-                  </>
-                ) : (
-                  <>
-                    { typeof dato.options === "object" && !Array.isArray(dato.options)
-                      ? dato.options
-                      : (
-                          <div className="text-center">
-                            <p className="text-sm text-muted-foreground">Click para abrir</p>
-                          </div>
-                        )
                     }
                   </>
                 )

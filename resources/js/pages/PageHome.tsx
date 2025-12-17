@@ -9,9 +9,15 @@ import React from "react";
 
 export default function PageHome() {
     const [datos, setDatos] = React.useState<any>();
+    const [refreshKey, setRefreshKey] = React.useState(0);
+    
     useStaticData({setData: setDatos});
 
-    useAutoUpdate();
+    // Actualizar cuando se reciba un evento de Pusher
+    useAutoUpdate(() => {
+        console.log('Actualizando datos de la página home...');
+        setRefreshKey(prev => prev + 1);
+    });
 
     return (
         <SidebarProvider>
@@ -19,7 +25,7 @@ export default function PageHome() {
                 <Header />
                 <div className="flex flex-1 flex-col gap-4 p-4">
                     <SectionAccountingOlimpistas datos={datos}/>
-                    <CustomCalendar />
+                    <CustomCalendar refreshKey={refreshKey} />
                 </div>
                 <Footer />
             </SidebarInset>

@@ -26,44 +26,49 @@ class UsuariosController extends Controller
                 'usuarios' => 'required',
                 'areas' => 'required'
             ]);
-            $fases = Fase::with([
-                'area',
-                'nivel'
+            $usuarios = Usuario::with([
+                'areas',
+                'areas.fases',
+                'roles',
             ])
-                ->whereHas('area', function ($query) use ($request) {
-                    $query->with('usuarios.roles', 'usuarios.nivel', 'usuarios.areas')->whereIn('sigla', $request->areas);
+                ->whereHas('areas', function ($query) use ($request) {
+                    $query->whereIn('sigla', $request->areas);
                 })
-                ->get();
-
-            $usuariosFiltrados = $fases->flatMap(function ($fase) use ($request) {
-                return collect($fase->area->usuarios)->map(function ($usuario) use ($fase, $request) {
-                    $rol = $usuario->roles->first();
+                ->whereHas('roles', function ($query) use ($request) {
+                    $query->whereIn('sigla', $request->usuarios);
+                })
+                ->get()
+                ->map(function ($usuario) {
+                    $rol = implode(',', $usuario->roles->map(function ($rol) {
+                        return $rol->sigla;
+                    })->toArray());
                     $areas = implode(',', $usuario->areas->map(function ($area) {
                         return $area->nombre;
                     })->toArray());
                     $sigla_areas = implode(',', $usuario->areas->map(function ($area) {
                         return $area->sigla;
                     })->toArray());
-                    if ($rol && in_array($rol->sigla, $request->usuarios)) {
-                        return [
-                            'ci' => $usuario->ci,
-                            'nombre' => "$usuario->nombre $usuario->apellido",
-                            'celular' => $usuario->celular,
-                            'email' => $usuario->email,
-                            'areas' => $areas,
-                            'sigla_areas' => $sigla_areas,
-                            'fase' => $fase->sigla,
-                            'nivel' => $fase->nivel->nombre,
-                            'rol' => $rol->nombre,
-                            'rol_sigla' => $rol->sigla,
-                        ];
-                    }
-                })->filter();
-            })->unique('ci')->values(); // Filtra por CI único
+                    // $fases= $usuario->areas->fases->map(function ($area) {
+                    //     return $area->sigla;
+                    // })->toArray();
+                    // implode(',', );
+                    return [
+                        'ci' => $usuario->ci,
+                        'nombre' => "$usuario->nombre $usuario->apellido",
+                        'celular' => $usuario->celular,
+                        'email' => $usuario->email,
+                        'areas' => $areas,
+                        'sigla_areas' => $sigla_areas,
+                        // 'fase' => $fase->sigla,
+                        // 'nivel' => $fase->nivel->nombre,
+                        'rol' => $usuario->roles->first()->nombre,
+                        'sigla_areas' => $rol,
+                    ];
+                })->groupBy('rol');
 
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
-                'data' => $usuariosFiltrados->groupBy('rol'),
+                'data' => $usuarios,
                 'status' => 200
             ]);
         } catch (\Throwable $th) {
@@ -92,10 +97,20 @@ class UsuariosController extends Controller
                     'label' => $area->nombre,
                 ];
             });
+            $roles = Rol::whereNotIn('sigla', ['ADM'])
+                ->get()
+                ->map(function ($rol, $index) {
+                    return [
+                        'id' => $index+1,
+                        'value' => $rol->sigla,
+                        'label' => $rol->nombre,
+                    ];
+                });
             return response()->json([
                 'message' => "Usuarios obtenidos exitosamente.",
                 'data' => [
                     'areas' => $areas,
+                    'roles' => $roles,
                 ],
                 'status' => 200
             ]);
@@ -136,15 +151,15 @@ class UsuariosController extends Controller
     public function update(Request $request, int $ci)
     {
         try {
-            $usuario = Usuario::where('ci', $ci)->first();
+            $usuario = Usuario::with(['areas', 'roles'])->where('ci', $ci)->first();
             if ($usuario) {
-                if ($request->areas and count($request->areas) > 0) {
+                if ($request->areas and count($usuario->areas) == 0) {
                     $areas = Area::whereIn('sigla', $request->areas)->pluck('id')->toArray();
                     if (!empty($areas)) {
                         $usuario->areas()->attach($areas);
                     }
                 }
-                if ($request->roles and count($request->roles) > 0) {
+                if ($request->roles and count($usuario->roles) == 0) {
                     $roles = Rol::whereIn('sigla', $request->roles)->pluck('id')->toArray();
                     if (!empty($roles)) {
                         $usuario->roles()->attach($roles);
@@ -215,7 +230,6 @@ class UsuariosController extends Controller
                 'email' => 'required|string',
                 'areas' => 'required',
                 'rol' => 'required',
-                'nivel' => 'nullable|integer',
             ]);
 
             $usuario = Usuario::where('ci', $request->ci)->first();
@@ -224,7 +238,15 @@ class UsuariosController extends Controller
                 return response()->json([
                     'message' => "El usuarios con CI: $request->ci, ya existe.",
                     'data' => $usuario
-                ], 200);
+                ], 409);
+            }
+
+            $usuario = Usuario::where('email', $request->email)->first();
+            if ($usuario) {
+                return response()->json([
+                    'message' => "El usuarios con el correo: $request->email, ya existe.",
+                    'data' => $usuario
+                ], 409);
             }
 
             $caracteres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?';
@@ -244,27 +266,26 @@ class UsuariosController extends Controller
                 'apellido' => $request->apellido,
                 'celular' => $request->celular,
                 'email' => $request->email,
-                'nivel_id' => $request->nivel,
-                'password' => '123456',
+                'password' => "123456",
             ]);
-
+            
             if ($request->has('areas') and count($request->areas) > 0) {
                 $areas = Area::whereIn('sigla', $request->areas)->pluck('id')->toArray();
                 if (!empty($areas)) {
                     $usuario->areas()->attach($areas);
                 }
-                if (!empty($nivel)) {
+                // if (!empty($nivel)) {
 
-                    $fases = Fase::whereHas('area', function ($query) use ($request) {
-                        $query->whereIn('sigla', $request->areas);
-                    })->whereHas('nivel', function ($query) use ($request) {
-                        $query->where('id', $request->nivel);
-                    });
+                //     $fases = Fase::whereHas('area', function ($query) use ($request) {
+                //         $query->whereIn('sigla', $request->areas);
+                //     })->whereHas('nivel', function ($query) use ($request) {
+                //         $query->where('id', $request->nivel);
+                //     });
 
-                    if (!empty($fases)) {
-                        $usuario->fases()->attach($fases->pluck('id')->toArray());
-                    }
-                }
+                //     if (!empty($fases)) {
+                //         $usuario->fases()->attach($fases->pluck('id')->toArray());
+                //     }
+                // }
             }
             if ($request->has('rol') and count($request->rol) > 0) {
                 $roles = Rol::where('sigla', $request->rol)->pluck('id')->toArray();
@@ -330,21 +351,6 @@ class UsuariosController extends Controller
                 return $menu_sup;
             });
             event(new EventsFaseNotification('Ingreso de usuario correcto.', $usuario->ci));
-            // Fase::with('area')->whereHas(
-            //     'area',
-            //     function ($query) use ($areas) {
-            //         $areas_nombre = $areas->map(function ($area) {
-            //             return $area['nombre'];
-            //         });
-            //         $query->whereIn('nombre', $areas_nombre);
-            //     }
-            // )->each(function ($fase) use ($user_menu) {
-            //     $user_menu->notify(
-            //         new FaseNotification('Calificacion de fase')
-            //     )
-            //         // ->delay(Carbon::parse($fase->fecha_calificacion)->subMinutes(5))
-            //     ;
-            // });
 
             return response()->json([
                 'user' => [

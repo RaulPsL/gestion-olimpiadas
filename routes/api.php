@@ -26,11 +26,11 @@ Route::prefix('olimpistas')->group(function () {
 });
 
 Route::prefix('grupos')->group(function () {
-    Route::get('/', [App\Http\Controllers\OlimpistasController::class, 'index'])->name('grupos.index');
-    Route::post('/', [App\Http\Controllers\OlimpistasController::class, 'store'])->name('grupos.store');
-    Route::get('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'show'])->name('grupos.show');
-    Route::put('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'update'])->name('grupos.update');
-    Route::delete('/{ci}', [App\Http\Controllers\OlimpistasController::class, 'destroy'])->name('grupos.destroy');
+    Route::get('/', [App\Http\Controllers\GrupoController::class, 'index'])->name('grupos.index');
+    Route::post('/', [App\Http\Controllers\GrupoController::class, 'store'])->name('grupos.store');
+    Route::get('/{nombre}', [App\Http\Controllers\GrupoController::class, 'show'])->name('grupos.show');
+    Route::put('/{nombre}', [App\Http\Controllers\GrupoController::class, 'update'])->name('grupos.update');
+    Route::delete('/{nombre}', [App\Http\Controllers\GrupoController::class, 'destroy'])->name('grupos.destroy');
 });
 
 Route::prefix('usuarios')->group(function () {

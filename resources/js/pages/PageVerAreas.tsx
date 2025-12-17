@@ -18,7 +18,9 @@ export default function PageVerAreas() {
 
     React.useEffect(() => {
         const staticData = async () => {
-            const staticAreas = await getAreas(data?.areas.map((area) => area?.sigla) as string[]);
+            const staticAreas = await getAreas(
+                data?.data.ci
+            );
             setAreas(staticAreas);
         };
         staticData();

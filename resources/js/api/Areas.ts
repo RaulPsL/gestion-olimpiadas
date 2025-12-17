@@ -1,6 +1,15 @@
 import { FaseForm } from "@/forms/interfaces/Fase";
 import { axiosPrivate, axiosPublic } from "./api";
 import { AreaForm } from "@/forms/interfaces/Area";
+
+interface StaticDataAreas {
+    areas: any[];
+    fases: any[];
+    evaluadores: any[];
+    encargados: any[];
+    niveles: any[];
+    grados: any[];
+}
 export const getAllAreas = async () => {
     try {
         const { data } = await axiosPublic.post("/areas");
@@ -26,10 +35,10 @@ export const getAllAreas = async () => {
 };
 
 
-export const getAreas = async (siglaAreas: string[]) => {
+export const getAreas = async (ci: string) => {
     try {
         const { data } = await axiosPrivate.post("/areas/ver/especifico", {
-            areas: siglaAreas
+            ci: ci
         });
         console.log(data.data);
         return data.data;
@@ -97,6 +106,8 @@ export const createArea = async (
             } else {
                 setApiError(error.response.data.message || "Error de validación");
             }
+        }  else if (error.response?.status === 409) {
+            setApiError(`Ya existe el area con el nombre: ${data.nombre} o sigla: ${data.sigla}`);
         } else {
             setApiError("Error al crear la fase. Intente nuevamente.");
         }

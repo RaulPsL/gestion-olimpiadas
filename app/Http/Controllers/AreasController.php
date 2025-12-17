@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Fase;
 use App\Models\Nivel;
+use App\Models\Olimpista;
 use App\Models\Traits\Casts\TipoFase;
 use App\Models\Usuario;
 use Carbon\Carbon;
@@ -35,22 +36,26 @@ class AreasController extends Controller
     public function indexByAreas(Request $request)
     {
         $request->validate([
-            'areas' => 'required',
+            'ci' => 'required',
         ]);
         try {
-            $areas = Area::with(['fases.olimpistas', 'niveles'])->whereIn('sigla', $request->areas)->get();
-            $areasFiltradas = collect($areas)->map(function ($area) {
-                return [
-                    'name' => $area->nombre,
-                    'cantidad_fases' => collect($area->fases)->count(),
-                    'descripcion' => $area->descripcion,
-                    'nivel' => $area->niveles,
-                    'sigla' => $area->sigla,
-                ];
-            });
+            $areas = Usuario::with(['areas.fases.olimpistas', 'areas.niveles'])
+                ->where('ci', $request->ci)
+                ->get()
+                ->first()
+                ->areas
+                ->map(function ($area) {
+                    return [
+                        'name' => $area->nombre,
+                        'cantidad_fases' => collect($area->fases)->count(),
+                        'descripcion' => $area->descripcion,
+                        'nivel' => $area->niveles,
+                        'sigla' => $area->sigla,
+                    ];
+                });
             return response()->json([
                 'message' => "Areas obtenidas exitosamente.",
-                'data' => $areasFiltradas,
+                'data' => $areas,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -63,23 +68,19 @@ class AreasController extends Controller
     public function indexStaticData()
     {
         try {
-            $areas = Area::whereHas(
-                'usuarios.roles',
-                function ($query) {
-                    $query->where('sigla', 'EVA');
-                }
-            )
-                ->with('niveles')
+            $areas = Area::with(['niveles', 'usuarios.roles'])
                 ->select(['id', 'sigla', 'nombre'])
                 ->get()
                 ->map(function ($area, $index) {
                     $usuarios = $area->usuarios->map(function ($usuario, $index) {
+                        $rol = $usuario->roles ? $usuario->roles->first()->sigla : '';
                         return [
                             'id' => $index + 1,
+                            'rol' => $rol,
                             'value' => $usuario->ci,
                             'label' => "$usuario->nombre $usuario->apellido",
                         ];
-                    });
+                    })->groupBy('rol');
                     $niveles = $area->niveles->map(function ($nivel, $index) {
                         return [
                             'id' => $index + 1,
@@ -89,12 +90,12 @@ class AreasController extends Controller
                     });
                     return [
                         'id' => $index + 1,
-                        'evaluadores' => $usuarios,
+                        'evaluadores' => $usuarios->get('EVA', collect()),
                         'niveles' => $niveles,
                         'value' => $area->sigla,
                         'label' => $area->nombre,
                     ];
-                });
+                })->unique('value')->values();
 
             $fases = collect(TipoFase::cases())->map(function ($fase, $index) {
                 return [
@@ -168,33 +169,32 @@ class AreasController extends Controller
                 'nombre' => 'required|string',
                 'sigla' => 'required|string',
                 'descripcion' => 'required|string',
-                'evaluadores' => 'required',
-                'encargados' => 'required',
                 'niveles' => 'required',
                 'niveles.*.nombre' => 'required',
                 'niveles.*.grados' => 'nullable',
             ]);
-            $nueva_area = Area::with(['usuarios', 'niveles.grados'])->where('nombre', strtoupper($request->nombre))->get()->first();
+            $nueva_area = Area::with(['usuarios', 'niveles.grados'])
+                ->where('nombre', strtoupper($request->nombre))
+                ->orWhere('sigla', strtoupper($request->sigla))
+                ->get()->first();
             if ($nueva_area) {
                 return response()->json([
                     'message' => "El area ya existe.",
                     'data' => [
                         'area' => $nueva_area,
                     ]
-                ], 300);
+                ], 409);
             }
             $nueva_area = Area::create([
                 'nombre' => strtoupper($request->nombre),
                 'sigla' => strtoupper($request->sigla),
                 'descripcion' => $request->descripcion,
             ]);
-            $usuarios = array_merge(
-                Usuario::whereIn('ci', $request->evaluadores)->get()->pluck('id')->toArray(),
-                Usuario::whereIn('ci', $request->encargados)->get()->pluck('id')->toArray(),
-                Usuario::with('roles')->whereHas('roles', function ($query) {
-                    $query->where('sigla', 'ADM');
-                })->get()->pluck('id')->toArray()
-            );
+
+            $usuarios = Usuario::with('roles')->whereHas('roles', function ($query) {
+                $query->where('sigla', 'ADM');
+            })->get()->pluck('id')->toArray();
+
             $niveles = collect($request->niveles)->map(
                 function ($nivel) {
                     $n = Nivel::where('nombre', $nivel['nombre'])->get()->first();
@@ -227,7 +227,19 @@ class AreasController extends Controller
     public function show(string $sigla)
     {
         try {
-            $area = Area::where('sigla', $sigla)->first();
+            $area = Area::with('usuarios.roles')->where('sigla', $sigla)
+                ->first();
+            $usuarios = $area->usuarios->map(function ($usuario) {
+                $rol = $usuario->roles ? $usuario->roles->first()->nombre : "";
+                return [
+                    'nombre' => $usuario->nombre,
+                    'rol' => $rol,
+                ];
+            })->groupBy('rol');
+            $area = [
+                'area' => $area->nombre,
+                'usuarios' => $usuarios,
+            ];
             if ($area) {
                 return response()->json([
                     'message' => "Area obtenida exitosamente.",
@@ -274,7 +286,15 @@ class AreasController extends Controller
     public function update(Request $request, string $sigla)
     {
         try {
-            $area = $sigla !== '' ? Area::where('sigla', $sigla)->first() : null;
+            $area = $sigla !== '' ? Area::with('olimpistas')->where('sigla', $sigla)->first() : null;
+            $olimpistas = null;
+            if ($area) {
+                $olimpistas = Olimpista::with('areas')->where('estado', 'activo')
+                    ->whereHas('areas', function ($query) use ($area) {
+                        $query->where('sigla', $area->sigla);
+                    })->get();
+            }
+
             $creacion_fases = false;
             if ($area and $request->has('fases')) {
                 $request->validate([
@@ -283,9 +303,9 @@ class AreasController extends Controller
                     'fases.*.cantidad_max_participantes' => 'required|integer',
                     'fases.*.cantidad_ganadores' => 'required|integer',
                     'fases.*.cantidad_min_participantes' => 'required|integer',
-                    'fases.*.fecha_inicio' => 'required|date',
-                    'fases.*.fecha_calificacion' => 'required|date',
-                    'fases.*.fecha_fin' => 'required|date',
+                    'fases.*.fecha_inicio' => 'required|string',
+                    'fases.*.fecha_calificacion' => 'required|string',
+                    'fases.*.fecha_fin' => 'required|string',
                     'fases.*.nivel' => 'required',
                     'fases.*.usuarios' => 'required|exists:usuarios,ci',
                     'fases.*.flash' => 'nullable',
@@ -304,14 +324,14 @@ class AreasController extends Controller
                         'cantidad_max_participantes' => $faseData['cantidad_max_participantes'],
                         'cantidad_min_participantes' => $faseData['cantidad_min_participantes'],
                         'cantidad_ganadores' => $faseData['cantidad_ganadores'],
-                        'fecha_inicio' => $faseData['fecha_inicio'],
-                        'fecha_calificacion' => $faseData['fecha_calificacion'],
-                        'fecha_fin' => $faseData['fecha_fin'],
+                        'fecha_inicio' => Carbon::parse($faseData['fecha_inicio'], 'America/La_Paz')->utc(),
+                        'fecha_calificacion' => Carbon::parse($faseData['fecha_calificacion'], 'America/La_Paz')->utc(),
+                        'fecha_fin' => Carbon::parse($faseData['fecha_fin'], 'America/La_Paz')->utc(),
                         'area_id' => $area->id,
                         'nivel_id' => $faseData['nivel'],
                     ];
 
-                    if ($i > 0 && ($faseData['tipo_fase'] !== 'finales' || $faseData['tipo_fase'] !== 'preliminales')) {
+                    if ($i > 0 && ($faseData['tipo_fase'] !== 'finales' && $faseData['tipo_fase'] !== 'preliminales')) {
                         $fase_['sigla'] = $fase_['sigla'] . $i;
                     }
 
@@ -326,6 +346,9 @@ class AreasController extends Controller
                         $fase_anterior->update(['fase_id', $fase->id]);
                     } else {
                         $fases_creadas->push($fase);
+                    }
+                    if ($faseData['tipo_fase'] == 'preliminales') {
+                        $fase->usuarios()->sync($olimpistas->pluck('id')->toArray());
                     }
                     $fase->usuarios()->sync($usuarios->pluck('id')->toArray());
                     $i += 1;

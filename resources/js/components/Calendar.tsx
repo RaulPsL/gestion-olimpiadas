@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Event,
 } from 'react-big-calendar';
@@ -194,8 +194,54 @@ const eventosIniciales: CustomEvent[] = [
   }
 ];
 
-export default function TypedCalendar() {
+interface CalendarProps {
+  refreshKey?: number;
+}
+
+export default function TypedCalendar({ refreshKey = 0 }: CalendarProps) {
   const [eventos, setEventos] = useState<CustomEvent[]>(eventosIniciales);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Función para cargar eventos desde la API
+  const loadEventos = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/calendar');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.data && Array.isArray(data.data)) {
+          const eventosFormateados: CustomEvent[] = data.data.map((evento: any) => ({
+            id: evento.id,
+            title: evento.title,
+            start: new Date(evento.start),
+            end: new Date(evento.end),
+            calificacion: evento.calificacion ? new Date(evento.calificacion) : undefined,
+            resource: evento.resource
+          }));
+          setEventos(eventosFormateados);
+          console.log('Eventos cargados desde la API:', eventosFormateados.length);
+        }
+      }
+    } catch (error) {
+      console.error('Error al cargar eventos:', error);
+      // Si falla, mantiene los eventos iniciales
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Cargar eventos al montar el componente
+  useEffect(() => {
+    loadEventos();
+  }, []);
+
+  // Recargar eventos cuando cambie refreshKey (cuando se reciba evento de Pusher)
+  useEffect(() => {
+    if (refreshKey > 0) {
+      console.log('Recargando eventos del calendario...');
+      loadEventos();
+    }
+  }, [refreshKey]);
 
   return (
     <div className="w-full mx-auto space-y-6">

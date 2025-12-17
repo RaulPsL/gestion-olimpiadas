@@ -19,19 +19,20 @@ export const getStaticData = async ():Promise<StaticDataUsuarios> => {
     const { data } = await axiosPrivate.get("/usuarios/static");
     return {
         areas: data.data.areas,
+        roles: data.data.roles,
     };
 };
 
 export const createUsuario = async (
     data: UsuarioForm,
     selectedAreas: string[],
-    selectedNiveles: number[],
+    selectedRol: number[],
     setIsLoading: any,
     setSuccess: any,
     setApiError: any,
     reset: any,
     setSelectedAreas: any,
-    setSelectedNiveles: any
+    setSelectedRol: any
 ) => {
     setIsLoading(true);
     setApiError("");
@@ -44,17 +45,16 @@ export const createUsuario = async (
             apellido: `${data.apellido_paterno} ${data.apellido_materno}`,
             ci: Number(data.ci),
             areas: selectedAreas,
-            rol: [data.rol],
-            nivel: selectedNiveles[0] > 0 ? Number(selectedNiveles) : null,
+            rol: selectedRol,
         };
-
+        
         const result = await axiosPrivate.post("/register", formData);
         
         console.log("Usuario creado:", result.data);
         setSuccess(true);
         reset();
         setSelectedAreas([]);
-        setSelectedNiveles([]);
+        setSelectedRol([]);
     } catch (error: any) {
         console.error("Error al crear usuario:", error);
 
@@ -66,8 +66,8 @@ export const createUsuario = async (
             } else {
                 setApiError(error.response.data.message || "Error de validación");
             }
-        } else if (error.response?.status === 200) {
-            setApiError(`Ya existe un usuario con CI: ${data.ci}`);
+        } else if (error.response?.status === 409) {
+            setApiError(`Ya existe un usuario con CI: ${data.ci} o Correo: ${data.email}`);
         } else if (error.response?.status === 500) {
             setApiError("Error interno del servidor. Intente nuevamente.");
         } else {
@@ -81,30 +81,19 @@ export const createUsuario = async (
 export const updateUsuario = async (
     ci: number,
     data: UsuarioForm,
-    selectedAreas: string[],
-    selectedNiveles: number[],
     setIsLoading: any,
     setSuccess: any,
     setApiError: any,
-    setSelectedAreas: any,
-    setSelectedNiveles: any
 ) => {
     setIsLoading(true);
     setApiError("");
     setSuccess(false);
     await new Promise(resolve => setTimeout(resolve, 2000));
     try {
-        const response = await axiosPrivate.put(`/usuarios/${ci}`, data);
-        data = {
-            ...response.data,
-            areas: selectedAreas,
-            niveles: selectedNiveles,
-        }
+        await axiosPrivate.put(`/usuarios/${ci}`, data);
         console.log("Usuario modificado:", data);
         setSuccess(true);
         setIsLoading(false);
-        setSelectedAreas([]);
-        setSelectedNiveles([]);
     } catch (error: any) {
         if (error.response?.status === 422) {
             const backendErrors = error.response.data.errors;
